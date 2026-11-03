@@ -6,7 +6,7 @@ A Spanish/English website for **Ballena Outlet**, a liquidation store in Uvita, 
 - **English site:** `en.html` (U.S. flag / EN)
 - **Shared design:** `styles.css`
 - **Interactions:** `script.js` (mobile menu, reveals, FAQ behavior, feed labeling)
-- **Assets:** `assets/` (storefront hero, real store photos, brand logo, favicon)
+- **Assets:** `assets/` (storefront hero, real store photos, SVG brand logo, SVG favicon)
 
 ## Run locally
 
