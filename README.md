@@ -21,7 +21,7 @@ Then open `http://localhost:4173/index.html` (Spanish) or `http://localhost:4173
 - Full bilingual copy with a persistent flag-based language switch.
 - Store details: Plaza La Perla del Pacífico, next to Servicentro Ballena, upstairs from Farmacia Ballena, Uvita, Costa Rica.
 - WhatsApp `6313 2925` shown on the main WhatsApp buttons, email `ballena.outletafacturacion@hotmail.com`, Facebook, Instagram, and TikTok links as buttons.
-- Social feeds and buttons placed near the top. Instagram uses its profile embed, TikTok uses the standalone embed iframe (avoids TikTok `embed.js` overload protection), and Facebook shows the latest reel because the Page plugin does not render reels. Direct-profile fallbacks remain for all three.
+- Social feeds and buttons placed near the top. The feed order is Facebook, Instagram, TikTok. Facebook and Instagram show the latest reel because their page/profile plugins do not render reels reliably; TikTok uses the standalone embed iframe (avoids TikTok `embed.js` overload protection). Direct-profile fallbacks remain for all three.
 - Real store photos in the “Un lugar real / A real place” section, with a provisional-photo disclaimer and a Google Maps location embed.
 - Store pickup and in-store shipping messaging throughout; no online checkout.
 - Product groups with clearer examples, how-it-works steps, value props, FAQ, and a mobile quick-action bar.
@@ -29,6 +29,6 @@ Then open `http://localhost:4173/index.html` (Spanish) or `http://localhost:4173
 
 ## Notes
 
-- The live feeds and map require an internet connection and are subject to each platform's embed policies. If a feed is blocked, the direct profile link still works. Facebook's latest reel is embedded because the Page plugin currently omits reels.
+- The live feeds and map require an internet connection and are subject to each platform's embed policies. If a feed is blocked, the direct profile link still works. Facebook and Instagram reels are embedded because their page/profile plugins currently omit or fail to render reels; update the reel URLs when a newer reel should be featured.
 - No prices are hard-coded; availability is handled through WhatsApp and in store.
 - The site is a static prototype; no build step is required.
