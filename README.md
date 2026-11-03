@@ -20,12 +20,12 @@ Then open `http://localhost:4173/index.html` (Spanish) or `http://localhost:4173
 
 - Full bilingual copy with a persistent flag-based language switch.
 - Store details: Plaza La Perla del Pacífico, next to Servicentro Ballena, upstairs from Farmacia Ballena, Uvita, Costa Rica.
-- WhatsApp `6313 2925`, email `ballena.outletafacturacion@hotmail.com`, Facebook, Instagram, and TikTok links as buttons.
-- Embedded live feeds for Instagram, TikTok, and Facebook, each with a direct-profile fallback.
-- Real store photos in the “Un lugar real / A real place” section, plus a Google Maps location embed.
+- WhatsApp `6313 2925` shown on the main WhatsApp buttons, email `ballena.outletafacturacion@hotmail.com`, Facebook, Instagram, and TikTok links as buttons.
+- Social feeds and buttons placed near the top, with direct-profile fallbacks for Instagram, TikTok, and Facebook.
+- Real store photos in the “Un lugar real / A real place” section, with a provisional-photo disclaimer and a Google Maps location embed.
 - Store pickup and in-store shipping messaging throughout; no online checkout.
-- Categories, how-it-works steps, value props, FAQ, and a mobile quick-action bar.
-- Visible prototype notice in both languages, plus `noindex` metadata so search engines do not treat the demo as final.
+- Product groups with clearer examples, how-it-works steps, value props, FAQ, and a mobile quick-action bar.
+- Persistent prototype notice in both languages, a detailed “About this prototype” section, and `noindex` metadata so search engines do not treat the demo as final.
 
 ## Notes
 

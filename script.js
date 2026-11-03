@@ -3,6 +3,7 @@
 
   var doc = document;
   var header = doc.querySelector(".site-header");
+  var prototypeBar = doc.querySelector(".prototype-bar");
   var navToggle = doc.querySelector(".nav-toggle");
   var mobilePanel = doc.getElementById("mobile-panel");
   var mobileClose = doc.querySelector(".mobile-close");
@@ -13,6 +14,18 @@
   function setHeaderState() {
     if (!header) return;
     header.classList.toggle("is-scrolled", window.scrollY > 12);
+  }
+
+  function syncPrototypeHeight() {
+    if (!prototypeBar) return;
+    doc.documentElement.style.setProperty("--proto-h", prototypeBar.getBoundingClientRect().height + "px");
+  }
+
+  syncPrototypeHeight();
+  window.addEventListener("resize", syncPrototypeHeight, { passive: true });
+  window.addEventListener("load", syncPrototypeHeight);
+  if ("ResizeObserver" in window && prototypeBar) {
+    new ResizeObserver(syncPrototypeHeight).observe(prototypeBar);
   }
 
   setHeaderState();
