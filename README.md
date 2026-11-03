@@ -6,7 +6,7 @@ A Spanish/English website for **Ballena Outlet**, a liquidation store in Uvita, 
 - **English site:** `en.html` (U.S. flag / EN)
 - **Shared design:** `styles.css`
 - **Interactions:** `script.js` (mobile menu, reveals, FAQ behavior, feed labeling)
-- **Assets:** `assets/` (storefront hero, real store photos, logo, favicon)
+- **Assets:** `assets/` (storefront hero, real store photos, dolphin logo, favicon)
 
 ## Run locally
 
@@ -25,6 +25,7 @@ Then open `http://localhost:4173/index.html` (Spanish) or `http://localhost:4173
 - Real store photos in the “Un lugar real / A real place” section, plus a Google Maps location embed.
 - Store pickup and in-store shipping messaging throughout; no online checkout.
 - Categories, how-it-works steps, value props, FAQ, and a mobile quick-action bar.
+- Visible prototype notice in both languages, plus `noindex` metadata so search engines do not treat the demo as final.
 
 ## Notes
 
