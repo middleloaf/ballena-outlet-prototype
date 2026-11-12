@@ -3140,3 +3140,12 @@ html[lang="en"] .feeds-head h2 {
 html[lang="en"] .cat-title {
   font-size: 18px;
 }
+
+/* ---------- 1080p / large desktop ---------- */
+@media (min-width: 1600px) {
+  :root { --max: 1360px; }
+  body { zoom: 1.15; }
+  .wrap--wide { width: min(100% - 80px, 1500px); }
+  .header-inner { width: min(100% - 80px, var(--max)); }
+  .wrap { width: min(100% - 80px, var(--max)); }
+}
