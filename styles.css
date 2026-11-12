@@ -3141,16 +3141,10 @@ html[lang="en"] .cat-title {
   font-size: 18px;
 }
 
-/* ---------- 1080p / large desktop (applies to index.html and en.html) ---------- */
-@media (min-width: 1440px) {
-  :root { --max: 1280px; }
-  body { zoom: 1.08; }
-  .wrap { width: min(100% - 64px, var(--max)); }
-  .header-inner { width: min(100% - 64px, var(--max)); }
-  .wrap--wide { width: min(100% - 64px, 1400px); }
-}
-@media (min-width: 1800px) {
+/* ---------- large desktop: scale is set proportionally by script.js (both pages) ---------- */
+@media (min-width: 1280px) {
   :root { --max: 1360px; }
-  body { zoom: 1.15; }
+  .wrap { width: min(100% - 80px, var(--max)); }
+  .header-inner { width: min(100% - 80px, var(--max)); }
   .wrap--wide { width: min(100% - 80px, 1500px); }
 }
