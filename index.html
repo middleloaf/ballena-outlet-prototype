@@ -347,15 +347,24 @@
             <div class="kicker-row"><p class="eyebrow">En tienda ahora</p><span class="kicker-line" aria-hidden="true"></span></div>
             <h2 id="inv-title">Lo que hay <em>disponible hoy.</em></h2>
           </div>
-          <p class="lede">Lista tomada del inventario real de la tienda. Cambia seguido: si algo te interesa, escribinos y lo reservamos.</p>
+          <p class="lede">Precios de etiqueta del inventario real de la tienda. Cambia seguido: si algo te interesa, escribinos y lo reservamos.</p>
         </div>
 
         <div class="inv-toolbar" id="inv-toolbar">
-          <div class="inv-filters" id="inv-filters" role="group" aria-label="Filtrar por categoría"></div>
+          <div class="inv-search">
+            <label class="visually-hidden" for="inv-search">Buscar en el inventario</label>
+            <input id="inv-search" type="search" placeholder="Buscar producto o código…" autocomplete="off" spellcheck="false">
+          </div>
           <p class="inv-count" id="inv-count" aria-live="polite"></p>
         </div>
 
+        <div class="inv-filters" id="inv-filters" role="group" aria-label="Filtrar por categoría"></div>
+
         <div class="inv-grid" id="inv-grid"></div>
+
+        <div class="inv-more-wrap" id="inv-more-wrap" hidden>
+          <button class="btn btn-outline" id="inv-more" type="button">Ver más</button>
+        </div>
 
         <p class="inv-note" id="inv-note" hidden></p>
 

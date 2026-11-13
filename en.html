@@ -347,15 +347,24 @@
             <div class="kicker-row"><p class="eyebrow">In store now</p><span class="kicker-line" aria-hidden="true"></span></div>
             <h2 id="inv-title">What's <em>available today.</em></h2>
           </div>
-          <p class="lede">Pulled from the store's live inventory. It changes often: if something catches your eye, message us and we'll hold it.</p>
+          <p class="lede">Tag prices from the store's live inventory. It changes often: if something catches your eye, message us and we'll hold it.</p>
         </div>
 
         <div class="inv-toolbar" id="inv-toolbar">
-          <div class="inv-filters" id="inv-filters" role="group" aria-label="Filter by category"></div>
+          <div class="inv-search">
+            <label class="visually-hidden" for="inv-search">Search inventory</label>
+            <input id="inv-search" type="search" placeholder="Search product or code…" autocomplete="off" spellcheck="false">
+          </div>
           <p class="inv-count" id="inv-count" aria-live="polite"></p>
         </div>
 
+        <div class="inv-filters" id="inv-filters" role="group" aria-label="Filter by category"></div>
+
         <div class="inv-grid" id="inv-grid"></div>
+
+        <div class="inv-more-wrap" id="inv-more-wrap" hidden>
+          <button class="btn btn-outline" id="inv-more" type="button">Load more</button>
+        </div>
 
         <p class="inv-note" id="inv-note" hidden></p>
 

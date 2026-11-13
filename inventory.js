@@ -5,22 +5,29 @@
   if (!grid) return;
 
   var lang = (document.documentElement.lang || "es").toLowerCase().indexOf("en") === 0 ? "en" : "es";
+  var toolbarEl = document.getElementById("inv-toolbar");
+  var searchEl = document.getElementById("inv-search");
   var filtersEl = document.getElementById("inv-filters");
   var countEl = document.getElementById("inv-count");
   var noteEl = document.getElementById("inv-note");
-  var toolbarEl = document.getElementById("inv-toolbar");
+  var moreWrap = document.getElementById("inv-more-wrap");
+  var moreBtn = document.getElementById("inv-more");
   var dialog = document.getElementById("inv-lightbox");
   var dialogImg = document.getElementById("inv-lightbox-img");
   var dialogClose = document.getElementById("inv-lightbox-close");
   var whatsapp = "50663132925";
+  var PAGE_SIZE = 24;
+
   var allItems = [];
-  var activeFilter = "all";
+  var state = { query: "", category: "all", shown: PAGE_SIZE };
+  var searchTimer = null;
 
   var COPY = {
     es: {
       all: "Todos",
-      countOne: "1 artículo publicado",
-      countMany: function (n) { return n + " artículos publicados"; },
+      searchPlaceholder: "Buscar producto o código…",
+      searchLabel: "Buscar en el inventario",
+      showing: function (shown, total) { return "Mostrando " + shown + " de " + total; },
       empty: "Todavía no hay artículos publicados. Escribinos por WhatsApp y te contamos qué hay en tienda.",
       error: "No pudimos cargar el inventario. Igual podés consultar por WhatsApp.",
       sample: "Inventario de muestra",
@@ -35,7 +42,8 @@
       pending: "Foto pendiente",
       askPrice: "Consultar precio",
       qty: function (n) { return n + " disponibles"; },
-      noResults: "No hay artículos en esta categoría ahora mismo.",
+      noResults: "No hay artículos que coincidan con tu búsqueda.",
+      more: "Ver más",
       foot: "¿No encontrás lo que buscás?",
       footLink: "Preguntá por WhatsApp",
       condition: {
@@ -58,8 +66,9 @@
     },
     en: {
       all: "All",
-      countOne: "1 item listed",
-      countMany: function (n) { return n + " items listed"; },
+      searchPlaceholder: "Search product or code…",
+      searchLabel: "Search inventory",
+      showing: function (shown, total) { return "Showing " + shown + " of " + total; },
       empty: "Nothing is listed right now. Message us on WhatsApp and we'll tell you what's in store.",
       error: "We couldn't load the inventory. You can still ask us on WhatsApp.",
       sample: "Sample inventory",
@@ -74,7 +83,8 @@
       pending: "Photo pending",
       askPrice: "Ask price",
       qty: function (n) { return n + " available"; },
-      noResults: "No items in this category right now.",
+      noResults: "No items match your search.",
+      more: "Load more",
       foot: "Can't find what you're looking for?",
       footLink: "Ask on WhatsApp",
       condition: {
@@ -103,13 +113,21 @@
     return copy.categories[slug] || slug;
   }
 
+  function conditionLabel(slug) {
+    return copy.condition[slug] || slug;
+  }
+
   function itemName(item) {
     if (lang === "en") return item.name_en || item.name_es;
     return item.name_es;
   }
 
-  function conditionLabel(slug) {
-    return copy.condition[slug] || slug;
+  function normalize(value) {
+    var text = String(value || "").toLowerCase();
+    if (text.normalize) {
+      text = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+    return text;
   }
 
   function money(value) {
@@ -137,6 +155,20 @@
     return "https://wa.me/" + whatsapp + "?text=" + encodeURIComponent(message);
   }
 
+  function matchesQuery(item, query) {
+    if (!query) return true;
+    var haystack = normalize([item.name_es, item.name_en, item.id, item.detail_es, item.detail_en].join(" "));
+    return haystack.indexOf(query) !== -1;
+  }
+
+  function visibleItems() {
+    var query = normalize(state.query).trim();
+    return allItems.filter(function (item) {
+      if (state.category !== "all" && item.category !== state.category) return false;
+      return matchesQuery(item, query);
+    });
+  }
+
   function makeCard(item) {
     var card = el("article", "inv-card");
     var name = itemName(item);
@@ -160,12 +192,17 @@
       placeholder.appendChild(el("span", "inv-placeholder-note", copy.pending));
       media.appendChild(placeholder);
     }
-    media.appendChild(el("span", "inv-cond", conditionLabel(item.condition)));
+    if (item.condition) {
+      media.appendChild(el("span", "inv-cond", conditionLabel(item.condition)));
+    }
     card.appendChild(media);
 
     var body = el("div", "inv-body");
     body.appendChild(el("p", "inv-cat", categoryLabel(item.category)));
-    body.appendChild(el("h3", "inv-name", name));
+
+    var title = el("h3", "inv-name", name);
+    title.title = name;
+    body.appendChild(title);
 
     var detail = lang === "en" ? item.detail_en || item.detail_es : item.detail_es || item.detail_en;
     if (detail) body.appendChild(el("p", "inv-detail", detail));
@@ -184,12 +221,11 @@
     ask.appendChild(el("span", null, copy.ask));
     actions.appendChild(ask);
 
-    var flyer = lang === "en" ? item.flyer_en || item.flyer_es : item.flyer_es || item.flyer_en;
-    if (safeImage(flyer)) {
+    if (flyerSrc) {
       var flyerBtn = el("button", "btn btn-outline btn-sm inv-flyer-btn", copy.flyer);
       flyerBtn.type = "button";
       flyerBtn.addEventListener("click", function () {
-        openFlyer(flyer, copy.flyerAlt(name));
+        openFlyer(flyerSrc, copy.flyerAlt(name));
       });
       actions.appendChild(flyerBtn);
     }
@@ -235,34 +271,36 @@
     options.forEach(function (option) {
       var chip = el("button", "inv-chip", option.label);
       chip.type = "button";
-      chip.setAttribute("aria-pressed", option.slug === activeFilter ? "true" : "false");
+      chip.setAttribute("aria-pressed", option.slug === state.category ? "true" : "false");
       chip.addEventListener("click", function () {
-        activeFilter = option.slug;
+        state.category = option.slug;
+        state.shown = PAGE_SIZE;
         Array.prototype.forEach.call(filtersEl.children, function (child) {
           child.setAttribute("aria-pressed", child === chip ? "true" : "false");
         });
-        renderGrid();
+        render();
       });
       filtersEl.appendChild(chip);
     });
   }
 
-  function renderGrid() {
+  function render() {
+    var list = visibleItems();
     grid.textContent = "";
-    var visible = allItems.filter(function (item) {
-      return activeFilter === "all" || item.category === activeFilter;
-    });
 
-    if (!visible.length) {
+    if (!list.length) {
       grid.appendChild(el("p", "inv-empty", copy.noResults));
     } else {
-      visible.forEach(function (item) {
+      list.slice(0, state.shown).forEach(function (item) {
         grid.appendChild(makeCard(item));
       });
     }
 
     if (countEl) {
-      countEl.textContent = visible.length === 1 ? copy.countOne : copy.countMany(visible.length);
+      countEl.textContent = copy.showing(Math.min(state.shown, list.length), list.length);
+    }
+    if (moreWrap) {
+      moreWrap.hidden = list.length <= state.shown;
     }
   }
 
@@ -271,11 +309,34 @@
     noteEl.textContent = message;
     noteEl.hidden = false;
     if (toolbarEl) toolbarEl.hidden = true;
+    if (filtersEl) filtersEl.hidden = true;
+    if (moreWrap) moreWrap.hidden = true;
   }
 
   function setSampleBadge(isSample) {
     if (!toolbarEl || !isSample) return;
     toolbarEl.appendChild(el("span", "inv-sample", copy.sample));
+  }
+
+  if (searchEl) {
+    searchEl.placeholder = copy.searchPlaceholder;
+    searchEl.setAttribute("aria-label", copy.searchLabel);
+    searchEl.addEventListener("input", function () {
+      if (searchTimer) window.clearTimeout(searchTimer);
+      searchTimer = window.setTimeout(function () {
+        state.query = searchEl.value;
+        state.shown = PAGE_SIZE;
+        render();
+      }, 120);
+    });
+  }
+
+  if (moreBtn) {
+    moreBtn.textContent = copy.more;
+    moreBtn.addEventListener("click", function () {
+      state.shown += PAGE_SIZE;
+      render();
+    });
   }
 
   fetch("data/inventory.json", { cache: "no-store" })
@@ -296,7 +357,7 @@
       }
 
       renderFilters();
-      renderGrid();
+      render();
     })
     .catch(function () {
       showNote(copy.error);
