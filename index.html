@@ -340,6 +340,38 @@
       </div>
     </section>
 
+    <section class="section section--paper" id="disponible" aria-labelledby="inv-title">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="kicker-row"><p class="eyebrow">En tienda ahora</p><span class="kicker-line" aria-hidden="true"></span></div>
+            <h2 id="inv-title">Lo que hay <em>disponible hoy.</em></h2>
+          </div>
+          <p class="lede">Lista tomada del inventario real de la tienda. Cambia seguido: si algo te interesa, escribinos y lo reservamos.</p>
+        </div>
+
+        <div class="inv-toolbar" id="inv-toolbar">
+          <div class="inv-filters" id="inv-filters" role="group" aria-label="Filtrar por categoría"></div>
+          <p class="inv-count" id="inv-count" aria-live="polite"></p>
+        </div>
+
+        <div class="inv-grid" id="inv-grid"></div>
+
+        <p class="inv-note" id="inv-note" hidden></p>
+
+        <p class="inv-footline">¿No encontrás lo que buscás? <a href="https://wa.me/50663132925?text=Hola%20Ballena%20Outlet%2C%20quiero%20consultar%20por%20un%20art%C3%ADculo." target="_blank" rel="noopener">Preguntá por WhatsApp</a></p>
+
+        <noscript><p class="inv-note">Activá JavaScript para ver la lista de artículos. Igual podés consultar por WhatsApp.</p></noscript>
+
+        <dialog class="inv-lightbox" id="inv-lightbox" aria-label="Flyer del producto">
+          <div class="inv-lightbox-inner">
+            <img id="inv-lightbox-img" alt="">
+            <button class="btn btn-outline btn-sm" id="inv-lightbox-close" type="button">Cerrar</button>
+          </div>
+        </dialog>
+      </div>
+    </section>
+
     <section class="section" id="redes" aria-labelledby="feeds-title">
       <div class="wrap">
         <div class="feeds-head">
@@ -776,6 +808,7 @@
     </a>
   </div>
 
+  <script src="inventory.js?v=20261113"></script>
   <script src="script.js?v=20261112"></script>
 </body>
 </html>

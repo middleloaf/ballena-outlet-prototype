@@ -1,0 +1,9 @@
+id,nombre_es,nombre_en,detalle_es,detalle_en,categoria,condicion,precio_crc,cantidad,foto,flyer_es,flyer_en,estado
+BO-0001,Freidora de aire 5.5L,5.5L air fryer,"Canasta antiadherente, capacidad familiar.","Non-stick basket, family size.",electrodomesticos,como_nuevo,28000,2,assets/tienda-1.webp,,,disponible
+BO-0002,Juego de sartenes antiadherentes,Non-stick pan set,"Tres piezas con mangos de baquelita.","Three pieces with bakelite handles.",hogar,nuevo,19500,1,assets/tienda-2.webp,,,disponible
+BO-0003,Alfombra de sala 1.6 x 2.3 m,Living room rug 1.6 x 2.3 m,"Tejido de bajo pile, color arena.","Low-pile weave, sand color.",textiles,usado,12000,1,,assets/tienda-1.webp,,disponible
+BO-0004,Set de bloques de construcción 240 piezas,240-piece building block set,"Incluye figuras y caja original.","Includes figures and original box.",juguetes,nuevo,9500,3,assets/tienda-1.webp,,,disponible
+BO-0005,Audífonos inalámbricos con estuche,Wireless earbuds with charging case,"Bluetooth 5.3, batería de 6 horas.","Bluetooth 5.3, 6-hour battery.",electronica,como_nuevo,16000,2,,assets/tienda-2.webp,,disponible
+BO-0006,Set de brochas de maquillaje 12 piezas,12-piece makeup brush set,"Fibra sintética, incluye estuche.","Synthetic fiber, case included.",belleza,nuevo,6500,4,assets/tienda-2.webp,,,disponible
+BO-0007,Taladro inalámbrico 20V,Cordless drill 20V,"Dos baterías y maletín.","Two batteries and hard case.",herramientas,usado,24000,1,assets/tienda-1.webp,,,vendido
+BO-0008,Chaqueta impermeable talla M,Waterproof jacket size M,"Capucha ajustable, costuras selladas.","Adjustable hood, sealed seams.",ropa,como_nuevo,14000,2,assets/tienda-2.webp,,,disponible
