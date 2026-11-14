@@ -7,7 +7,12 @@
   var lang = (document.documentElement.lang || "es").toLowerCase().indexOf("en") === 0 ? "en" : "es";
   var toolbarEl = document.getElementById("inv-toolbar");
   var searchEl = document.getElementById("inv-search");
+  var sortEl = document.getElementById("inv-sort");
+  var minEl = document.getElementById("inv-min");
+  var maxEl = document.getElementById("inv-max");
+  var clearEl = document.getElementById("inv-clear");
   var filtersEl = document.getElementById("inv-filters");
+  var filtersRow = document.querySelector(".inv-filters-row");
   var countEl = document.getElementById("inv-count");
   var noteEl = document.getElementById("inv-note");
   var moreWrap = document.getElementById("inv-more-wrap");
@@ -19,8 +24,9 @@
   var PAGE_SIZE = 24;
 
   var allItems = [];
-  var state = { query: "", category: "all", shown: PAGE_SIZE };
+  var state = { query: "", category: "all", sort: "relevance", min: null, max: null, shown: PAGE_SIZE };
   var searchTimer = null;
+  var priceTimer = null;
 
   var COPY = {
     es: {
@@ -42,8 +48,11 @@
       pending: "Foto pendiente",
       askPrice: "Consultar precio",
       qty: function (n) { return n + " disponibles"; },
-      noResults: "No hay artículos que coincidan con tu búsqueda.",
+      noResults: "No hay artículos que coincidan con esos filtros.",
       more: "Ver más",
+      minLabel: "Precio mínimo en colones",
+      maxLabel: "Precio máximo en colones",
+      clear: "Limpiar filtros",
       foot: "¿No encontrás lo que buscás?",
       footLink: "Preguntá por WhatsApp",
       condition: {
@@ -83,8 +92,11 @@
       pending: "Photo pending",
       askPrice: "Ask price",
       qty: function (n) { return n + " available"; },
-      noResults: "No items match your search.",
+      noResults: "No items match those filters.",
       more: "Load more",
+      minLabel: "Minimum price in colones",
+      maxLabel: "Maximum price in colones",
+      clear: "Clear filters",
       foot: "Can't find what you're looking for?",
       footLink: "Ask on WhatsApp",
       condition: {
@@ -161,12 +173,58 @@
     return haystack.indexOf(query) !== -1;
   }
 
+  function parsePriceInput(input) {
+    if (!input) return null;
+    var raw = input.value.trim();
+    if (!raw) return null;
+    var value = parseInt(raw, 10);
+    if (!isFinite(value) || value < 0) return null;
+    return value;
+  }
+
+  function sortItems(list) {
+    if (state.sort === "relevance") return list;
+    var sorted = list.slice();
+
+    if (state.sort === "price_asc" || state.sort === "price_desc") {
+      var direction = state.sort === "price_asc" ? 1 : -1;
+      sorted.sort(function (a, b) {
+        var priceA = typeof a.price_crc === "number" ? a.price_crc : null;
+        var priceB = typeof b.price_crc === "number" ? b.price_crc : null;
+        if (priceA === null && priceB === null) return 0;
+        if (priceA === null) return 1;
+        if (priceB === null) return -1;
+        return (priceA - priceB) * direction;
+      });
+    } else if (state.sort === "name_asc") {
+      sorted.sort(function (a, b) {
+        return itemName(a).localeCompare(itemName(b), lang);
+      });
+    } else if (state.sort === "qty_desc") {
+      sorted.sort(function (a, b) {
+        return (b.qty || 0) - (a.qty || 0);
+      });
+    } else if (state.sort === "id_desc") {
+      sorted.sort(function (a, b) {
+        return String(b.id).localeCompare(String(a.id));
+      });
+    }
+
+    return sorted;
+  }
+
   function visibleItems() {
     var query = normalize(state.query).trim();
-    return allItems.filter(function (item) {
+    var filtered = allItems.filter(function (item) {
       if (state.category !== "all" && item.category !== state.category) return false;
+      if (state.min !== null || state.max !== null) {
+        if (typeof item.price_crc !== "number") return false;
+        if (state.min !== null && item.price_crc < state.min) return false;
+        if (state.max !== null && item.price_crc > state.max) return false;
+      }
       return matchesQuery(item, query);
     });
+    return sortItems(filtered);
   }
 
   function makeCard(item) {
@@ -284,6 +342,16 @@
     });
   }
 
+  function updateClear() {
+    if (!clearEl) return;
+    var active = state.query.trim() !== "" ||
+      state.category !== "all" ||
+      state.sort !== "relevance" ||
+      state.min !== null ||
+      state.max !== null;
+    clearEl.hidden = !active;
+  }
+
   function render() {
     var list = visibleItems();
     grid.textContent = "";
@@ -302,6 +370,7 @@
     if (moreWrap) {
       moreWrap.hidden = list.length <= state.shown;
     }
+    updateClear();
   }
 
   function showNote(message) {
@@ -309,13 +378,30 @@
     noteEl.textContent = message;
     noteEl.hidden = false;
     if (toolbarEl) toolbarEl.hidden = true;
-    if (filtersEl) filtersEl.hidden = true;
+    if (filtersRow) filtersRow.hidden = true;
     if (moreWrap) moreWrap.hidden = true;
   }
 
   function setSampleBadge(isSample) {
     if (!toolbarEl || !isSample) return;
     toolbarEl.appendChild(el("span", "inv-sample", copy.sample));
+  }
+
+  function clearFilters() {
+    state.query = "";
+    state.category = "all";
+    state.sort = "relevance";
+    state.min = null;
+    state.max = null;
+    state.shown = PAGE_SIZE;
+
+    if (searchEl) searchEl.value = "";
+    if (sortEl) sortEl.value = "relevance";
+    if (minEl) minEl.value = "";
+    if (maxEl) maxEl.value = "";
+
+    renderFilters();
+    render();
   }
 
   if (searchEl) {
@@ -329,6 +415,42 @@
         render();
       }, 120);
     });
+  }
+
+  if (sortEl) {
+    sortEl.addEventListener("change", function () {
+      state.sort = sortEl.value;
+      state.shown = PAGE_SIZE;
+      render();
+    });
+  }
+
+  function applyPriceFilter() {
+    state.min = parsePriceInput(minEl);
+    state.max = parsePriceInput(maxEl);
+    state.shown = PAGE_SIZE;
+    render();
+  }
+
+  if (minEl) {
+    minEl.setAttribute("aria-label", copy.minLabel);
+    minEl.addEventListener("input", function () {
+      if (priceTimer) window.clearTimeout(priceTimer);
+      priceTimer = window.setTimeout(applyPriceFilter, 250);
+    });
+  }
+
+  if (maxEl) {
+    maxEl.setAttribute("aria-label", copy.maxLabel);
+    maxEl.addEventListener("input", function () {
+      if (priceTimer) window.clearTimeout(priceTimer);
+      priceTimer = window.setTimeout(applyPriceFilter, 250);
+    });
+  }
+
+  if (clearEl) {
+    clearEl.textContent = copy.clear;
+    clearEl.addEventListener("click", clearFilters);
   }
 
   if (moreBtn) {

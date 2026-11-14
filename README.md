@@ -106,7 +106,7 @@ Flyers work the same way: either `flyer_es` / `flyer_en` columns with filenames,
 2. Run the importer (it prints skipped rows and warnings).
 3. Review `data/inventory.json`, then commit `data/inventory.json` and `assets/inventory/`.
 4. Reload the page. The section shows the new list; sold items disappear because only `disponible` rows are exported.
-5. The public list is paginated in the browser (24 cards, “Ver más / Load more”) and has free-text search plus category filters; 1,320 items load from one JSON file.
+5. The public list is paginated in the browser (24 cards, “Ver más / Load more”) and has free-text search, category filters, a price range, and sorting by price, name, quantity, or newest; 1,320 items load from one JSON file.
 
 When Kapso is wired up later, it can read this same `data/inventory.json` (or the database behind it) instead of the site being the source of truth.
 

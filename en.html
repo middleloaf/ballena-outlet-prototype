@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Instrument+Serif:ital@0;1&family=Inter:wght@400..700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20261119">
+  <link rel="stylesheet" href="styles.css?v=20261122">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -355,10 +355,30 @@
             <label class="visually-hidden" for="inv-search">Search inventory</label>
             <input id="inv-search" type="search" placeholder="Search product or code…" autocomplete="off" spellcheck="false">
           </div>
+          <div class="inv-sort">
+            <label for="inv-sort">Sort</label>
+            <select id="inv-sort">
+              <option value="relevance">Inventory order</option>
+              <option value="price_asc">Price: low to high</option>
+              <option value="price_desc">Price: high to low</option>
+              <option value="name_asc">Name: A-Z</option>
+              <option value="qty_desc">Most units</option>
+              <option value="id_desc">Newest</option>
+            </select>
+          </div>
           <p class="inv-count" id="inv-count" aria-live="polite"></p>
         </div>
 
-        <div class="inv-filters" id="inv-filters" role="group" aria-label="Filter by category"></div>
+        <div class="inv-filters-row">
+          <div class="inv-filters" id="inv-filters" role="group" aria-label="Filter by category"></div>
+          <div class="inv-price-filter">
+            <span class="inv-price-label" id="inv-price-label">Price (₡)</span>
+            <input id="inv-min" type="number" min="0" step="1000" inputmode="numeric" placeholder="Min" aria-labelledby="inv-price-label">
+            <span aria-hidden="true">–</span>
+            <input id="inv-max" type="number" min="0" step="1000" inputmode="numeric" placeholder="Max" aria-labelledby="inv-price-label">
+          </div>
+          <button class="inv-clear" id="inv-clear" type="button" hidden>Clear filters</button>
+        </div>
 
         <div class="inv-grid" id="inv-grid"></div>
 
@@ -817,7 +837,7 @@
     </a>
   </div>
 
-  <script src="inventory.js?v=20261113"></script>
+  <script src="inventory.js?v=20261114"></script>
   <script src="script.js?v=20261112"></script>
 </body>
 </html>
