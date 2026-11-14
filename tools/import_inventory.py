@@ -82,6 +82,7 @@ COLUMNS = {
 COLUMN_LOOKUP = {alias: field for field, aliases in COLUMNS.items() for alias in aliases}
 
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".avif", ".gif"}
+USED_SOURCES = set()
 
 # Keyword categories for sheets that do not carry a category column.
 CATEGORY_RULES = [
@@ -344,6 +345,7 @@ def copy_image(source):
     target = IMAGE_DIR / f"{stem}-{digest}{suffix}"
     if not target.exists():
         shutil.copy2(source, target)
+    USED_SOURCES.add(str(source.resolve()))
     return target.relative_to(ROOT).as_posix()
 
 
@@ -616,6 +618,28 @@ def build(sheet_rows, photos_dir, flyers_dir, sample):
     return items, warnings, skipped, guessed
 
 
+def report_unmatched(directory, label, hint):
+    if not directory:
+        return
+    directory = Path(directory).expanduser()
+    if not directory.is_dir():
+        return
+    unused = [
+        candidate.name
+        for candidate in sorted(directory.iterdir())
+        if candidate.is_file() and candidate.suffix.lower() in IMAGE_EXTS
+        and str(candidate.resolve()) not in USED_SOURCES
+    ]
+    if not unused:
+        return
+    print(f"  aviso    {len(unused)} imágenes en {label} no se asociaron a ningún artículo.")
+    for name in unused[:5]:
+        print(f"           · {name}")
+    if len(unused) > 5:
+        print(f"           · … y {len(unused) - 5} más")
+    print(f"           {hint}")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Genera data/inventory.json desde una hoja de inventario.")
     parser.add_argument("source", help="Archivo .xlsx o .csv con el inventario.")
@@ -658,6 +682,14 @@ def main():
         print(f"  omitida  {line}")
     for line in warnings:
         print(f"  aviso    {line}")
+    report_unmatched(
+        photos_dir, "photos/",
+        "Renombrá el archivo como BO-00001.jpg o agregá una columna 'foto' con el nombre exacto.",
+    )
+    report_unmatched(
+        flyers_dir, "flyers/",
+        "Renombrá el archivo como BO-00001.jpg o agregá una columna 'flyer_es' con el nombre exacto.",
+    )
 
     if args.dry_run:
         print("Dry run: no se escribió nada.")
