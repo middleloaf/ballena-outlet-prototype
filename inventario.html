@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Instrument+Serif:ital@0;1&family=Inter:wght@400..700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20261125">
+  <link rel="stylesheet" href="styles.css?v=20261127">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -53,13 +53,20 @@
   <div id="top" class="top-anchor" aria-hidden="true"></div>
   <a class="skip-link" href="#contenido">Saltar al contenido</a>
 
-  <div class="prototype-bar" role="note">
-    <div class="wrap prototype-inner">
-      <span class="prototype-tag">Prototipo</span>
-      <span class="prototype-text">Sitio de demostración. No es la versión final.</span>
-      <a class="prototype-link" href="#prototipo" aria-label="Qué es este prototipo">Detalles</a>
+  <dialog class="proto-popup" id="prototype-popup" aria-labelledby="proto-popup-title">
+    <div class="proto-popup-card">
+      <div class="proto-popup-top">
+        <span class="prototype-tag">Prototipo · segunda versión</span>
+        <button class="proto-popup-close" id="prototype-popup-close" type="button" aria-label="Cerrar aviso de prototipo" data-proto-close>×</button>
+      </div>
+      <h2 id="proto-popup-title">Este sitio es un <em>prototipo de la segunda versión.</em></h2>
+      <p>Estamos probando el diseño, el contenido y la forma de presentar la tienda. No es la versión final.</p>
+      <div class="proto-popup-actions">
+        <a class="btn btn-primary" id="prototype-popup-details" href="#prototipo">Ver detalles</a>
+        <button class="btn btn-outline" id="prototype-popup-dismiss" type="button" data-proto-close>Entendido</button>
+      </div>
     </div>
-  </div>
+  </dialog>
 
   <div class="announce" aria-hidden="true">
     <div class="announce-track">
@@ -243,8 +250,8 @@
       <div class="wrap">
         <div class="prototype-card">
           <div class="kicker-row"><p class="eyebrow">Transparencia</p><span class="kicker-line" aria-hidden="true"></span></div>
-          <h2 id="prototype-title">Este sitio es un <em>prototipo.</em></h2>
-          <p class="prototype-lede">Estamos probando el diseño, el contenido y la forma de presentar la tienda antes de publicar la versión final. Por eso el sitio se identifica como prototipo en todo momento.</p>
+          <h2 id="prototype-title">Este sitio es un <em>prototipo de la segunda versión.</em></h2>
+          <p class="prototype-lede">Estamos probando la segunda versión del diseño, el contenido y la forma de presentar la tienda antes de publicar la versión final. Por eso el sitio se identifica como prototipo en todo momento.</p>
           <ul class="prototype-list">
             <li><strong>Contenido de ejemplo.</strong> Los textos, los grupos de productos y los enlaces pueden cambiar cuando el negocio revise la información.</li>
             <li><strong>Sin checkout en línea.</strong> El catálogo es informativo; no hay carrito ni pago en línea. La disponibilidad se confirma por WhatsApp o en la tienda.</li>
@@ -321,7 +328,7 @@
           </div>
         </div>
         <p class="footer-disclaimer">Ballena Outlet no está afiliado a Amazon, Target, Costco ni Walmart. Los productos provienen de sus devoluciones, sobrestock y paquetes no reclamados. Las imágenes del local son fotografías reales, pero provisionales; las vamos a volver a tomar.</p>
-        <p class="footer-prototype">Prototipo de demostración · Contenido, fotos y enlaces de ejemplo. <a href="#prototipo">Sobre este prototipo</a></p>
+        <p class="footer-prototype">Prototipo de demostración · segunda versión · Contenido, fotos y enlaces de ejemplo. <a href="#prototipo">Sobre este prototipo</a></p>
       </div>
     </div>
   </footer>
@@ -338,6 +345,6 @@
   </div>
 
   <script src="inventory.js?v=20261116"></script>
-  <script src="script.js?v=20261112"></script>
+  <script src="script.js?v=20261120"></script>
 </body>
 </html>

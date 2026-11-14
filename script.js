@@ -3,7 +3,6 @@
 
   var doc = document;
   var header = doc.querySelector(".site-header");
-  var prototypeBar = doc.querySelector(".prototype-bar");
   var navToggle = doc.querySelector(".nav-toggle");
   var mobilePanel = doc.getElementById("mobile-panel");
   var mobileClose = doc.querySelector(".mobile-close");
@@ -14,18 +13,6 @@
   function setHeaderState() {
     if (!header) return;
     header.classList.toggle("is-scrolled", window.scrollY > 12);
-  }
-
-  function syncPrototypeHeight() {
-    if (!prototypeBar) return;
-    doc.documentElement.style.setProperty("--proto-h", prototypeBar.getBoundingClientRect().height + "px");
-  }
-
-  syncPrototypeHeight();
-  window.addEventListener("resize", syncPrototypeHeight, { passive: true });
-  window.addEventListener("load", syncPrototypeHeight);
-  if ("ResizeObserver" in window && prototypeBar) {
-    new ResizeObserver(syncPrototypeHeight).observe(prototypeBar);
   }
 
   setHeaderState();
@@ -96,6 +83,61 @@
       closeMenu();
     }
   });
+
+  var protoPopup = doc.getElementById("prototype-popup");
+  if (protoPopup) {
+    var protoKey = "ballena-proto-popup-v2";
+    var protoDismissed = false;
+    try {
+      protoDismissed = window.sessionStorage.getItem(protoKey) === "1";
+    } catch (error) {}
+
+    function dismissProtoPopup() {
+      try {
+        window.sessionStorage.setItem(protoKey, "1");
+      } catch (error) {}
+      if (typeof protoPopup.close === "function") {
+        protoPopup.close();
+      } else {
+        protoPopup.removeAttribute("open");
+      }
+    }
+
+    if (!protoDismissed) {
+      if (typeof protoPopup.showModal === "function") {
+        protoPopup.showModal();
+      } else {
+        protoPopup.setAttribute("open", "");
+      }
+    }
+
+    protoPopup.addEventListener("close", function () {
+      try {
+        window.sessionStorage.setItem(protoKey, "1");
+      } catch (error) {}
+    });
+
+    doc.querySelectorAll("[data-proto-close]").forEach(function (button) {
+      button.addEventListener("click", dismissProtoPopup);
+    });
+
+    var protoDetails = doc.getElementById("prototype-popup-details");
+    if (protoDetails) {
+      protoDetails.addEventListener("click", function () {
+        var target = doc.querySelector(protoDetails.getAttribute("href"));
+        dismissProtoPopup();
+        if (target) {
+          window.setTimeout(function () {
+            target.scrollIntoView({ behavior: "instant", block: "start" });
+          }, 250);
+        }
+      });
+    }
+
+    protoPopup.addEventListener("click", function (event) {
+      if (event.target === protoPopup) dismissProtoPopup();
+    });
+  }
 
   var year = doc.getElementById("year");
   if (year) year.textContent = String(new Date().getFullYear());
