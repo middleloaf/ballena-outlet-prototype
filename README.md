@@ -71,7 +71,7 @@ One row per item. Header names are matched accent- and case-insensitively; these
 | Spanish name | `nombre_es`, `nombre`, `producto`, `articulo` | Required. |
 | English name | `nombre_en`, `name_en` | Optional; the EN page falls back to Spanish and the import warns. |
 | Details | `detalle_es`, `detalle_en` | Optional, clamped to two lines. |
-| Category | `categoria`, `category`, `grupo` | Must map to the site's groups: `electrodomesticos`, `hogar`, `textiles`, `juguetes`, `electronica`, `belleza`, `herramientas`, `ropa`. Unknown values fall back to name-based inference with a warning. |
+| Category | `categoria`, `category`, `grupo` | Must map to the site's groups: `electrodomesticos`, `hogar`, `mejoras_hogar`, `textiles`, `juguetes`, `electronica`, `belleza`, `herramientas`, `ropa`. Unknown values fall back to name-based inference with a warning. |
 | Condition | `condicion`, `estado_fisico`, `condition` | `nuevo`, `como_nuevo`, `usado`, `para_partes` (English synonyms accepted). |
 | Price | `precio_crc`, `precio`, `price` | Optional integer colones. Empty = “Consultar precio”. |
 | Quantity | `cantidad`, `stock`, `qty` | 0 hides the row; >1 shows “N disponibles”. The Ballena sheet's `Conteo Tienda 1/2`, `Conteo bodega`, `Total actual` and `Cantidad manifiesto` columns are resolved automatically. |

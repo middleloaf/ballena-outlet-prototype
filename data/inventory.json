@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-14T19:27:27+00:00",
+  "generated_at": "2026-11-14T20:56:37+00:00",
   "sample": false,
   "count": 1320,
   "items": [
@@ -489,7 +489,7 @@
     {
       "id": "BO-00070",
       "name_es": "Elongated Bidet Toilet Seat, Non Electric Dual Nozzle Bidet for Frontal & Rear Wash, Self Cleaning Wand, Quiet Close, Easy Install, White",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 69000
     },
@@ -546,7 +546,7 @@
     {
       "id": "BO-00078",
       "name_es": "Wood Wall Cabinet White - Threshold: MDF Floating Shelf, Over Toilet Storage, 2 Shelves",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 57500
     },
@@ -716,7 +716,7 @@
     {
       "id": "BO-00102",
       "name_es": "VASAGLE Wall Mounted Cabinet, Bathroom Storage Medicine Cabinet with 2 Doors and Open Shelf, 17.7 x 7.9 x 23.6 inch, for Living Room, White",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 2,
       "price_crc": 53000
     },
@@ -1388,7 +1388,7 @@
     {
       "id": "BO-00197",
       "name_es": "Brass Swivel Vertical Wall Hook - Hearth & Hand with Magnolia",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 32000
     },
@@ -1465,7 +1465,7 @@
     {
       "id": "BO-00208",
       "name_es": "5pc Modern Wall Shelf Set Black - Threshold: MDF Composite, Open Shelves, Includes Mounting Hardware",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 29000
     },
@@ -1514,7 +1514,7 @@
     {
       "id": "BO-00215",
       "name_es": "3pc Bath Hardware Set Black - Threshold: Metal Bathroom Accessories, Includes Towel Ring & Tissue Holder",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 21500
     },
@@ -1528,7 +1528,7 @@
     {
       "id": "BO-00217",
       "name_es": "Wood Mid Tone Bookshelf Lamp - Hearth & Hand with Magnolia",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 3,
       "price_crc": 29000
     },
@@ -1724,7 +1724,7 @@
     {
       "id": "BO-00245",
       "name_es": "Toggle Switch Task Lamp Brass - Hearth & Hand with Magnolia",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 29000
     },
@@ -1738,7 +1738,7 @@
     {
       "id": "BO-00247",
       "name_es": "Wall-Mounted Brass Ladder Towel Rack Antique Finish - Hearth & Hand with Magnolia",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 21500
     },
@@ -2046,7 +2046,7 @@
     {
       "id": "BO-00291",
       "name_es": "Govee RGBIC Pro 24.6' LED Strip Lights: Smartphone App Controlled Neon-Style Lights",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 24500
     },
@@ -2109,21 +2109,21 @@
     {
       "id": "BO-00300",
       "name_es": "Over the Door Tiered Towel Rack with Wood Matte White - Brightroom: 24\" High, Powder-Coated Steel & Wood Design",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 2,
       "price_crc": 17000
     },
     {
       "id": "BO-00301",
       "name_es": "72\" Tapered End Cap Curved Aluminum Shower Curtain Rod Tension or Permanent Mount - Threshold: Neo Angle Compatible, Adjustable Fit",
-      "category": "textiles",
+      "category": "mejoras_hogar",
       "qty": 4,
       "price_crc": 17000
     },
     {
       "id": "BO-00302",
       "name_es": "Over the Door Tiered Towel Rack with Wood Brushed Nickel - Brightroom: Space-Saving, Powder-Coated Steel",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 17000
     },
@@ -2137,14 +2137,14 @@
     {
       "id": "BO-00304",
       "name_es": "86\" Rustproof Basic Tension Aluminum Shower Curtain Rod - Threshold",
-      "category": "textiles",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 23000
     },
     {
       "id": "BO-00305",
       "name_es": "72\" Dual Mount Curved Steel Shower Curtain Rod with Tiered End Cap Chrome - Threshold: Adjustable, Elegant Bathroom Accessory",
-      "category": "textiles",
+      "category": "mejoras_hogar",
       "qty": 3,
       "price_crc": 17000
     },
@@ -2410,7 +2410,7 @@
     {
       "id": "BO-00342",
       "name_es": "simplehuman Toilet Plunger with Magnetic Caddy Holder - White Steel: Durable Rubber, Sleek Design, Bathroom Accessory",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 17000
     },
@@ -2445,7 +2445,7 @@
     {
       "id": "BO-00347",
       "name_es": "Hinge Desk Table Lamp Green/Brass - Hearth & Hand with Magnolia",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 23000
     },
@@ -2508,7 +2508,7 @@
     {
       "id": "BO-00356",
       "name_es": "Rattan Accent Table Lamp (Includes LED Light Bulb) Brass/Brown - Hearth & Hand with Magnolia",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 2,
       "price_crc": 23000
     },
@@ -2551,7 +2551,7 @@
     {
       "id": "BO-00362",
       "name_es": "5\" Contour 9 Spray WaterSense Hand Shower Brushed Nickel - Oxygenics: EPA Certified, Multi-Function with Hose & Massage Setting",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 23000
     },
@@ -2565,7 +2565,7 @@
     {
       "id": "BO-00364",
       "name_es": "PUR PLUS Faucet Mount Water Filtration System Chrome: Best Sink Filter, Lead & Mercury Removal, Easy Install",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 17000
     },
@@ -2677,7 +2677,7 @@
     {
       "id": "BO-00380",
       "name_es": "Kendall Never Loosens Elongated Enameled Wood Toilet Seat with Easy Cleaning Whisper Close White - Mayfair by Bemis",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 21500
     },
@@ -2691,7 +2691,7 @@
     {
       "id": "BO-00382",
       "name_es": "Brita Tap Water Faucet Filtration System - Chrome: Filters Chlorine & Lead, Fits Most Standard Faucets",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 3,
       "price_crc": 15500
     },
@@ -2811,7 +2811,7 @@
     {
       "id": "BO-00399",
       "name_es": "Functional Toilet Paper Holder Matte Black - Brightroom: Steel Freestanding, 25.51\" Height, 7.01\" Depth",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 20500
     },
@@ -3008,7 +3008,7 @@
     {
       "id": "BO-00427",
       "name_es": "11\" Carved Ceramic Planter Pot Macadamia Tan - Hearth & Hand with Magnolia",
-      "category": "herramientas",
+      "category": "mejoras_hogar",
       "qty": 2,
       "price_crc": 20500
     },
@@ -3177,7 +3177,7 @@
     {
       "id": "BO-00451",
       "name_es": "Tan Glass Table Lamp - Hearth & Hand with Magnolia",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 20500
     },
@@ -3198,7 +3198,7 @@
     {
       "id": "BO-00454",
       "name_es": "Portable Table Lamp Brass (Includes LED Light Bulb) - Hearth & Hand with Magnolia",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 20500
     },
@@ -3212,7 +3212,7 @@
     {
       "id": "BO-00456",
       "name_es": "Woven Portable Table Lamp Brass (Includes LED Light Bulb) - Hearth & Hand with Magnolia",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 20500
     },
@@ -3268,7 +3268,7 @@
     {
       "id": "BO-00464",
       "name_es": "9.5\" Scalloped Edge Stoneware Indoor/Outdoor Planter Pot with Saucer Cosmic Rust - Hearth & Hand with Magnolia",
-      "category": "herramientas",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 20500
     },
@@ -3689,7 +3689,7 @@
     {
       "id": "BO-00524",
       "name_es": "4 Roll Reserve Plus Freestanding Toilet Tissue Holder Silver - Threshold: Steel Construction, 23.937\" Height, 6.5\" Width",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 17500
     },
@@ -3703,7 +3703,7 @@
     {
       "id": "BO-00526",
       "name_es": "72\" Rust Proof Stainless Steel Two-Way Mount Round Finial Shower Curtain Rod Brushed Nickel - Threshold",
-      "category": "textiles",
+      "category": "mejoras_hogar",
       "qty": 2,
       "price_crc": 17500
     },
@@ -3794,7 +3794,7 @@
     {
       "id": "BO-00539",
       "name_es": "Modern Planter Black - Threshold",
-      "category": "herramientas",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 17500
     },
@@ -3878,7 +3878,7 @@
     {
       "id": "BO-00551",
       "name_es": "OXO Toilet Plunger and Canister",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 4,
       "price_crc": 17500
     },
@@ -4032,7 +4032,7 @@
     {
       "id": "BO-00573",
       "name_es": "32\" to 40\" Tool-Free Tension or Wall Mount Curved Stall Shower Curtain Rod Bronze - Zenna Home: Rustproof, Adjustable, for Small Showers",
-      "category": "textiles",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 17500
     },
@@ -4390,7 +4390,7 @@
     {
       "id": "BO-00624",
       "name_es": "PUR Filtration Faucet Mount Water Filter Replacement - 2pk: Reduces Odors, Filters Pesticides, Mercury, Lead, White, 30-Day Warranty",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 12000
     },
@@ -4859,7 +4859,7 @@
     {
       "id": "BO-00691",
       "name_es": "LED Mirror - Room Essentials: Rectangular Vanity Mirror with Lights, 1X Magnification, Spot Clean, Lithium Ion Battery Included",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 3,
       "price_crc": 14500
     },
@@ -5175,7 +5175,7 @@
     {
       "id": "BO-00736",
       "name_es": "16\" Wood Ledge Wall Shelf 2pk Black- Threshold",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 14500
     },
@@ -5203,7 +5203,7 @@
     {
       "id": "BO-00740",
       "name_es": "12\" x 6\" Wood Wall Shelf with Hanging Wire Matte Black - Threshold",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 14500
     },
@@ -5287,7 +5287,7 @@
     {
       "id": "BO-00752",
       "name_es": "26\" Brass Toilet Paper Stand Brushed Finish - Hearth & Hand with Magnolia",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 3,
       "price_crc": 14500
     },
@@ -5329,7 +5329,7 @@
     {
       "id": "BO-00758",
       "name_es": "PUR Faucet Mount Water Filtration System Black: Best Faucet Water Purifier, Easy Installation, Filters Mercury & Lead",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 3,
       "price_crc": 11000
     },
@@ -5526,7 +5526,7 @@
     {
       "id": "BO-00786",
       "name_es": "18\" Classic Metal Towel Bar Brass Finish - Hearth & Hand with Magnolia: Bathroom Accessory, Wall Mounted",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 11000
     },
@@ -5933,7 +5933,7 @@
     {
       "id": "BO-00844",
       "name_es": "9\" Carved Ceramic Planter Pot Macadamia Tan - Hearth & Hand with Magnolia",
-      "category": "herramientas",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 14500
     },
@@ -5961,7 +5961,7 @@
     {
       "id": "BO-00848",
       "name_es": "Metal Toilet Paper Holder Stand Matte Black - Hearth & Hand with Magnolia: Steel Bathroom Tissue Organizer",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 11000
     },
@@ -6537,7 +6537,7 @@
     {
       "id": "BO-00930",
       "name_es": "Brita 2ct Replacement Water Filters for Brita Tap Faucet Mounts - Chrome: Reduces Odors, Lead & Chlorine",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 2,
       "price_crc": 9500
     },
@@ -6650,7 +6650,7 @@
     {
       "id": "BO-00946",
       "name_es": "Glass Shade Table Lamp Tan - Hearth & Hand with Magnolia",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 12500
     },
@@ -6790,7 +6790,7 @@
     {
       "id": "BO-00966",
       "name_es": "72\" Tension or Permanent Mount Cast Style Finial Shower Curtain Rod Chrome - Threshold",
-      "category": "textiles",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 11500
     },
@@ -6902,7 +6902,7 @@
     {
       "id": "BO-00982",
       "name_es": "Clean Toilet Paper Holder Black - Threshold: Zinc & Stainless Steel, Wall Mounted, Bathroom Accessory",
-      "category": "hogar",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 8500
     },
@@ -9232,7 +9232,7 @@
     {
       "id": "BO-01314",
       "name_es": "Large Over the Door Hook 6 Hooks Matte Black - Brightroom: Steel, No Assembly, Powder-Coated Finish, Towel & Hat Storage",
-      "category": "textiles",
+      "category": "mejoras_hogar",
       "qty": 1,
       "price_crc": 6500
     },

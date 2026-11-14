@@ -64,6 +64,7 @@
       categories: {
         electrodomesticos: "Electrodomésticos",
         hogar: "Hogar",
+        mejoras_hogar: "Mejoras para el hogar",
         textiles: "Alfombras y textiles",
         juguetes: "Juguetes y niños",
         electronica: "Electrónica",
@@ -108,6 +109,7 @@
       categories: {
         electrodomesticos: "Appliances",
         hogar: "Home",
+        mejoras_hogar: "Home improvement",
         textiles: "Rugs and textiles",
         juguetes: "Toys and kids",
         electronica: "Electronics",
