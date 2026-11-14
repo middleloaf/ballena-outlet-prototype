@@ -110,6 +110,38 @@ Flyers work the same way: either `flyer_es` / `flyer_en` columns with filenames,
 
 When Kapso is wired up later, it can read this same `data/inventory.json` (or the database behind it) instead of the site being the source of truth.
 
+## Running outside T3
+
+The prototype has no T3 dependency. It needs Python 3.8+ (standard library only) and any static file server — no pip, no build step, no Node.
+
+### Refresh stock and images
+
+```bash
+# Validate first (no files written)
+python3 tools/import_inventory.py /path/to/workbook.xlsx --dry-run
+
+# Rebuild the public inventory; images can live outside the repo
+python3 tools/import_inventory.py /path/to/workbook.xlsx \
+  --photos-dir /path/to/photos --flyers-dir /path/to/flyers
+```
+
+With `make` installed, the same commands are `make preview`, `make inventory`, and `make serve`. Override paths with `make inventory WORKBOOK=… ARGS="--photos-dir …"`. On Windows use `py -3` instead of `python3` and run the raw commands.
+
+### Serve and deploy
+
+```bash
+python3 -m http.server 4173
+# http://localhost:4173/index.html
+```
+
+Deploy by uploading the static files to any host (Netlify, Cloudflare Pages, GitHub Pages, nginx/Apache): `index.html`, `en.html`, `styles.css`, `script.js`, `inventory.js`, `data/inventory.json`, and `assets/`. There is no server-side code, and the site works under a subpath because all references are relative.
+
+### What travels with the repo
+
+- `data/inventory.json` and `assets/inventory/` are committed, so a fresh clone serves the current catalog without running Python.
+- `data/source/photos/` and `data/source/flyers/` are git-ignored; a clone will not contain the originals. Keep them backed up separately, or always pass external `--photos-dir`/`--flyers-dir` paths.
+- `fetch()` needs HTTP; opening `index.html` from the filesystem shows the empty state.
+
 ## Notes
 
 - The live feeds and map require an internet connection and are subject to each platform's embed policies. If a feed is blocked, the direct profile link still works. Facebook and Instagram reels are embedded because their page/profile plugins currently omit or fail to render reels; update the reel URLs when a newer reel should be featured.

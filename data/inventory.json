@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-14T17:03:45+00:00",
+  "generated_at": "2026-11-14T18:05:05+00:00",
   "sample": false,
   "count": 1320,
   "items": [
@@ -498,7 +498,8 @@
       "name_es": "Whirlpool Countertop Ice Maker WHCI26VBA3A: 26 lb Daily Production, Bullet Ice, Black, 1.5 lb Storage, 2 Ice Sizes",
       "category": "electrodomesticos",
       "qty": 1,
-      "price_crc": 67500
+      "price_crc": 67500,
+      "flyer_es": "assets/inventory/bo_00071-0638d3bf61.jpeg"
     },
     {
       "id": "BO-00072",
@@ -596,7 +597,8 @@
       "name_es": "NutriBullet Turbo 1000 Series Blender Matte White",
       "category": "electrodomesticos",
       "qty": 1,
-      "price_crc": 46000
+      "price_crc": 46000,
+      "flyer_es": "assets/inventory/bo_00085-68bd9eed2f.jpeg"
     },
     {
       "id": "BO-00086",
@@ -708,7 +710,8 @@
       "name_es": "PowerXL 8qt Air Max Air Fryer",
       "category": "electrodomesticos",
       "qty": 3,
-      "price_crc": 63000
+      "price_crc": 63000,
+      "flyer_es": "assets/inventory/bo_00101-e289e58265.jpeg"
     },
     {
       "id": "BO-00102",
@@ -974,7 +977,8 @@
       "name_es": "Gourmia 6qt Digital Window Air Fryer with 12 Presets & Guided Cooking Black: Stainless Steel, 1-Year Warranty",
       "category": "electrodomesticos",
       "qty": 6,
-      "price_crc": 49000
+      "price_crc": 49000,
+      "flyer_es": "assets/inventory/bo_00139-9d26a601d7.jpeg"
     },
     {
       "id": "BO-00140",
@@ -988,7 +992,8 @@
       "name_es": "Crock-Pot 7qt Cook and Carry One Touch Programmable Slow Cooker Blue: Locking Lid, Dishwasher-Safe Parts",
       "category": "electrodomesticos",
       "qty": 2,
-      "price_crc": 40500
+      "price_crc": 40500,
+      "flyer_es": "assets/inventory/bo_00141-618f7031b3.jpeg"
     },
     {
       "id": "BO-00142",
@@ -1051,7 +1056,8 @@
       "name_es": "Over The Toilet Storage Brushed Nickel Metal - Brightroom",
       "category": "hogar",
       "qty": 3,
-      "price_crc": 37500
+      "price_crc": 37500,
+      "flyer_es": "assets/inventory/bo_00150-38a70779a3.jpeg"
     },
     {
       "id": "BO-00151",
@@ -1065,7 +1071,8 @@
       "name_es": "Laminate Collection Bath Etagere - Brightroom",
       "category": "hogar",
       "qty": 1,
-      "price_crc": 37500
+      "price_crc": 37500,
+      "flyer_es": "assets/inventory/bo_00152-7c4368231a.jpeg"
     },
     {
       "id": "BO-00153",
@@ -1303,14 +1310,16 @@
       "name_es": "Gourmia 6 Speed Wide Mouth Juice Extraction with Self-Clean: Stainless Steel Juicer, 800W, Dishwasher-Safe Parts",
       "category": "electrodomesticos",
       "qty": 4,
-      "price_crc": 32000
+      "price_crc": 32000,
+      "flyer_es": "assets/inventory/bo_00186-c2d0802ce3.jpeg"
     },
     {
       "id": "BO-00187",
       "name_es": "Crock-Pot 8qt Manual Slow Cooker Black",
       "category": "electrodomesticos",
       "qty": 1,
-      "price_crc": 32000
+      "price_crc": 32000,
+      "flyer_es": "assets/inventory/bo_00187-4f4e631318.jpeg"
     },
     {
       "id": "BO-00188",
@@ -1324,7 +1333,8 @@
       "name_es": "PAW Patrol Fire Rescue Command Center with Marshall Figure, Fire Truck, Lights, Launcher & Sound Fx",
       "category": "juguetes",
       "qty": 6,
-      "price_crc": 32000
+      "price_crc": 32000,
+      "flyer_es": "assets/inventory/bo_00189-a04cdd94ca.jpeg"
     },
     {
       "id": "BO-00190",
@@ -2206,7 +2216,8 @@
       "name_es": "Bodum 27oz Melior Goose Neck Electric Water Kettle Matte Black: Stainless Steel Tea Kettle with Ergonomic Handle, 1000W",
       "category": "electrodomesticos",
       "qty": 2,
-      "price_crc": 23000
+      "price_crc": 23000,
+      "flyer_es": "assets/inventory/bo_00315-c907ea307b.jpeg"
     },
     {
       "id": "BO-00316",
@@ -2263,7 +2274,8 @@
       "name_es": "Gourmia Digital 3qt Air Fryer with Guided Cooking Prompts Black/Stainless Steel Finish",
       "category": "electrodomesticos",
       "qty": 6,
-      "price_crc": 17500
+      "price_crc": 17500,
+      "flyer_es": "assets/inventory/bo_00323-20966839c7.jpeg"
     },
     {
       "id": "BO-00324",
@@ -2305,14 +2317,16 @@
       "name_es": "Gourmia Digital Blender with 8 Total Blend Programs, 4 Speeds & Round-Plated Tamper Gray: 1250W, Crushes Ice, Smoothie Maker",
       "category": "electrodomesticos",
       "qty": 4,
-      "price_crc": 23000
+      "price_crc": 23000,
+      "flyer_es": "assets/inventory/bo_00329-142072ba0e.jpeg"
     },
     {
       "id": "BO-00330",
       "name_es": "Dash Everyday Ice Cream and Ice Pop Maker",
       "category": "electrodomesticos",
       "qty": 2,
-      "price_crc": 23000
+      "price_crc": 23000,
+      "flyer_es": "assets/inventory/bo_00330-890cc9846f.jpeg"
     },
     {
       "id": "BO-00331",
@@ -2383,7 +2397,8 @@
       "name_es": "Bentgo 8pk Signature Glass White Stone",
       "category": "hogar",
       "qty": 1,
-      "price_crc": 23000
+      "price_crc": 23000,
+      "flyer_es": "assets/inventory/bo_00340-de74ad7032.jpeg"
     },
     {
       "id": "BO-00341",
@@ -2502,7 +2517,8 @@
       "name_es": "IMUSA 10 Cup Rice Cooker White",
       "category": "electrodomesticos",
       "qty": 1,
-      "price_crc": 23000
+      "price_crc": 23000,
+      "flyer_es": "assets/inventory/bo_00357-72bbc5400e.jpeg"
     },
     {
       "id": "BO-00358",
@@ -2705,7 +2721,8 @@
       "name_es": "MegaChef 9L Electric Counter Top Toaster Oven in Cream",
       "category": "electrodomesticos",
       "qty": 1,
-      "price_crc": 20500
+      "price_crc": 20500,
+      "flyer_es": "assets/inventory/bo_00386-8746cbdb45.jpeg"
     },
     {
       "id": "BO-00387",
@@ -2971,7 +2988,8 @@
       "name_es": "Cuisinart 2qt Stainless Steel Stovetop Kettle Matte Black CKS-25MBK: Whistling Tea Kettle, Large Handle, Flip-Up Spout",
       "category": "electrodomesticos",
       "qty": 1,
-      "price_crc": 20500
+      "price_crc": 20500,
+      "flyer_es": "assets/inventory/bo_00424-fdaf2a2f58.jpeg"
     },
     {
       "id": "BO-00425",
@@ -3020,7 +3038,8 @@
       "name_es": "DRIVEN by Battat Large Toy Cement Truck, Concrete Mixer Toy Construction Truck",
       "category": "juguetes",
       "qty": 1,
-      "price_crc": 20500
+      "price_crc": 20500,
+      "flyer_es": "assets/inventory/bo_00431-36dfb1b386.jpeg"
     },
     {
       "id": "BO-00432",
@@ -3370,7 +3389,8 @@
       "name_es": "Rabbit Lever Corkscrew Set White/Gold: Manual Wine Opener, Plastic & Metal, Spot Clean, 7.4\" Height, 1.24 lbs",
       "category": "hogar",
       "qty": 1,
-      "price_crc": 14000
+      "price_crc": 14000,
+      "flyer_es": "assets/inventory/bo_00481-2474bed68a.jpeg"
     },
     {
       "id": "BO-00482",
@@ -4056,7 +4076,8 @@
       "name_es": "Taylor 22lb Waterproof Digital Kitchen Food Scale Black",
       "category": "hogar",
       "qty": 2,
-      "price_crc": 17500
+      "price_crc": 17500,
+      "flyer_es": "assets/inventory/bo_00579-138d644dd0.jpeg"
     },
     {
       "id": "BO-00580",
@@ -5345,7 +5366,8 @@
       "name_es": "Mr. Coffee 5-Cup Programmable Coffee Maker Black: Drip Coffee Machine, Electric, Dishwasher-Safe, Paper Filter, 25 oz Capacity",
       "category": "electrodomesticos",
       "qty": 1,
-      "price_crc": 11000
+      "price_crc": 11000,
+      "flyer_es": "assets/inventory/bo_00763-bc51043312.jpeg"
     },
     {
       "id": "BO-00764",
@@ -6179,7 +6201,8 @@
       "name_es": "Aroma 6 Cup Rice Cooker with Outer Steam Tray Black",
       "category": "electrodomesticos",
       "qty": 5,
-      "price_crc": 13500
+      "price_crc": 13500,
+      "flyer_es": "assets/inventory/bo_00882-92139b2626.jpeg"
     },
     {
       "id": "BO-00883",
@@ -6530,7 +6553,8 @@
       "name_es": "Dash 16 Cup Electric Popcorn Maker - Aqua: 1400W Popcorn Popper, 8 Kernel Capacity, Easy Clean, Metal & Plastic",
       "category": "electrodomesticos",
       "qty": 1,
-      "price_crc": 13000
+      "price_crc": 13000,
+      "flyer_es": "assets/inventory/bo_00932-d1b2ba9e1d.jpeg"
     },
     {
       "id": "BO-00933",
@@ -6943,7 +6967,8 @@
       "name_es": "Dash Electric Dual Citrus Juicer - White: Lemon & Fruit Juicer, Multiple Cone Heads, Auto-Reversing, Dishwasher-Safe Parts",
       "category": "electrodomesticos",
       "qty": 2,
-      "price_crc": 11500
+      "price_crc": 11500,
+      "flyer_es": "assets/inventory/bo_00991-f17b853ab0.jpeg"
     },
     {
       "id": "BO-00992",
@@ -7195,7 +7220,8 @@
       "name_es": "Chefman 2 Cup Rice Cooker",
       "category": "electrodomesticos",
       "qty": 6,
-      "price_crc": 11500
+      "price_crc": 11500,
+      "flyer_es": "assets/inventory/bo_01027-c1ced93efb.jpeg"
     },
     {
       "id": "BO-01028",
@@ -7272,7 +7298,8 @@
       "name_es": "Chefman 1L Rapid-Boil Kettle with Automatic Shutoff - Black: Glass Electric Water Boiler & Warmer, 1500W Tea Heater",
       "category": "electrodomesticos",
       "qty": 4,
-      "price_crc": 11500
+      "price_crc": 11500,
+      "flyer_es": "assets/inventory/bo_01038-7e08fbab0e.jpeg"
     },
     {
       "id": "BO-01039",
@@ -7510,7 +7537,8 @@
       "name_es": "Bodum Bistro 34oz Electric Water Kettle",
       "category": "electrodomesticos",
       "qty": 2,
-      "price_crc": 11500
+      "price_crc": 11500,
+      "flyer_es": "assets/inventory/bo_01072-f93c31a078.jpeg"
     },
     {
       "id": "BO-01073",
@@ -7881,7 +7909,8 @@
       "name_es": "Gourmia Reusable 3pc Silicone Air Fryer Accessory Set with Basket Liner, Egg Bites Mold & Muffin Pan: Dishwasher-Safe, Hand Wash, Black, 1.49 lbs",
       "category": "electrodomesticos",
       "qty": 1,
-      "price_crc": 8500
+      "price_crc": 8500,
+      "flyer_es": "assets/inventory/bo_01125-44ca50a2e4.jpeg"
     },
     {
       "id": "BO-01126",
