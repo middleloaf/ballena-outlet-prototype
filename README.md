@@ -94,6 +94,7 @@ There are two ways to attach an image to a product:
 Flyers work the same way: either `flyer_es` / `flyer_en` columns with filenames, or `--flyers-dir ~/flyers` with code-named files. A flyer is only used as the card image when there is no photo; it is always available through “Ver flyer”.
 
 - The importer copies matched files into `assets/inventory/` under a content-addressed name (e.g. `bo_00001-4caece539b.jpg`), so re-running does not create `-2`, `-3` duplicates, and replacing a photo produces a new path.
+- If a file's name is not usable, the importer also looks for a `BO-xxxxx` code inside the image metadata (EXIF ImageDescription/UserComment/XMP, or PNG Description/Comment) and attaches it on a match. This lets a flyer generator stamp the code into the file without renaming it. Codes printed *in the pixels* are not read — that needs OCR; write the code into the metadata (or the filename) instead.
 - **Embedded Excel images cannot be mapped to rows.** If the workbook has pictures floating over cells, export them (or screenshot the flyer) and name them by code, or list the filenames in the `foto` column.
 - Use `--dry-run` to see which rows are missing an image before writing.
 - Optimize before importing: WebP or JPEG around 1200px wide, under ~200 KB. Images are committed to the repo, so keep originals out of `data/`.

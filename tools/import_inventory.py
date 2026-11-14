@@ -361,6 +361,60 @@ def find_photo(directory, name):
     return None
 
 
+_METADATA_CACHE = {}
+
+
+def embedded_code(path):
+    """Read a BO-xxxxx code from image metadata, if the image carries one.
+
+    Checks EXIF ImageDescription/UserComment/XMP and PNG Description/Comment
+    text. Reading a code printed *in the pixels* would need OCR; this does not.
+    """
+    try:
+        from PIL import Image
+    except ImportError:
+        return None
+    try:
+        with Image.open(path) as image:
+            texts = []
+            for key in ("Description", "Comment", "Title", "ImageDescription"):
+                value = image.info.get(key)
+                if value:
+                    texts.append(value.decode("utf-8", "ignore") if isinstance(value, bytes) else str(value))
+            exif = image.getexif()
+            for tag in (270, 37510, 700):
+                value = exif.get(tag)
+                if value:
+                    texts.append(value.decode("utf-8", "ignore") if isinstance(value, bytes) else str(value))
+            for value in texts:
+                match = re.search(r"\bBO-\d{5}\b", value, re.I)
+                if match:
+                    return match.group(0).upper()
+    except Exception:
+        return None
+    return None
+
+
+def metadata_index(directory):
+    """Map product codes found in image metadata to their files."""
+    key = str(directory)
+    if key in _METADATA_CACHE:
+        return _METADATA_CACHE[key]
+    index = {}
+    try:
+        import PIL  # noqa: F401
+    except ImportError:
+        _METADATA_CACHE[key] = index
+        return index
+    for candidate in sorted(directory.iterdir()):
+        if candidate.is_file() and candidate.suffix.lower() in IMAGE_EXTS:
+            code = embedded_code(candidate)
+            if code and code.lower() not in index:
+                index[code.lower()] = candidate
+    _METADATA_CACHE[key] = index
+    return index
+
+
 def find_by_code(directory, item_id):
     """Match files named after the product code, e.g. BO-00001.jpg."""
     if not directory:
@@ -374,7 +428,10 @@ def find_by_code(directory, item_id):
     for candidate in sorted(directory.iterdir()):
         if candidate.is_file() and candidate.suffix.lower() in IMAGE_EXTS and pattern.match(candidate.stem.lower()):
             return candidate
-    return None
+
+    # No filename match: try a code embedded in the image metadata.
+    index = metadata_index(directory)
+    return index.get(wanted)
 
 
 
