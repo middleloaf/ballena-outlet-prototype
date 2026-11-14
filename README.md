@@ -39,7 +39,7 @@ python3 tools/import_inventory.py data/inventory.sample.csv --sample
 # Import the store's workbook (STOCK TIENDAS sheet)
 python3 tools/import_inventory.py data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx
 
-# Photos go in photos/, flyers in flyers/; the importer picks them up automatically
+# Photos go in data/source/photos/, flyers in data/source/flyers/; the importer picks them up automatically
 python3 tools/import_inventory.py data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx
 
 # Validate without writing anything
@@ -85,14 +85,14 @@ Any other column (cost, supplier, internal notes) is ignored and never reaches t
 
 There are two ways to attach an image to a product:
 
-1. **By product code (bulk).** Drop the files in the project's `photos/` folder (created for you), named after the code: `BO-00001.jpg`, `BO-00002.jpg`, … Then run
+1. **By product code (bulk).** Drop the files in `data/source/photos/`, named after the code: `BO-00001.jpg`, `BO-00002.jpg`, … Then run
    `python3 tools/import_inventory.py data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx`.
-   The importer uses `photos/` and `flyers/` automatically when those folders exist; `--photos-dir`/`--flyers-dir` point it elsewhere. Suffixes such as `BO-00001-front.jpg` are accepted too.
-2. **Per row.** Add a `foto` column to the sheet with the exact filename (`IMG_1234.jpg`) or a repo path, and put that file in `photos/` (or pass `--photos-dir`). This is the option when camera files are not renamed.
+   The importer uses `data/source/photos/` and `data/source/flyers/` automatically when those folders exist; `--photos-dir`/`--flyers-dir` point it elsewhere. Suffixes such as `BO-00001-front.jpg` are accepted too.
+2. **Per row.** Add a `foto` column to the sheet with the exact filename (`IMG_1234.jpg`) or a repo path, and put that file in `data/source/photos/` (or pass `--photos-dir`). This is the option when camera files are not renamed.
 
 Flyers work the same way: either `flyer_es` / `flyer_en` columns with filenames, or `--flyers-dir ~/flyers` with code-named files. A flyer is only used as the card image when there is no photo; it is always available through “Ver flyer”.
 
-- The importer copies matched files into `assets/inventory/` under a content-addressed name (e.g. `bo_00001-4caece539b.jpg`), so re-running does not create `-2`, `-3` duplicates, and replacing a photo produces a new path. `photos/` and `flyers/` are git-ignored source folders; only `assets/inventory/` is committed.
+- The importer copies matched files into `assets/inventory/` under a content-addressed name (e.g. `bo_00001-4caece539b.jpg`), so re-running does not create `-2`, `-3` duplicates, and replacing a photo produces a new path. `data/source/photos/` and `data/source/flyers/` are git-ignored source folders; only `assets/inventory/` is committed.
 - If a file's name is not usable, the importer also looks for a `BO-xxxxx` code inside the image metadata (EXIF ImageDescription/UserComment/XMP, or PNG Description/Comment) and attaches it on a match. This lets a flyer generator stamp the code into the file without renaming it. Codes printed *in the pixels* are not read — that needs OCR; write the code into the metadata (or the filename) instead.
 - **Embedded Excel images cannot be mapped to rows.** If the workbook has pictures floating over cells, export them (or screenshot the flyer) and name them by code, or list the filenames in the `foto` column.
 - Use `--dry-run` to see which rows are missing an image before writing.
@@ -102,7 +102,7 @@ Flyers work the same way: either `flyer_es` / `flyer_en` columns with filenames,
 
 ### Publishing workflow
 
-1. Update the sheet, drop new photos/flyers in a folder.
+1. Update the sheet, drop new photos/flyers in `data/source/photos/` or `data/source/flyers/`.
 2. Run the importer (it prints skipped rows and warnings).
 3. Review `data/inventory.json`, then commit `data/inventory.json` and `assets/inventory/`.
 4. Reload the page. The section shows the new list; sold items disappear because only `disponible` rows are exported.

@@ -644,8 +644,8 @@ def main():
     parser = argparse.ArgumentParser(description="Genera data/inventory.json desde una hoja de inventario.")
     parser.add_argument("source", help="Archivo .xlsx o .csv con el inventario.")
     parser.add_argument("--out", default=str(DEFAULT_OUT), help="Ruta del JSON de salida.")
-    parser.add_argument("--photos-dir", help="Carpeta de fotos de producto; por defecto photos/ si existe.")
-    parser.add_argument("--flyers-dir", help="Carpeta de flyers; por defecto flyers/ si existe.")
+    parser.add_argument("--photos-dir", help="Carpeta de fotos de producto; por defecto data/source/photos/ si existe.")
+    parser.add_argument("--flyers-dir", help="Carpeta de flyers; por defecto data/source/flyers/ si existe.")
     parser.add_argument("--sample", action="store_true", help="Marca el JSON como inventario de muestra.")
     parser.add_argument("--dry-run", action="store_true", help="Valida y muestra el resumen sin escribir.")
     args = parser.parse_args()
@@ -656,10 +656,10 @@ def main():
 
     photos_dir = args.photos_dir
     flyers_dir = args.flyers_dir
-    if not photos_dir and (ROOT / "photos").is_dir():
-        photos_dir = str(ROOT / "photos")
-    if not flyers_dir and (ROOT / "flyers").is_dir():
-        flyers_dir = str(ROOT / "flyers")
+    if not photos_dir and (ROOT / "data" / "source" / "photos").is_dir():
+        photos_dir = str(ROOT / "data" / "source" / "photos")
+    if not flyers_dir and (ROOT / "data" / "source" / "flyers").is_dir():
+        flyers_dir = str(ROOT / "data" / "source" / "flyers")
 
     rows = load_rows(source)
     items, warnings, skipped, guessed = build(rows, photos_dir, flyers_dir, args.sample)
@@ -683,11 +683,11 @@ def main():
     for line in warnings:
         print(f"  aviso    {line}")
     report_unmatched(
-        photos_dir, "photos/",
+        photos_dir, "data/source/photos/",
         "Renombrá el archivo como BO-00001.jpg o agregá una columna 'foto' con el nombre exacto.",
     )
     report_unmatched(
-        flyers_dir, "flyers/",
+        flyers_dir, "data/source/flyers/",
         "Renombrá el archivo como BO-00001.jpg o agregá una columna 'flyer_es' con el nombre exacto.",
     )
 
