@@ -55,7 +55,7 @@ python3 tools/import_inventory.py inventario.xlsx --dry-run
 `Código`, `Producto`, `Cantidad manifiesto`, `Precio etiqueta ₡`, `Conteo Tienda 1`, `Conteo Tienda 2`, `Conteo bodega`, `Total actual`, `Estado`.
 
 - **Quantity** prefers the physical store counts. While those columns are empty it falls back to `Total actual`, then to `Cantidad manifiesto` as a provisional quantity, so the site can go live before the count is finished. Rows at 0 are hidden.
-- **Price** is the tag price from the sheet. Internal sheets such as `INVENTARIO ORIGINAL` (cost, base amount, discount) are not read, so cost data never reaches the public JSON.
+- **Price** is the tag price from the sheet. The 15% discount in `INVENTARIO ORIGINAL` is applied at the register, not on the site: the card shows the tag price, and that sheet (cost, base amount, discounted price) is not read, so internal figures never reach the public JSON.
 - **Category** is inferred from the product name when the sheet has no category column; the import report prints the distribution and flags anything left in `otros`.
 - **Photos/flyers** are matched by product code (`BO-00001.jpg`) when `--photos-dir`/`--flyers-dir` is given. Until photos exist, cards show a neutral placeholder with the product group, so the list is still usable.
 
