@@ -81,12 +81,24 @@ One row per item. Header names are matched accent- and case-insensitively; these
 
 Any other column (cost, supplier, internal notes) is ignored and never reaches the public JSON.
 
-### Photos and flyers
+### Attaching photos and flyers
 
-- Put product photos in `assets/inventory/` (the importer creates it). Keep the sheet's image column to filenames, not embedded pictures — embedded Excel images can't be matched to rows reliably.
-- The grid uses the clean product photo. A flyer is used as the card image only when there is no photo, and is always available through “Ver flyer”. Flyers are often 4:5 or 9:16 with text, so they are letterboxed rather than cropped.
+There are two ways to attach an image to a product:
+
+1. **By product code (bulk).** Name the files after the code and point the importer at the folder:
+   `BO-00001.jpg`, `BO-00002.jpg`, … then run
+   `python3 tools/import_inventory.py data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx --photos-dir ~/fotos`.
+   Suffixes such as `BO-00001-front.jpg` are accepted too.
+2. **Per row.** Add a `foto` column to the sheet with the exact filename (`IMG_1234.jpg`) or a repo path, then import with `--photos-dir ~/fotos`. This is the option when camera files are not renamed.
+
+Flyers work the same way: either `flyer_es` / `flyer_en` columns with filenames, or `--flyers-dir ~/flyers` with code-named files. A flyer is only used as the card image when there is no photo; it is always available through “Ver flyer”.
+
+- The importer copies matched files into `assets/inventory/` under a content-addressed name (e.g. `bo_00001-4caece539b.jpg`), so re-running does not create `-2`, `-3` duplicates, and replacing a photo produces a new path.
+- **Embedded Excel images cannot be mapped to rows.** If the workbook has pictures floating over cells, export them (or screenshot the flyer) and name them by code, or list the filenames in the `foto` column.
+- Use `--dry-run` to see which rows are missing an image before writing.
+- Optimize before importing: WebP or JPEG around 1200px wide, under ~200 KB. Images are committed to the repo, so keep originals out of `data/`.
 - Flyers with Spanish text on the EN page are flagged by the importer; add `flyer_en` if the English page should show English artwork.
-- Optimize images before importing (WebP/JPEG around 1200px wide) so the page stays fast.
+- Cards without any image show a neutral placeholder with the product group; the list stays usable while photos are being added.
 
 ### Publishing workflow
 

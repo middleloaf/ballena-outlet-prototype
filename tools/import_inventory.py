@@ -329,25 +329,22 @@ def load_rows(path):
     raise SystemExit(f"Formato no soportado: {path.suffix}. Usá .xlsx o .csv.")
 
 
-def sanitize_name(name):
-    stem = fold(Path(name).stem) or "item"
-    suffix = Path(name).suffix.lower()
+def copy_image(source):
+    """Copy into assets/inventory under a stable, content-addressed name.
+
+    Re-importing the same photo reuses the same path; replacing it produces a
+    new path instead of piling up "-2", "-3" copies on every run.
+    """
+    IMAGE_DIR.mkdir(parents=True, exist_ok=True)
+    digest = hashlib.sha1(source.read_bytes()).hexdigest()[:10]
+    stem = fold(Path(source).stem) or "item"
+    suffix = Path(source).suffix.lower()
     if suffix not in IMAGE_EXTS:
         suffix = ".jpg"
-    return f"{stem}{suffix}"
-
-
-def unique_target(name):
-    target = IMAGE_DIR / name
+    target = IMAGE_DIR / f"{stem}-{digest}{suffix}"
     if not target.exists():
-        return target
-    stem, suffix = target.stem, target.suffix
-    index = 2
-    while True:
-        candidate = IMAGE_DIR / f"{stem}-{index}{suffix}"
-        if not candidate.exists():
-            return candidate
-        index += 1
+        shutil.copy2(source, target)
+    return target.relative_to(ROOT).as_posix()
 
 
 def find_photo(directory, name):
@@ -372,17 +369,14 @@ def find_by_code(directory, item_id):
     if not directory.is_dir():
         return None
     wanted = item_id.lower()
+    # BO-00001.jpg, and BO-00001-front.jpg, but not BO-000010.jpg.
+    pattern = re.compile(r"^" + re.escape(wanted) + r"(?![0-9])")
     for candidate in sorted(directory.iterdir()):
-        if candidate.is_file() and candidate.suffix.lower() in IMAGE_EXTS and candidate.stem.lower() == wanted:
+        if candidate.is_file() and candidate.suffix.lower() in IMAGE_EXTS and pattern.match(candidate.stem.lower()):
             return candidate
     return None
 
 
-def copy_image(source):
-    IMAGE_DIR.mkdir(parents=True, exist_ok=True)
-    target = unique_target(sanitize_name(source.name))
-    shutil.copy2(source, target)
-    return target.relative_to(ROOT).as_posix()
 
 
 def resolve_image(value, photos_dir, warnings, label):
@@ -537,7 +531,7 @@ def build(sheet_rows, photos_dir, flyers_dir, sample):
         if photo:
             item["foto"] = photo
 
-        flyer_es = resolve_image(raw.get("flyer_es"), photos_dir, warnings, label)
+        flyer_es = resolve_image(raw.get("flyer_es"), flyers_dir, warnings, label)
         if not flyer_es:
             match = find_by_code(flyers_dir, item_id)
             if match:
@@ -545,7 +539,7 @@ def build(sheet_rows, photos_dir, flyers_dir, sample):
         if flyer_es:
             item["flyer_es"] = flyer_es
 
-        flyer_en = resolve_image(raw.get("flyer_en"), photos_dir, warnings, label)
+        flyer_en = resolve_image(raw.get("flyer_en"), flyers_dir, warnings, label)
         if flyer_en:
             item["flyer_en"] = flyer_en
 
