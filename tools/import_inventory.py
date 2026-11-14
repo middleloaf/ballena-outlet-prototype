@@ -377,7 +377,7 @@ def embedded_code(path):
     try:
         with Image.open(path) as image:
             texts = []
-            for key in ("Description", "Comment", "Title", "ImageDescription"):
+            for key in ("Description", "Comment", "Title", "ImageDescription", "description", "comment", "title"):
                 value = image.info.get(key)
                 if value:
                     texts.append(value.decode("utf-8", "ignore") if isinstance(value, bytes) else str(value))
