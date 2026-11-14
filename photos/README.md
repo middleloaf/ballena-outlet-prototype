@@ -46,3 +46,14 @@ Si existe esta carpeta, el importador la usa automáticamente. Para usar otra:
 
 Los flyers van en `flyers/`, con las mismas reglas (o en las columnas
 `flyer_es` / `flyer_en` de la hoja).
+
+## Mapeo sin renombrar
+
+Si preferís no renombrar las fotos, completá `map.csv` en esta carpeta:
+
+```
+archivo,codigo
+IMG_1234.jpg,BO-00001
+```
+
+El importador copia el archivo y lo asocia a ese artículo.

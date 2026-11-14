@@ -417,6 +417,39 @@ def metadata_index(directory):
     return index
 
 
+def load_map(directory):
+    """Read <directory>/map.csv (archivo,codigo) into {code: image path}."""
+    if not directory:
+        return {}, []
+    path = Path(directory).expanduser() / "map.csv"
+    if not path.is_file():
+        return {}, []
+    rows = read_csv(path)
+    if not rows:
+        return {}, []
+    header = [fold(cell) for cell in rows[0]]
+    if "archivo" not in header or "codigo" not in header:
+        return {}, [f"{path.name}: faltan las columnas 'archivo' y 'codigo'."]
+    name_at = header.index("archivo")
+    code_at = header.index("codigo")
+    resolved = {}
+    problems = []
+    for line_number, row in enumerate(rows[1:], start=2):
+        if not any(str(value).strip() for value in row):
+            continue
+        name = str(row[name_at]).strip() if name_at < len(row) else ""
+        code = str(row[code_at]).strip() if code_at < len(row) else ""
+        if not name or not code:
+            problems.append(f"{path.name} línea {line_number}: falta el archivo o el código.")
+            continue
+        candidate = path.parent / name
+        if not candidate.is_file():
+            problems.append(f"{path.name} línea {line_number}: no existe '{name}' en la carpeta.")
+            continue
+        resolved[code.lower()] = candidate
+    return resolved, problems
+
+
 def find_by_code(directory, item_id):
     """Match files named after the product code, e.g. BO-00001.jpg."""
     if not directory:
@@ -488,10 +521,13 @@ def make_id(row, index):
     return "item-" + hashlib.sha1(seed.encode("utf-8")).hexdigest()[:8]
 
 
-def build(sheet_rows, photos_dir, flyers_dir, sample):
+def build(sheet_rows, photos_dir, flyers_dir, sample, photo_map=None, flyer_map=None):
+    photo_map = photo_map or {}
+    flyer_map = flyer_map or {}
     warnings = []
     skipped = []
     items = []
+    used_map = set()
     seen_ids = set()
     guessed = Counter()
     missing_en = 0
@@ -587,6 +623,9 @@ def build(sheet_rows, photos_dir, flyers_dir, sample):
             match = find_by_code(photos_dir, item_id)
             if match:
                 photo = copy_image(match)
+        if not photo and item_id.lower() in photo_map:
+            photo = copy_image(photo_map[item_id.lower()])
+            used_map.add(item_id.lower())
         if photo:
             item["foto"] = photo
 
@@ -595,6 +634,9 @@ def build(sheet_rows, photos_dir, flyers_dir, sample):
             match = find_by_code(flyers_dir, item_id)
             if match:
                 flyer_es = copy_image(match)
+        if not flyer_es and item_id.lower() in flyer_map:
+            flyer_es = copy_image(flyer_map[item_id.lower()])
+            used_map.add(item_id.lower())
         if flyer_es:
             item["flyer_es"] = flyer_es
 
@@ -614,6 +656,11 @@ def build(sheet_rows, photos_dir, flyers_dir, sample):
     if any(item["category"] == "otros" for item in items):
         others = [item["name_es"] for item in items if item["category"] == "otros"]
         warnings.append(f"{len(others)} artículos quedaron en 'otros': " + "; ".join(others[:5]))
+
+    unused = sorted((set(photo_map) | set(flyer_map)) - used_map)
+    if unused:
+        warnings.append(f"map.csv: {len(unused)} códigos no coinciden con ningún artículo publicado: "
+                        + ", ".join(code.upper() for code in unused[:5]))
 
     return items, warnings, skipped, guessed
 
@@ -661,8 +708,14 @@ def main():
     if not flyers_dir and (ROOT / "flyers").is_dir():
         flyers_dir = str(ROOT / "flyers")
 
+    photo_map, photo_map_problems = load_map(photos_dir)
+    flyer_map, flyer_map_problems = load_map(flyers_dir)
+
     rows = load_rows(source)
-    items, warnings, skipped, guessed = build(rows, photos_dir, flyers_dir, args.sample)
+    items, warnings, skipped, guessed = build(
+        rows, photos_dir, flyers_dir, args.sample, photo_map, flyer_map
+    )
+    warnings = photo_map_problems + flyer_map_problems + warnings
 
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -684,11 +737,11 @@ def main():
         print(f"  aviso    {line}")
     report_unmatched(
         photos_dir, "photos/",
-        "Renombrá el archivo como BO-00001.jpg o agregá una columna 'foto' con el nombre exacto.",
+        "Renombrá el archivo como BO-00001.jpg, agregá una columna 'foto' o completá photos/map.csv.",
     )
     report_unmatched(
         flyers_dir, "flyers/",
-        "Renombrá el archivo como BO-00001.jpg o agregá una columna 'flyer_es' con el nombre exacto.",
+        "Renombrá el archivo como BO-00001.jpg, agregá una columna 'flyer_es' o completá flyers/map.csv.",
     )
 
     if args.dry_run:

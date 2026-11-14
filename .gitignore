@@ -4,5 +4,7 @@ __pycache__/
 # Source images: only the copies in assets/inventory/ are committed.
 photos/*
 !photos/README.md
+!photos/map.csv
 flyers/*
 !flyers/README.md
+!flyers/map.csv
