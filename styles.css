@@ -3130,6 +3130,18 @@ html[lang="en"] .feeds-head h2 {
   display: none;
 }
 
+.inv-preview-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.inv-preview-foot .inv-count {
+  margin-left: 0;
+}
+
 .inv-chip {
   padding: 8px 12px;
   font-size: 11px;
@@ -3452,11 +3464,28 @@ html[lang="en"] .feeds-head h2 {
   .inv-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+
+  .inv-grid[data-preview] {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
+  }
+
+  .inv-grid[data-preview] .inv-card {
+    flex: 0 0 32%;
+    scroll-snap-align: start;
+  }
 }
 
 @media (max-width: 760px) {
   .inv-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .inv-grid[data-preview] .inv-card {
+    flex-basis: 62%;
   }
 
   .inv-toolbar {
@@ -3505,6 +3534,15 @@ html[lang="en"] .feeds-head h2 {
 @media (max-width: 560px) {
   .inv-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .inv-grid[data-preview] .inv-card {
+    flex-basis: 82%;
+  }
+
+  .inv-preview-foot {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .inv-media {

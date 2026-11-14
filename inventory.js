@@ -22,6 +22,8 @@
   var dialogClose = document.getElementById("inv-lightbox-close");
   var whatsapp = "50663132925";
   var PAGE_SIZE = 24;
+  var previewLimit = parseInt(grid.getAttribute("data-preview"), 10);
+  if (!previewLimit || previewLimit < 1) previewLimit = 0;
 
   var allItems = [];
   var state = { query: "", category: "all", sort: "relevance", min: null, max: null, shown: PAGE_SIZE };
@@ -215,7 +217,18 @@
     return sorted;
   }
 
+  function previewSelection(limit) {
+    var withImages = [];
+    var rest = [];
+    allItems.forEach(function (item) {
+      var hasImage = safeImage(item.foto) || safeImage(item.flyer_es) || safeImage(item.flyer_en);
+      (hasImage ? withImages : rest).push(item);
+    });
+    return withImages.concat(rest).slice(0, limit);
+  }
+
   function visibleItems() {
+    if (previewLimit) return previewSelection(previewLimit);
     var query = normalize(state.query).trim();
     var filtered = allItems.filter(function (item) {
       if (state.category !== "all" && item.category !== state.category) return false;
@@ -366,11 +379,12 @@
       });
     }
 
+    var total = previewLimit ? allItems.length : list.length;
     if (countEl) {
-      countEl.textContent = copy.showing(Math.min(state.shown, list.length), list.length);
+      countEl.textContent = copy.showing(Math.min(state.shown, list.length), total);
     }
     if (moreWrap) {
-      moreWrap.hidden = list.length <= state.shown;
+      moreWrap.hidden = previewLimit ? true : list.length <= state.shown;
     }
     updateClear();
   }
@@ -480,6 +494,7 @@
         return;
       }
 
+      if (previewLimit) state.shown = previewLimit;
       renderFilters();
       render();
     })

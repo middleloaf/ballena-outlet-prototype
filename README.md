@@ -4,6 +4,8 @@ A Spanish/English website for **Ballena Outlet**, a liquidation store in Uvita, 
 
 - **Spanish site:** `index.html` (Costa Rica flag / ES)
 - **English site:** `en.html` (U.S. flag / EN)
+- **Spanish catalog:** `inventario.html` (full searchable inventory)
+- **English catalog:** `inventory.html` (full searchable inventory)
 - **Shared design:** `styles.css`
 - **Interactions:** `script.js` (mobile menu, reveals, FAQ behavior, feed labeling)
 - **Assets:** `assets/` (storefront hero, real store photos, SVG brand logo, SVG favicon)
@@ -14,7 +16,7 @@ A Spanish/English website for **Ballena Outlet**, a liquidation store in Uvita, 
 python3 -m http.server 4173
 ```
 
-Then open `http://localhost:4173/index.html` (Spanish) or `http://localhost:4173/en.html` (English).
+Then open `http://localhost:4173/index.html` (Spanish) or `http://localhost:4173/en.html` (English). The full catalog is at `http://localhost:4173/inventario.html` (Spanish) and `http://localhost:4173/inventory.html` (English).
 
 ## What's included
 
@@ -25,7 +27,7 @@ Then open `http://localhost:4173/index.html` (Spanish) or `http://localhost:4173
 - Real store photos in the “Un lugar real / A real place” section, with a provisional-photo disclaimer and a Google Maps location embed.
 - Store pickup and in-store shipping messaging throughout; no online checkout.
 - Product groups with clearer examples, how-it-works steps, value props, FAQ, and a mobile quick-action bar.
-- A live “Disponible hoy / Available today” section on both pages, rendered from `data/inventory.json` (built from a spreadsheet, see below).
+- A live “Disponible hoy / Available today” section on both home pages: a four-item preview that links to the full catalog. The catalog pages (`inventario.html` / `inventory.html`) have the complete searchable, filterable, sortable list, rendered from `data/inventory.json` (built from a spreadsheet, see below).
 - Persistent prototype notice in both languages, a detailed “About this prototype” section, and `noindex` metadata so search engines do not treat the demo as final.
 
 ## Inventory from a spreadsheet
@@ -105,8 +107,8 @@ Flyers work the same way: either `flyer_es` / `flyer_en` columns with filenames,
 1. Update the sheet, drop new photos/flyers in `data/source/photos/` or `data/source/flyers/`.
 2. Run the importer (it prints skipped rows and warnings).
 3. Review `data/inventory.json`, then commit `data/inventory.json` and `assets/inventory/`.
-4. Reload the page. The section shows the new list; sold items disappear because only `disponible` rows are exported.
-5. The public list is paginated in the browser (24 cards, “Ver más / Load more”) and has free-text search, category filters, a price range, and sorting by price, name, quantity, or newest; 1,320 items load from one JSON file.
+4. Reload the home page for the four-item preview, or the catalog page for the full list. Sold items disappear because only `disponible` rows are exported.
+5. The catalog page paginates in the browser (24 cards, “Ver más / Load more”) and has free-text search, category filters, a price range, and sorting by price, name, quantity, or newest; 1,320 items load from one JSON file.
 
 When Kapso is wired up later, it can read this same `data/inventory.json` (or the database behind it) instead of the site being the source of truth.
 
@@ -132,9 +134,10 @@ With `make` installed, the same commands are `make preview`, `make inventory`, a
 ```bash
 python3 -m http.server 4173
 # http://localhost:4173/index.html
+# http://localhost:4173/inventario.html
 ```
 
-Deploy by uploading the static files to any host (Netlify, Cloudflare Pages, GitHub Pages, nginx/Apache): `index.html`, `en.html`, `styles.css`, `script.js`, `inventory.js`, `data/inventory.json`, and `assets/`. There is no server-side code, and the site works under a subpath because all references are relative.
+Deploy by uploading the static files to any host (Netlify, Cloudflare Pages, GitHub Pages, nginx/Apache): `index.html`, `en.html`, `inventario.html`, `inventory.html`, `styles.css`, `script.js`, `inventory.js`, `data/inventory.json`, and `assets/`. There is no server-side code, and the site works under a subpath because all references are relative.
 
 ### What travels with the repo
 

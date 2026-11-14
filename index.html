@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Instrument+Serif:ital@0;1&family=Inter:wght@400..700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20261123">
+  <link rel="stylesheet" href="styles.css?v=20261125">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -89,7 +89,7 @@
       </a>
 
       <nav class="nav" aria-label="Navegación principal">
-        <a href="#disponible">Disponible hoy</a>
+        <a href="inventario.html">Disponible hoy</a>
         <a href="#redes">Redes</a>
         <a href="#como">Cómo funciona</a>
         <a href="#tienda">La tienda</a>
@@ -155,7 +155,7 @@
       </button>
     </div>
     <nav class="mobile-nav" aria-label="Navegación móvil">
-      <a href="#disponible">Disponible hoy</a>
+      <a href="inventario.html">Disponible hoy</a>
       <a href="#redes">Redes</a>
       <a href="#como">Cómo funciona</a>
       <a href="#tienda">La tienda</a>
@@ -274,45 +274,16 @@
         <div class="section-head">
           <div>
             <div class="kicker-row"><p class="eyebrow">En tienda ahora</p><span class="kicker-line" aria-hidden="true"></span></div>
-            <h2 id="inv-title">Lo que hay <em>disponible hoy.</em></h2>
+            <h2 id="inv-title">Un vistazo a lo que hay <em>disponible hoy.</em></h2>
           </div>
-          <p class="lede">Precios de etiqueta del inventario real de la tienda. Cambia seguido: si algo te interesa, escribinos y lo reservamos.</p>
+          <p class="lede">Estos son algunos de los artículos publicados. El inventario completo se puede buscar, filtrar y ordenar por precio, nombre o cantidad.</p>
         </div>
 
-        <div class="inv-toolbar" id="inv-toolbar">
-          <div class="inv-search">
-            <label class="visually-hidden" for="inv-search">Buscar en el inventario</label>
-            <input id="inv-search" type="search" placeholder="Buscar producto o código…" autocomplete="off" spellcheck="false">
-          </div>
-          <div class="inv-sort">
-            <label for="inv-sort">Ordenar</label>
-            <select id="inv-sort">
-              <option value="relevance">Orden del inventario</option>
-              <option value="price_asc">Precio: menor a mayor</option>
-              <option value="price_desc">Precio: mayor a menor</option>
-              <option value="name_asc">Nombre: A-Z</option>
-              <option value="qty_desc">Más unidades</option>
-              <option value="id_desc">Más reciente</option>
-            </select>
-          </div>
+        <div class="inv-grid" id="inv-grid" data-preview="4"></div>
+
+        <div class="inv-preview-foot">
           <p class="inv-count" id="inv-count" aria-live="polite"></p>
-        </div>
-
-        <div class="inv-filters-row">
-          <div class="inv-filters" id="inv-filters" role="group" aria-label="Filtrar por categoría"></div>
-          <div class="inv-price-filter">
-            <span class="inv-price-label" id="inv-price-label">Precio (₡)</span>
-            <input id="inv-min" type="number" min="0" step="1000" inputmode="numeric" placeholder="Mín" aria-labelledby="inv-price-label">
-            <span aria-hidden="true">–</span>
-            <input id="inv-max" type="number" min="0" step="1000" inputmode="numeric" placeholder="Máx" aria-labelledby="inv-price-label">
-          </div>
-          <button class="inv-clear" id="inv-clear" type="button" hidden>Limpiar filtros</button>
-        </div>
-
-        <div class="inv-grid" id="inv-grid"></div>
-
-        <div class="inv-more-wrap" id="inv-more-wrap" hidden>
-          <button class="btn btn-outline" id="inv-more" type="button">Ver más</button>
+          <a class="btn btn-primary" href="inventario.html">Ver todo el inventario <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
 
         <p class="inv-note" id="inv-note" hidden></p>
@@ -676,7 +647,7 @@
           <p class="prototype-lede">Estamos probando el diseño, el contenido y la forma de presentar la tienda antes de publicar la versión final. Por eso el sitio se identifica como prototipo en todo momento.</p>
           <ul class="prototype-list">
             <li><strong>Contenido de ejemplo.</strong> Los textos, los grupos de productos y los enlaces pueden cambiar cuando el negocio revise la información.</li>
-            <li><strong>Sin catálogo en línea.</strong> No hay carrito ni checkout. El inventario real se confirma por WhatsApp o directamente en la tienda.</li>
+            <li><strong>Sin checkout en línea.</strong> El catálogo es informativo; no hay carrito ni pago en línea. La disponibilidad se confirma por WhatsApp o en la tienda.</li>
             <li><strong>Fotos provisionales.</strong> Las fotos del local son reales, pero no son profesionales; las vamos a volver a tomar.</li>
             <li><strong>Versión final pendiente.</strong> Cuando el diseño y el contenido estén aprobados, se quitará el aviso de prototipo y se actualizarán los enlaces.</li>
           </ul>
@@ -708,7 +679,7 @@
         <div>
           <h3>Explorar</h3>
           <nav class="footer-links" aria-label="Enlaces del sitio">
-            <a href="#disponible">Disponible hoy</a>
+            <a href="inventario.html">Disponible hoy</a>
             <a href="#redes">Redes sociales</a>
             <a href="#como">Cómo funciona</a>
             <a href="#tienda">La tienda</a>
@@ -766,7 +737,7 @@
     </a>
   </div>
 
-  <script src="inventory.js?v=20261115"></script>
+  <script src="inventory.js?v=20261116"></script>
   <script src="script.js?v=20261112"></script>
 </body>
 </html>
