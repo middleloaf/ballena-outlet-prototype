@@ -10,16 +10,3 @@ recortados.
 
 Para la página en inglés podés agregar una columna `flyer_en` en la hoja con
 el flyer en inglés; si no, se usa el de español.
-
-## Mapeo sin renombrar
-
-`map.csv` ya lista los archivos de esta carpeta con la columna `codigo` vacía.
-Completala con el código de cada artículo y el importador los asocia sin
-renombrar nada:
-
-```
-archivo,codigo
-WhatsApp Image 2026-11-12 at 11.37.25 AM.jpeg,BO-00001
-```
-
-Los códigos que no existan en el inventario se reportan al importar.

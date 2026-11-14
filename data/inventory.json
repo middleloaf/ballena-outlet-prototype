@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-14T16:28:30+00:00",
+  "generated_at": "2026-11-14T16:40:51+00:00",
   "sample": false,
   "count": 1320,
   "items": [
@@ -2220,7 +2220,8 @@
       "name_es": "Dash Sauce Fountain",
       "category": "electrodomesticos",
       "qty": 2,
-      "price_crc": 23000
+      "price_crc": 23000,
+      "flyer_es": "assets/inventory/bo_00317-10bdc254eb.jpeg"
     },
     {
       "id": "BO-00318",
@@ -2374,7 +2375,8 @@
       "name_es": "Dash Cotton Candy Cream",
       "category": "electrodomesticos",
       "qty": 2,
-      "price_crc": 23000
+      "price_crc": 23000,
+      "flyer_es": "assets/inventory/bo_00339-cf175c0369.jpeg"
     },
     {
       "id": "BO-00340",
@@ -5622,7 +5624,8 @@
       "name_es": "B. toys Toy Drum Set 7 Instruments - Parum Pum Pum: Music Percussion, Social Skills, Fine Motor Development",
       "category": "juguetes",
       "qty": 2,
-      "price_crc": 14500
+      "price_crc": 14500,
+      "flyer_es": "assets/inventory/bo_00803-6af8f92315.jpeg"
     },
     {
       "id": "BO-00804",
@@ -9003,7 +9006,8 @@
       "name_es": "Hyper Burst Shockout Circuit Battle Race Track Set",
       "category": "juguetes",
       "qty": 1,
-      "price_crc": 9000
+      "price_crc": 9000,
+      "flyer_es": "assets/inventory/bo_01286-c626e08f5a.jpeg"
     },
     {
       "id": "BO-01287",
