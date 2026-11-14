@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-14T16:40:51+00:00",
+  "generated_at": "2026-11-14T16:51:57+00:00",
   "sample": false,
   "count": 1320,
   "items": [
@@ -5022,7 +5022,8 @@
       "name_es": "5' x 5' ABC Floor Mat Set - 36pc - Gigglescape: Multicolored Baby Playmat, Letters Pattern, Newborn and Up",
       "category": "juguetes",
       "qty": 2,
-      "price_crc": 14500
+      "price_crc": 14500,
+      "flyer_es": "assets/inventory/bo_00717-5e8c84e667.jpeg"
     },
     {
       "id": "BO-00718",
@@ -6444,7 +6445,8 @@
       "name_es": "Dash MultiMaker Ceramic Nonstick Mini Waffle Maker System with 6 Removeable Holiday Plates",
       "category": "electrodomesticos",
       "qty": 2,
-      "price_crc": 13000
+      "price_crc": 13000,
+      "flyer_es": "assets/inventory/bo_00920-80d381539a.jpeg"
     },
     {
       "id": "BO-00921",

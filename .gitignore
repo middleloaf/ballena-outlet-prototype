@@ -6,3 +6,4 @@ photos/*
 !photos/README.md
 flyers/*
 !flyers/README.md
+data/source/.~lock*
