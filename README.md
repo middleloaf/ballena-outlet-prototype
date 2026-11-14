@@ -39,8 +39,8 @@ python3 tools/import_inventory.py data/inventory.sample.csv --sample
 # Import the store's workbook (STOCK TIENDAS sheet)
 python3 tools/import_inventory.py data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx
 
-# Copy photos/flyers named after the product code (BO-00001.jpg) into assets/inventory/
-python3 tools/import_inventory.py inventario.xlsx --photos-dir ~/fotos --flyers-dir ~/flyers
+# Photos go in photos/, flyers in flyers/; the importer picks them up automatically
+python3 tools/import_inventory.py data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx
 
 # Validate without writing anything
 python3 tools/import_inventory.py inventario.xlsx --dry-run
@@ -85,15 +85,14 @@ Any other column (cost, supplier, internal notes) is ignored and never reaches t
 
 There are two ways to attach an image to a product:
 
-1. **By product code (bulk).** Name the files after the code and point the importer at the folder:
-   `BO-00001.jpg`, `BO-00002.jpg`, … then run
-   `python3 tools/import_inventory.py data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx --photos-dir ~/fotos`.
-   Suffixes such as `BO-00001-front.jpg` are accepted too.
-2. **Per row.** Add a `foto` column to the sheet with the exact filename (`IMG_1234.jpg`) or a repo path, then import with `--photos-dir ~/fotos`. This is the option when camera files are not renamed.
+1. **By product code (bulk).** Drop the files in the project's `photos/` folder (created for you), named after the code: `BO-00001.jpg`, `BO-00002.jpg`, … Then run
+   `python3 tools/import_inventory.py data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx`.
+   The importer uses `photos/` and `flyers/` automatically when those folders exist; `--photos-dir`/`--flyers-dir` point it elsewhere. Suffixes such as `BO-00001-front.jpg` are accepted too.
+2. **Per row.** Add a `foto` column to the sheet with the exact filename (`IMG_1234.jpg`) or a repo path, and put that file in `photos/` (or pass `--photos-dir`). This is the option when camera files are not renamed.
 
 Flyers work the same way: either `flyer_es` / `flyer_en` columns with filenames, or `--flyers-dir ~/flyers` with code-named files. A flyer is only used as the card image when there is no photo; it is always available through “Ver flyer”.
 
-- The importer copies matched files into `assets/inventory/` under a content-addressed name (e.g. `bo_00001-4caece539b.jpg`), so re-running does not create `-2`, `-3` duplicates, and replacing a photo produces a new path.
+- The importer copies matched files into `assets/inventory/` under a content-addressed name (e.g. `bo_00001-4caece539b.jpg`), so re-running does not create `-2`, `-3` duplicates, and replacing a photo produces a new path. `photos/` and `flyers/` are git-ignored source folders; only `assets/inventory/` is committed.
 - If a file's name is not usable, the importer also looks for a `BO-xxxxx` code inside the image metadata (EXIF ImageDescription/UserComment/XMP, or PNG Description/Comment) and attaches it on a match. This lets a flyer generator stamp the code into the file without renaming it. Codes printed *in the pixels* are not read — that needs OCR; write the code into the metadata (or the filename) instead.
 - **Embedded Excel images cannot be mapped to rows.** If the workbook has pictures floating over cells, export them (or screenshot the flyer) and name them by code, or list the filenames in the `foto` column.
 - Use `--dry-run` to see which rows are missing an image before writing.

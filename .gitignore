@@ -1,2 +1,8 @@
 __pycache__/
 *.pyc
+
+# Source images: only the copies in assets/inventory/ are committed.
+photos/*
+!photos/README.md
+flyers/*
+!flyers/README.md
