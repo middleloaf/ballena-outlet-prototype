@@ -150,5 +150,5 @@ Deploy by uploading the static files to any host (Netlify, Cloudflare Pages, Git
 - The live feeds and map require an internet connection and are subject to each platform's embed policies. If a feed is blocked, the direct profile link still works. Facebook and Instagram reels are embedded because their page/profile plugins currently omit or fail to render reels; update the reel URLs when a newer reel should be featured.
 - Prices are optional and come from the inventory sheet; when a row has no price the card shows “Consultar precio / Ask price”. Availability is still confirmed through WhatsApp and in store.
 - Product names in the current workbook are in English (U.S. retail brands), so both pages show them as-is until Spanish names are added to the sheet.
-- The whole site is rendered at 75% visual scale using `zoom: 0.75` on `html` in `styles.css`. Change that value to adjust the global scale.
+- The whole site is rendered at 93.75% visual scale using `zoom: 0.9375` on `html` in `styles.css`, which is 25% larger than the previous 75% preview. Change that value to adjust the global scale.
 - The site is a static prototype; no build step is required.

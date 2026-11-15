@@ -38,8 +38,8 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: 92px;
   -webkit-text-size-adjust: 100%;
-  /* Whole-site visual scale requested by the client. */
-  zoom: 0.75;
+  /* Whole-site visual scale: 25% larger than the previous 75% preview. */
+  zoom: 0.9375;
 }
 
 body {
