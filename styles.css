@@ -2992,19 +2992,6 @@ ol {
   }
 }
 
-/* language-specific tiny spacing fixes */
-
-html[lang="en"] .hero h1 {
-  max-width: 14ch;
-}
-
-html[lang="en"] .section-head h1,
-html[lang="en"] .section-head h2,
-html[lang="en"] .store-copy h2,
-html[lang="en"] .feeds-head h2 {
-  max-width: 18ch;
-}
-
 /* ---------- large desktop width cap ---------- */
 @media (min-width: 1280px) {
   :root { --max: 1360px; }
