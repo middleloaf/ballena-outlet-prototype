@@ -24,9 +24,10 @@
   var PAGE_SIZE = 24;
   var previewLimit = parseInt(grid.getAttribute("data-preview"), 10);
   if (!previewLimit || previewLimit < 1) previewLimit = 0;
+  grid.setAttribute("aria-busy", "true");
 
   var allItems = [];
-  var state = { query: "", category: "all", sort: "relevance", min: null, max: null, shown: PAGE_SIZE };
+  var state = { query: "", category: "all", sort: "featured", min: null, max: null, shown: PAGE_SIZE };
   var searchTimer = null;
   var priceTimer = null;
 
@@ -46,17 +47,15 @@
       flyer: "Ver flyer",
       flyerAlt: function (name) { return "Flyer de " + name; },
       photoAlt: function (name) { return name + ", foto del producto"; },
-      close: "Cerrar flyer",
       pending: "Foto pendiente",
       askPrice: "Consultar precio",
       qty: function (n) { return n + " disponibles"; },
       noResults: "No hay artículos que coincidan con esos filtros.",
+      noResultsCount: "0 resultados",
       more: "Ver más",
       minLabel: "Precio mínimo en colones",
       maxLabel: "Precio máximo en colones",
       clear: "Limpiar filtros",
-      foot: "¿No encontrás lo que buscás?",
-      footLink: "Preguntá por WhatsApp",
       condition: {
         nuevo: "Nuevo",
         como_nuevo: "Como nuevo",
@@ -91,17 +90,15 @@
       flyer: "View flyer",
       flyerAlt: function (name) { return name + " flyer"; },
       photoAlt: function (name) { return name + ", product photo"; },
-      close: "Close flyer",
       pending: "Photo pending",
       askPrice: "Ask price",
       qty: function (n) { return n + " available"; },
       noResults: "No items match those filters.",
+      noResultsCount: "0 results",
       more: "Load more",
       minLabel: "Minimum price in colones",
       maxLabel: "Maximum price in colones",
       clear: "Clear filters",
-      foot: "Can't find what you're looking for?",
-      footLink: "Ask on WhatsApp",
       condition: {
         nuevo: "New",
         como_nuevo: "Like new",
@@ -134,8 +131,9 @@
   }
 
   function itemName(item) {
-    if (lang === "en") return item.name_en || item.name_es;
-    return item.name_es;
+    if (!item) return "";
+    if (lang === "en") return item.name_en || item.name_es || "";
+    return item.name_es || item.name_en || "";
   }
 
   function normalize(value) {
@@ -147,6 +145,7 @@
   }
 
   function money(value) {
+    if (typeof value === "string" && value.trim() !== "") value = Number(value);
     if (typeof value !== "number" || !isFinite(value)) return null;
     var digits = String(Math.round(value));
     var grouped = digits.replace(/\B(?=(\d{3})+(?!\d))/g, lang === "es" ? "." : ",");
@@ -188,6 +187,7 @@
 
   function sortItems(list) {
     if (state.sort === "relevance") return list;
+    if (state.sort === "featured") return imageFirst(list);
     var sorted = list.slice();
 
     if (state.sort === "price_asc" || state.sort === "price_desc") {
@@ -217,14 +217,21 @@
     return sorted;
   }
 
-  function previewSelection(limit) {
+  function hasImage(item) {
+    return Boolean(safeImage(item.foto) || safeImage(item.flyer_es) || safeImage(item.flyer_en));
+  }
+
+  function imageFirst(list) {
     var withImages = [];
     var rest = [];
-    allItems.forEach(function (item) {
-      var hasImage = safeImage(item.foto) || safeImage(item.flyer_es) || safeImage(item.flyer_en);
-      (hasImage ? withImages : rest).push(item);
+    list.forEach(function (item) {
+      (hasImage(item) ? withImages : rest).push(item);
     });
-    return withImages.concat(rest).slice(0, limit);
+    return withImages.concat(rest);
+  }
+
+  function previewSelection(limit) {
+    return imageFirst(allItems).slice(0, limit);
   }
 
   function visibleItems() {
@@ -256,6 +263,8 @@
       var img = el("img");
       img.src = cardImage;
       img.alt = photo ? copy.photoAlt(name) : copy.flyerAlt(name);
+      img.width = 800;
+      img.height = 600;
       img.loading = "lazy";
       img.decoding = "async";
       media.appendChild(img);
@@ -331,9 +340,13 @@
       seen[item.category] = true;
     });
 
-    var order = Object.keys(copy.categories).filter(function (slug) {
+    var knownOrder = Object.keys(copy.categories).filter(function (slug) {
       return seen[slug];
     });
+    var unknownOrder = Object.keys(seen).filter(function (slug) {
+      return !Object.prototype.hasOwnProperty.call(copy.categories, slug);
+    }).sort();
+    var order = knownOrder.concat(unknownOrder);
 
     var options = [{ slug: "all", label: copy.all }].concat(
       order.map(function (slug) {
@@ -361,7 +374,7 @@
     if (!clearEl) return;
     var active = state.query.trim() !== "" ||
       state.category !== "all" ||
-      state.sort !== "relevance" ||
+      state.sort !== "featured" ||
       state.min !== null ||
       state.max !== null;
     clearEl.hidden = !active;
@@ -381,11 +394,12 @@
 
     var total = previewLimit ? allItems.length : list.length;
     if (countEl) {
-      countEl.textContent = copy.showing(Math.min(state.shown, list.length), total);
+      countEl.textContent = list.length ? copy.showing(Math.min(state.shown, list.length), total) : copy.noResultsCount;
     }
     if (moreWrap) {
       moreWrap.hidden = previewLimit ? true : list.length <= state.shown;
     }
+    grid.setAttribute("aria-busy", "false");
     updateClear();
   }
 
@@ -396,6 +410,7 @@
     if (toolbarEl) toolbarEl.hidden = true;
     if (filtersRow) filtersRow.hidden = true;
     if (moreWrap) moreWrap.hidden = true;
+    grid.setAttribute("aria-busy", "false");
   }
 
   function setSampleBadge(isSample) {
@@ -406,13 +421,13 @@
   function clearFilters() {
     state.query = "";
     state.category = "all";
-    state.sort = "relevance";
+    state.sort = "featured";
     state.min = null;
     state.max = null;
     state.shown = PAGE_SIZE;
 
     if (searchEl) searchEl.value = "";
-    if (sortEl) sortEl.value = "relevance";
+    if (sortEl) sortEl.value = "featured";
     if (minEl) minEl.value = "";
     if (maxEl) maxEl.value = "";
 
@@ -485,7 +500,18 @@
       return response.json();
     })
     .then(function (data) {
-      allItems = Array.isArray(data.items) ? data.items : [];
+      allItems = Array.isArray(data.items) ? data.items.filter(function (item) {
+        return item && item.id && (item.name_es || item.name_en);
+      }).map(function (item) {
+        if (!item.category) item.category = "otros";
+        if (typeof item.price_crc === "string" && item.price_crc.trim() !== "" && isFinite(Number(item.price_crc))) {
+          item.price_crc = Number(item.price_crc);
+        }
+        if (typeof item.qty === "string" && item.qty.trim() !== "" && isFinite(Number(item.qty))) {
+          item.qty = Number(item.qty);
+        }
+        return item;
+      }) : [];
       setSampleBadge(Boolean(data.sample));
 
       if (!allItems.length) {
@@ -501,17 +527,18 @@
     .catch(function () {
       showNote(copy.error);
       if (countEl) countEl.textContent = "";
+      grid.setAttribute("aria-busy", "false");
     });
 
   if (dialogClose && dialog) {
     dialogClose.addEventListener("click", function () {
-      dialog.close();
+      if (dialog.open) dialog.close();
     });
   }
 
   if (dialog) {
     dialog.addEventListener("click", function (event) {
-      if (event.target === dialog) dialog.close();
+      if (event.target === dialog && dialog.open) dialog.close();
     });
   }
 })();

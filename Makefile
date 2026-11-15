@@ -3,7 +3,7 @@ WORKBOOK ?= data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx
 PORT ?= 4173
 ARGS ?=
 
-.PHONY: inventory preview serve
+.PHONY: inventory preview serve optimize-images
 
 # Rebuild data/inventory.json from the workbook (add ARGS="--photos-dir ..." if needed).
 inventory:
@@ -16,3 +16,8 @@ preview:
 # Serve the static site locally.
 serve:
 	$(PY) -m http.server $(PORT)
+
+# Shrink the committed flyer copies (requires ImageMagick's mogrify).
+optimize-images:
+	@command -v mogrify >/dev/null 2>&1 || { echo "ImageMagick (mogrify) is required."; exit 1; }
+	mogrify -resize '900x900>' -strip -interlace Plane -quality 82 assets/inventory/*.jpeg

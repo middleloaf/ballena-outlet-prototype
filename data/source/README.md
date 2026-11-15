@@ -85,7 +85,7 @@ De la hoja `STOCK TIENDAS`: `Código`, `Producto`, `Cantidad manifiesto`,
 
 ## Antes de importar imágenes
 
-- Convertí a WebP o JPEG de unos 1200 px de ancho y menos de ~200 KB.
+- Convertí a WebP o JPEG de unos 900–1200 px del lado más largo y menos de ~200 KB.
 - No hace falta borrar las imágenes viejas de `assets/inventory/`: cada copia
   tiene un nombre basado en su contenido, así que reimportar no duplica
   archivos.

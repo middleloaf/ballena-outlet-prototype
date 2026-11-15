@@ -123,8 +123,9 @@
 
     var protoDetails = doc.getElementById("prototype-popup-details");
     if (protoDetails) {
-      protoDetails.addEventListener("click", function () {
+      protoDetails.addEventListener("click", function (event) {
         var target = doc.querySelector(protoDetails.getAttribute("href"));
+        event.preventDefault();
         dismissProtoPopup();
         if (target) {
           window.setTimeout(function () {
@@ -205,15 +206,4 @@
       });
     });
   });
-})();
-
-/* Proportional page scale: looks the same on 1080p, 1440p, etc. */
-(function () {
-  function fit() {
-    var w = window.innerWidth;
-    var z = w >= 1280 ? Math.min(1.6, Math.max(1, 1.15 * w / 1920)) : 1;
-    document.body.style.zoom = z === 1 ? '' : z.toFixed(3);
-  }
-  fit();
-  window.addEventListener('resize', fit);
 })();

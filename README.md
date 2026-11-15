@@ -61,7 +61,7 @@ python3 tools/import_inventory.py inventario.xlsx --dry-run
 - **Category** is inferred from the product name when the sheet has no category column; the import report prints the distribution and flags anything left in `otros`.
 - **Photos/flyers** are matched by product code (`BO-00001.jpg`) when `--photos-dir`/`--flyers-dir` is given. Until photos exist, cards show a neutral placeholder with the product group, so the list is still usable.
 
-`MOVIMIENTOS` and `VENTAS PREVIAS` are not used by the importer yet; when they are, sales should reduce the published quantity instead of being re-counted by hand.
+`MOVIMIENTOS` and `VENTAS PREVIAS` are not used by the importer yet. The three prior sales listed in `VENTAS PREVIAS` are already reflected in the store counts, so they are not subtracted again.
 
 ### Sheet columns
 
@@ -98,7 +98,7 @@ Flyers work the same way: either `flyer_es` / `flyer_en` columns with filenames,
 - If a file's name is not usable, the importer also looks for a `BO-xxxxx` code inside the image metadata (EXIF ImageDescription/UserComment/XMP, or PNG Description/Comment) and attaches it on a match. This lets a flyer generator stamp the code into the file without renaming it. Codes printed *in the pixels* are not read — that needs OCR; write the code into the metadata (or the filename) instead.
 - **Embedded Excel images cannot be mapped to rows.** If the workbook has pictures floating over cells, export them (or screenshot the flyer) and name them by code, or list the filenames in the `foto` column.
 - Use `--dry-run` to see which rows are missing an image before writing.
-- Optimize before importing: WebP or JPEG around 1200px wide, under ~200 KB. Images are committed to the repo, so keep originals out of `data/`.
+- Optimize before importing: WebP or JPEG around 900–1200px on the long side, under ~200 KB. Images are committed to the repo, so keep originals out of `data/`.
 - Flyers with Spanish text on the EN page are flagged by the importer; add `flyer_en` if the English page should show English artwork.
 - Cards without any image show a neutral placeholder with the product group; the list stays usable while photos are being added.
 
@@ -106,9 +106,9 @@ Flyers work the same way: either `flyer_es` / `flyer_en` columns with filenames,
 
 1. Update the sheet, drop new photos/flyers in `data/source/photos/` or `data/source/flyers/`.
 2. Run the importer (it prints skipped rows and warnings).
-3. Review `data/inventory.json`, then commit `data/inventory.json` and `assets/inventory/`.
+3. Review `data/inventory.json`, then run `make optimize-images` (optional; needs ImageMagick) and commit `data/inventory.json` and `assets/inventory/`.
 4. Reload the home page for the four-item preview, or the catalog page for the full list. Sold items disappear because only `disponible` rows are exported.
-5. The catalog page paginates in the browser (24 cards, “Ver más / Load more”) and has free-text search, category filters, a price range, and sorting by price, name, quantity, or newest; 1,320 items load from one JSON file.
+5. The catalog page paginates in the browser (24 cards, “Ver más / Load more”) and has free-text search, category filters, a price range, and sorting by featured items (image-first), inventory order, price, name, quantity, or newest; 1,320 items load from one JSON file. The home preview also prioritizes items that have a photo or flyer.
 
 When Kapso is wired up later, it can read this same `data/inventory.json` (or the database behind it) instead of the site being the source of truth.
 
@@ -127,7 +127,7 @@ python3 tools/import_inventory.py /path/to/workbook.xlsx \
   --photos-dir /path/to/photos --flyers-dir /path/to/flyers
 ```
 
-With `make` installed, the same commands are `make preview`, `make inventory`, and `make serve`. Override paths with `make inventory WORKBOOK=… ARGS="--photos-dir …"`. On Windows use `py -3` instead of `python3` and run the raw commands.
+With `make` installed, the same commands are `make preview`, `make inventory`, `make serve`, and `make optimize-images` (requires ImageMagick). Override paths with `make inventory WORKBOOK=… ARGS="--photos-dir …"`. On Windows use `py -3` instead of `python3` and run the raw commands.
 
 ### Serve and deploy
 

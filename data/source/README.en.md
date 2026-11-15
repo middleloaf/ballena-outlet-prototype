@@ -75,7 +75,7 @@ product name when the sheet has none.
 
 ## Image handling notes
 
-- Convert to WebP/JPEG around 1200px and under ~200 KB before importing.
+- Convert to WebP/JPEG around 900–1200px on the long side and under ~200 KB before importing.
 - Copies are content-addressed (`bo_00317-10bdc254eb.jpeg`), so re-importing
   the same image reuses the same path instead of creating duplicates.
 - There is no OCR/barcode reader in this environment: a code printed *in the
