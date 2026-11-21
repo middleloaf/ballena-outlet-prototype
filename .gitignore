@@ -6,4 +6,10 @@ data/source/photos/*
 !data/source/photos/README.md
 data/source/flyers/*
 !data/source/flyers/README.md
+
+# Source workbooks stay local (cost/internal sheets). Only the generated
+# data/inventory.json is committed.
+data/source/*.xlsx
+data/source/*.xls
+data/source/*.xlsm
 data/source/.~lock*

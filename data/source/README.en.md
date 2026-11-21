@@ -19,9 +19,10 @@ data/source/
 └── README.en.md                                         This note (delete later)
 ```
 
-Photos and flyers are git-ignored. Only the copies the importer writes to
-`assets/inventory/` are committed, and the workbook is committed so the
-catalog can be rebuilt.
+Photos, flyers, and the workbook are git-ignored. Only the copies the importer
+writes to `assets/inventory/` and the generated `data/inventory.json` are
+committed. Keep the workbook backed up separately and copy it into
+`data/source/` on a new machine (or pass its path) to rebuild the catalog.
 
 ## How images attach
 

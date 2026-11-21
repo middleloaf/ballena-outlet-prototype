@@ -16,9 +16,10 @@ data/source/
 └── README.en.md                                         Nota temporal en inglés (se puede borrar)
 ```
 
-Las fotos y los flyers **no se commitean**: solo se commitean las copias que
-el importador deja en `assets/inventory/`. La hoja de cálculo sí se commitea,
-para que el inventario sea reproducible.
+Las fotos, los flyers y la hoja de cálculo **no se commitean**: solo se
+commitean las copias que el importador deja en `assets/inventory/` y el
+`data/inventory.json` generado. La hoja se mantiene local (o respaldada aparte)
+y se copia a `data/source/` en cada equipo antes de reimportar.
 
 ## Cómo se asocian las imágenes
 

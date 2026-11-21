@@ -52,7 +52,7 @@ python3 tools/import_inventory.py inventario.xlsx --dry-run
 
 ### The Ballena Outlet workbook
 
-`data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx` is the store's real workbook. The importer automatically picks the sheet whose name contains “stock” (`STOCK TIENDAS`) and reads:
+`data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx` is the store's real workbook. It is **git-ignored** (it carries internal cost sheets), so copy it into `data/source/` on each machine before rebuilding. The importer automatically picks the sheet whose name contains “stock” (`STOCK TIENDAS`) and reads:
 
 `Código`, `Producto`, `Cantidad manifiesto`, `Precio etiqueta ₡`, `Conteo Tienda 1`, `Conteo Tienda 2`, `Conteo bodega`, `Total actual`, `Estado`.
 
@@ -142,7 +142,7 @@ Deploy by uploading the static files to any host (Netlify, Cloudflare Pages, Git
 ### What travels with the repo
 
 - `data/inventory.json` and `assets/inventory/` are committed, so a fresh clone serves the current catalog without running Python.
-- `data/source/photos/` and `data/source/flyers/` are git-ignored; a clone will not contain the originals. Keep them backed up separately, or always pass external `--photos-dir`/`--flyers-dir` paths.
+- `data/source/photos/`, `data/source/flyers/`, and the `.xlsx` workbook are git-ignored; a clone will not contain the originals. Keep them backed up separately, or always pass external `--photos-dir`/`--flyers-dir` paths and the workbook's path. The committed `data/inventory.json` already serves the site without any of them.
 - `fetch()` needs HTTP; opening `index.html` from the filesystem shows the empty state.
 
 ## Notes
