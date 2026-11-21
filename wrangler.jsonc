@@ -6,15 +6,22 @@
   "main": "worker/index.js",
   "compatibility_date": "2026-11-01",
   "observability": { "enabled": true },
-  // Published inventory, version history, the pending draft and uploaded images.
-  "r2_buckets": [{ "binding": "STORE", "bucket_name": "ballena-inventory" }],
-  "vars": {
-    // Who may use /admin and the admin API (comma-separated).
-    "ADMIN_EMAILS": "elliottvarnold@gmail.com",
-    // Cloudflare Access application protecting /admin* (set after Zero Trust is enabled).
-    "ACCESS_TEAM_DOMAIN": "",
-    "ACCESS_AUD": ""
-  },
+  // Inventory state (live, draft, image index), version history, login throttling.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ballena-inventory",
+      "database_id": "ef836607-d905-4b17-9b8c-b1dd42e4688b",
+      "migrations_dir": "migrations"
+    }
+  ],
+  // Uploaded product photos and flyers, served at /assets/inventory/*.
+  "kv_namespaces": [{ "binding": "MEDIA", "id": "2a3b7277366f40e4941ca9b79140dfd7" }],
+  // Admin accounts live in D1 (`npm run admin:account`); SESSION_SECRET is a
+  // Worker secret (`wrangler secret put SESSION_SECRET`).
+  // Bundles worker/importer.js for the admin page (workbooks are parsed in the
+  // browser: the free plan allows ~10 ms CPU per request).
+  "build": { "command": "npm run build", "watch_dir": ["worker", "admin/src"] },
   // The repo root is the static site. .assetsignore keeps tooling, source
   // workbooks and the Worker code itself out of the public bundle.
   "assets": {

@@ -1,92 +1,113 @@
-// Inventory state in R2.
+// Inventory state: D1 for structured state, KV for image bytes. Both run on
+// the Workers free plan without a payment method.
 //
-//   live.json              published payload + { version, published_at, published_by }
-//   versions/000042.json   every published payload, for history and rollback
-//   draft.json             the single pending change set (payload + report)
-//   images/index.json      { byCode: { CODE: { foto, flyer_es, flyer_en } }, byName: {...} }
-//   media/<file>           uploaded images, served at /assets/inventory/<file>
+//   state 'live'    published payload (served verbatim as /data/inventory.json)
+//   state 'draft'   the single pending change set (payload + report + diff)
+//   state 'images'  { byCode: { CODE: { foto, flyer_es, flyer_en } }, byName: {...} }
+//   versions        every published payload, for history and rollback
+//   KV MEDIA        uploaded images, served at /assets/inventory/<file>
 //
-// Invariants enforced here (not by the UI or the AI client):
-//   - nothing reaches live.json without publish(draft_id) on an unchanged draft;
+// Invariants enforced here (not by the UI or an AI client):
+//   - nothing reaches 'live' without publish(draft_id) on the unchanged draft;
 //   - a draft built on an older live version cannot be published (stale);
-//   - every write that depends on what it read is conditional on the R2 etag.
+//   - read-modify-write uses the row's rev (compare-and-swap);
+//   - each version number is published once (primary key, same transaction
+//     as the live update).
+//
+// The free plan allows ~10 ms CPU per request, so workbook parsing happens in
+// the browser (same worker/importer.js) and the server validates the payload.
 
-import { buildInventory, CATEGORY_SLUGS, CONDITION_SLUGS, fold, ImportError, readWorkbook } from "./importer.js";
+import { CATEGORY_SLUGS, CONDITION_SLUGS, fold } from "./importer.js";
 import { CODE_RE, IMAGE_KINDS, MAX_IMAGE_BYTES, codeFromImage, sha1Hex, sniffImage } from "./images.js";
 
 export class ConflictError extends Error {}
 export class InputError extends Error {}
-export { ImportError };
 
-const LIVE = "live.json";
-const DRAFT = "draft.json";
-const INDEX = "images/index.json";
-const MEDIA_PREFIX = "media/";
 export const PUBLIC_MEDIA_PREFIX = "assets/inventory/";
-const versionKey = (v) => `versions/${String(v).padStart(6, "0")}.json`;
 const LIST_LIMIT = 40;
-
+const MAX_ITEMS = 20000;
+const MAX_PAYLOAD_CHARS = 1_800_000; // D1 rows are limited to 2 MB
 const now = () => new Date().toISOString();
-
-async function getJson(bucket, key) {
-  const obj = await bucket.get(key);
-  if (!obj) return { value: null, etag: null };
-  return { value: await obj.json(), etag: obj.etag };
-}
-
-async function putJson(bucket, key, value, etag) {
-  const options = { httpMetadata: { contentType: "application/json; charset=utf-8" } };
-  // etag === null means "must not exist yet"; undefined means unconditional.
-  if (etag) options.onlyIf = { etagMatches: etag };
-  else if (etag === null) options.onlyIf = { etagDoesNotMatch: "*" };
-  const res = await bucket.put(key, JSON.stringify(value), options);
-  if (res === null) throw new ConflictError(`${key} changed while it was being updated; retry.`);
-  return res.etag;
-}
-
-/** Read-modify-write with optimistic concurrency, retried on conflict. */
-async function update(bucket, key, fn, attempts = 4) {
-  for (let i = 0; ; i++) {
-    const { value, etag } = await getJson(bucket, key);
-    const next = await fn(value);
-    try {
-      await putJson(bucket, key, next, etag);
-      return next;
-    } catch (err) {
-      if (!(err instanceof ConflictError) || i >= attempts - 1) throw err;
-    }
-  }
-}
 
 export class InventoryStore {
   constructor(env, origin) {
-    this.bucket = env.STORE;
+    this.db = env.DB;
+    this.media = env.MEDIA;
     this.assets = env.ASSETS;
     this.origin = origin;
   }
 
+  // ---- Row helpers ---------------------------------------------------------
+
+  async row(key) {
+    return this.db.prepare("SELECT value, meta, rev FROM state WHERE key = ?").bind(key).first();
+  }
+
+  /** Insert (rev === null) or compare-and-swap update (rev = expected rev). */
+  async put(key, value, meta, rev) {
+    const v = typeof value === "string" ? value : JSON.stringify(value);
+    if (v.length > MAX_PAYLOAD_CHARS) throw new InputError("The inventory is too large to store (over ~1.8 MB of JSON).");
+    const m = JSON.stringify(meta || {});
+    const res =
+      rev === null
+        ? await this.db
+            .prepare("INSERT INTO state (key, value, meta, rev, updated_at) VALUES (?, ?, ?, 1, ?) ON CONFLICT(key) DO NOTHING")
+            .bind(key, v, m, now())
+            .run()
+        : await this.db
+            .prepare("UPDATE state SET value = ?, meta = ?, rev = rev + 1, updated_at = ? WHERE key = ? AND rev = ?")
+            .bind(v, m, now(), key, rev)
+            .run();
+    if (res.meta.changes !== 1) throw new ConflictError(`${key} changed while it was being updated; retry.`);
+  }
+
+  /** Read-modify-write a JSON row with retries on conflict. fn(value|null) -> [value, meta]. */
+  async update(key, fn, attempts = 4) {
+    for (let i = 0; ; i++) {
+      const row = await this.row(key);
+      const [value, meta] = await fn(row ? JSON.parse(row.value) : null);
+      try {
+        await this.put(key, value, meta, row ? row.rev : null);
+        return value;
+      } catch (err) {
+        if (!(err instanceof ConflictError) || i >= attempts - 1) throw err;
+      }
+    }
+  }
+
   // ---- Reads ---------------------------------------------------------------
 
-  /** Published inventory; before the first publish, the payload committed to git. */
-  async live() {
-    const { value, etag } = await getJson(this.bucket, LIVE);
-    if (value) return { payload: value, etag };
+  /** Published payload as text (for serving) — the committed file before the first publish. */
+  async liveText() {
+    const row = await this.db.prepare("SELECT value FROM state WHERE key = 'live'").first();
+    if (row) return row.value;
     const res = await this.assets.fetch(new URL("/data/inventory.json", this.origin));
-    const payload = res.ok ? await res.json() : { items: [] };
-    return { payload: { ...payload, version: 0, published_at: null, published_by: "git" }, etag: null };
+    return res.ok ? res.text() : '{"items":[]}';
+  }
+
+  async live() {
+    const payload = JSON.parse(await this.liveText());
+    payload.version ??= 0;
+    return payload;
+  }
+
+  async liveMeta() {
+    const row = await this.db.prepare("SELECT meta FROM state WHERE key = 'live'").first();
+    if (row) return JSON.parse(row.meta);
+    return summary(await this.live());
   }
 
   async draft() {
-    return (await getJson(this.bucket, DRAFT)).value;
+    const row = await this.row("draft");
+    return row ? JSON.parse(row.value) : null;
   }
 
   async images() {
-    const { value } = await getJson(this.bucket, INDEX);
-    if (value) return value;
-    // First use: adopt the images already referenced by the committed inventory.
-    const { payload } = await this.live();
+    const row = await this.row("images");
+    if (row) return JSON.parse(row.value);
+    // First use: adopt the images referenced by the committed inventory.
     const byCode = {};
-    for (const it of payload.items || []) {
+    for (const it of (await this.live()).items || []) {
       const refs = Object.fromEntries(IMAGE_KINDS.filter((k) => it[k]).map((k) => [k, it[k]]));
       if (Object.keys(refs).length) byCode[it.id.toUpperCase()] = refs;
     }
@@ -94,132 +115,116 @@ export class InventoryStore {
   }
 
   async status() {
-    const [{ payload }, draft] = await Promise.all([this.live(), this.draft()]);
-    return {
-      live: summary(payload),
-      draft: draft && this.describeDraft(draft, payload),
-    };
-  }
-
-  describeDraft(draft, livePayload) {
-    return {
-      id: draft.id,
-      base_version: draft.base_version,
-      stale: draft.base_version !== (livePayload.version ?? 0),
-      created_at: draft.created_at,
-      updated_at: draft.updated_at,
-      created_by: draft.created_by,
-      sources: draft.sources,
-      count: draft.payload.items.length,
-      import_report: draft.report,
-      changes: diff(livePayload, draft.payload),
-    };
+    const [live, draftRow] = await Promise.all([
+      this.liveMeta(),
+      this.db.prepare("SELECT meta FROM state WHERE key = 'draft'").first(),
+    ]);
+    const draft = draftRow ? JSON.parse(draftRow.meta) : null;
+    if (draft) draft.stale = draft.base_version !== live.version;
+    return { live, draft };
   }
 
   async versions() {
-    const out = [];
-    let cursor;
-    do {
-      const page = await this.bucket.list({ prefix: "versions/", cursor, include: ["customMetadata"] });
-      for (const o of page.objects) out.push({ version: Number(o.key.slice(9, 15)), ...o.customMetadata });
-      cursor = page.truncated ? page.cursor : undefined;
-    } while (cursor);
-    return out.sort((a, b) => b.version - a.version);
+    const { results } = await this.db
+      .prepare("SELECT version, published_at, published_by, count, source, summary FROM versions ORDER BY version DESC LIMIT 200")
+      .all();
+    return results;
   }
 
   // ---- Draft builders ------------------------------------------------------
 
-  /** Replace the draft with the inventory read from a workbook. */
-  async importWorkbook(bytes, filename, actor) {
-    const [{ payload: live }, images] = await Promise.all([this.live(), this.images()]);
-    const { payload, report } = await buildInventory(readWorkbook(bytes, filename), { images });
-    if (!payload.items.length) throw new ImportError("La hoja no tiene ningún artículo disponible; no se creó el borrador.");
-    const previous = await this.draft();
-    const draft = newDraft(live, payload, actor, { kind: "workbook", filename });
-    draft.report = report;
-    if (previous) {
-      report.warnings.unshift(
-        `Se reemplazó el borrador anterior (${previous.sources.map((s) => s.kind).join(", ")}); sus cambios no publicados se descartaron.`,
-      );
-    }
-    await putJson(this.bucket, DRAFT, draft);
-    return this.describeDraft(draft, live);
+  /**
+   * Replace the draft with a workbook import built in the browser by
+   * worker/importer.js. The payload is validated here; nothing is trusted
+   * beyond its shape.
+   */
+  async importPayload({ payload, report, filename }, actor) {
+    const items = validateItems(payload?.items);
+    if (!items.length) throw new InputError("The workbook has no available items; no draft was created.");
+    const live = await this.live();
+    const previous = await this.row("draft");
+    const draft = newDraft(live, items, actor, { kind: "workbook", filename: String(filename || "").slice(0, 120) });
+    draft.report = sanitizeReport(report);
+    if (previous) draft.report.warnings.unshift("Se reemplazó el borrador anterior; sus cambios no publicados se descartaron.");
+    await this.saveDraft(draft, live, previous ? previous.rev : null);
+    return describe(draft);
   }
 
   /** Apply typed edits to the draft (creating it from live if needed). All or nothing. */
   async editItems(ops, actor) {
     if (!Array.isArray(ops) || !ops.length) throw new InputError("No changes given.");
-    const { payload: live } = await this.live();
-    const draft = await update(this.bucket, DRAFT, (current) => {
-      const d = current ? structuredClone(current) : newDraft(live, live, actor, null);
+    return this.mutateDraft(actor, (d) => {
       applyOps(d.payload, ops);
-      touch(d, actor, { kind: "edit", count: ops.length });
-      return d;
+      return { kind: "edit", count: ops.length };
     });
-    return this.describeDraft(draft, live);
   }
 
   /** Start a draft from a previous version. Publishing it is the rollback. */
   async restoreVersion(version, actor) {
-    const { value } = await getJson(this.bucket, versionKey(version));
-    if (!value) throw new InputError(`Version ${version} does not exist.`);
-    const { payload: live } = await this.live();
-    const { version: _v, published_at, published_by, ...payload } = value;
-    const draft = newDraft(live, payload, actor, { kind: "restore", version });
-    await putJson(this.bucket, DRAFT, draft);
-    return this.describeDraft(draft, live);
+    const row = await this.db.prepare("SELECT payload FROM versions WHERE version = ?").bind(version).first();
+    if (!row) throw new InputError(`Version ${version} does not exist.`);
+    const live = await this.live();
+    const previous = await this.row("draft");
+    const draft = newDraft(live, JSON.parse(row.payload).items, actor, { kind: "restore", version });
+    await this.saveDraft(draft, live, previous ? previous.rev : null);
+    return describe(draft);
   }
 
   async discardDraft() {
-    await this.bucket.delete(DRAFT);
+    await this.db.prepare("DELETE FROM state WHERE key = 'draft'").run();
   }
 
   /** Publish the reviewed draft. Fails if it changed or live moved since. */
   async publish(draftId, actor) {
-    const [{ payload: live, etag: liveEtag }, { value: draft, etag: draftEtag }] = await Promise.all([
-      this.live(),
-      getJson(this.bucket, DRAFT),
-    ]);
-    if (!draft) throw new ConflictError("There is no draft to publish.");
+    const [live, row] = await Promise.all([this.liveMeta(), this.row("draft")]);
+    if (!row) throw new ConflictError("There is no draft to publish.");
+    const draft = JSON.parse(row.value);
     if (draft.id !== draftId) {
       throw new ConflictError("The draft changed since it was reviewed. Review the current draft and publish its id.");
     }
-    const liveVersion = live.version ?? 0;
-    if (draft.base_version !== liveVersion) {
+    if (draft.base_version !== live.version) {
       throw new ConflictError(
-        `This draft was built on version ${draft.base_version}, but version ${liveVersion} was published since. Discard it and redo the change.`,
+        `This draft was built on version ${draft.base_version}, but version ${live.version} was published since. Discard it and redo the change.`,
       );
     }
-    const version = liveVersion + 1;
+    const version = live.version + 1;
     const published = {
-      ...draft.payload,
-      count: draft.payload.items.length,
       generated_at: draft.payload.generated_at,
+      sample: false,
+      count: draft.payload.items.length,
       version,
       published_at: now(),
       published_by: actor,
+      items: draft.payload.items,
     };
-    const changes = diff(live, draft.payload);
-    // Winning the conditional write on live.json is what makes this publish
-    // version N; the history copy is written only by the winner.
-    await putJson(this.bucket, LIVE, published, liveEtag);
-    await this.bucket.put(versionKey(version), JSON.stringify(published), {
-      httpMetadata: { contentType: "application/json; charset=utf-8" },
-      customMetadata: {
-        published_at: published.published_at,
-        published_by: actor,
-        count: String(published.count),
-        source: draft.sources
-          .map((s) => s.kind + (s.filename ? `:${s.filename}` : s.version ? `:v${s.version}` : ""))
-          .join(", ")
-          .slice(0, 200),
-        summary: changes.summary,
-      },
-    });
-    // Only remove the draft we published; a newer one stays.
-    const after = await this.bucket.head(DRAFT);
-    if (after?.etag === draftEtag) await this.bucket.delete(DRAFT);
-    return { version, count: published.count, changes };
+    const text = JSON.stringify(published);
+    const meta = JSON.stringify(summary(published));
+    const source = draft.sources
+      .map((s) => s.kind + (s.filename ? `:${s.filename}` : s.version ? `:v${s.version}` : ""))
+      .filter((s, i, all) => all.indexOf(s) === i)
+      .join(", ")
+      .slice(0, 300);
+    try {
+      // One transaction: the version row (unique) + the live row + clearing the draft we published.
+      await this.db.batch([
+        this.db
+          .prepare("INSERT INTO versions (version, payload, published_at, published_by, count, source, summary) VALUES (?, ?, ?, ?, ?, ?, ?)")
+          .bind(version, text, published.published_at, actor, published.count, source, draft.changes.summary),
+        this.db
+          .prepare(
+            "INSERT INTO state (key, value, meta, rev, updated_at) VALUES ('live', ?, ?, 1, ?) " +
+              "ON CONFLICT(key) DO UPDATE SET value = excluded.value, meta = excluded.meta, rev = state.rev + 1, updated_at = excluded.updated_at",
+          )
+          .bind(text, meta, published.published_at),
+        this.db.prepare("DELETE FROM state WHERE key = 'draft' AND rev = ?").bind(row.rev),
+      ]);
+    } catch (err) {
+      if (/UNIQUE|constraint/i.test(String(err?.message))) {
+        throw new ConflictError(`Version ${version} was just published by someone else. Review the current state.`);
+      }
+      throw err;
+    }
+    return { version, count: published.count, changes: draft.changes };
   }
 
   // ---- Images --------------------------------------------------------------
@@ -233,40 +238,30 @@ export class InventoryStore {
     if (bytes.byteLength > MAX_IMAGE_BYTES) throw new InputError("Image is larger than 8 MB; resize it to ~1200 px first.");
     const type = sniffImage(bytes);
     if (!type) throw new InputError("Not a supported image (JPEG, PNG, WebP, AVIF or GIF).");
-    code = (code || /bo-\d{5}(?!\d)/i.exec(filename)?.[0] || codeFromImage(bytes) || "").trim().toUpperCase();
+    code = String(code || /bo-\d{5}(?!\d)/i.exec(filename)?.[0] || codeFromImage(bytes) || "").trim().toUpperCase();
     if (!code) throw new InputError("Missing product code: give the BO-xxxxx code for this image.");
-
-    const { payload: live } = await this.live();
-    const known = (live.items || []).some((i) => i.id.toUpperCase() === code);
-    const draftNow = await this.draft();
-    const inDraft = draftNow?.payload.items.some((i) => i.id.toUpperCase() === code);
-    if (!CODE_RE.test(code) && !known && !inDraft) throw new InputError(`Unknown product code '${code}'.`);
+    if (!CODE_RE.test(code) && !/^ITEM-[0-9A-F]{8}$/.test(code)) throw new InputError(`'${code}' is not a product code (BO-00000).`);
 
     const name = `${fold(code)}-${kind.replace("_", "-")}-${(await sha1Hex(bytes)).slice(0, 10)}${type.ext}`;
-    await this.bucket.put(MEDIA_PREFIX + name, bytes, {
-      httpMetadata: { contentType: type.mime, cacheControl: "public, max-age=31536000, immutable" },
-      customMetadata: { code, kind, original_name: filename.slice(0, 200), uploaded_by: actor },
-    });
+    await this.media.put(name, bytes, { metadata: { contentType: type.mime, code, kind, uploaded_by: actor } });
     const path = PUBLIC_MEDIA_PREFIX + name;
 
     const seed = await this.images();
-    await update(this.bucket, INDEX, (current) => {
+    await this.update("images", (current) => {
       const index = current || seed;
       index.byCode[code] = { ...index.byCode[code], [kind]: path };
-      if (filename) index.byName[filename.toLowerCase()] = path;
-      return index;
+      if (filename) index.byName[filename.toLowerCase().slice(0, 200)] = path;
+      return [index, {}];
     });
 
     let attached = false;
-    const draft = await update(this.bucket, DRAFT, (current) => {
-      const d = current ? structuredClone(current) : newDraft(live, live, actor, null);
+    const draft = await this.mutateDraft(actor, (d) => {
       const item = d.payload.items.find((i) => i.id.toUpperCase() === code);
       if (item) {
         item[kind] = path;
         attached = true;
       }
-      touch(d, actor, { kind: "image", code, image: kind });
-      return d;
+      return { kind: "image", code, image: kind };
     });
     return {
       code,
@@ -276,7 +271,7 @@ export class InventoryStore {
       note: attached
         ? "Attached in the draft; publish to show it on the site."
         : `No item ${code} is in the inventory yet. The image is saved and will attach when a workbook with that code is imported.`,
-      draft: this.describeDraft(draft, live),
+      draft,
     };
   }
 
@@ -284,37 +279,64 @@ export class InventoryStore {
     code = String(code || "").toUpperCase();
     if (!IMAGE_KINDS.includes(kind)) throw new InputError(`kind must be one of ${IMAGE_KINDS.join(", ")}.`);
     const seed = await this.images();
-    await update(this.bucket, INDEX, (current) => {
+    await this.update("images", (current) => {
       const index = current || seed;
       if (index.byCode[code]) delete index.byCode[code][kind];
-      return index;
+      return [index, {}];
     });
-    const { payload: live } = await this.live();
-    const draft = await update(this.bucket, DRAFT, (current) => {
-      const d = current ? structuredClone(current) : newDraft(live, live, actor, null);
+    return this.mutateDraft(actor, (d) => {
       const item = d.payload.items.find((i) => i.id.toUpperCase() === code);
       if (item) delete item[kind];
-      touch(d, actor, { kind: "image-removed", code, image: kind });
-      return d;
+      return { kind: "image-removed", code, image: kind };
     });
-    return this.describeDraft(draft, live);
   }
 
-  /** Serve an uploaded image, or null when R2 doesn't have it. */
-  async media(name, request) {
-    const obj = await this.bucket.get(MEDIA_PREFIX + name, { onlyIf: request.headers });
-    if (!obj) return null;
-    const headers = new Headers();
-    obj.writeHttpMetadata(headers);
-    headers.set("etag", obj.httpEtag);
-    if (!("body" in obj) || !obj.body) return new Response(null, { status: 304, headers });
-    return new Response(obj.body, { headers });
+  /** Serve an uploaded image from KV, or null when it isn't there. */
+  async mediaResponse(name) {
+    const { value, metadata } = await this.media.getWithMetadata(name, { type: "stream", cacheTtl: 86400 });
+    if (!value) return null;
+    return new Response(value, {
+      headers: { "content-type": metadata?.contentType || "application/octet-stream", "cache-control": "public, max-age=31536000, immutable" },
+    });
+  }
+
+  // ---- Internals -----------------------------------------------------------
+
+  async mutateDraft(actor, fn) {
+    const live = await this.live();
+    for (let i = 0; ; i++) {
+      const row = await this.row("draft");
+      const d = row ? JSON.parse(row.value) : newDraft(live, live.items, actor, null);
+      const source = fn(d);
+      touch(d, actor, source);
+      try {
+        await this.saveDraft(d, live, row ? row.rev : null);
+        return describe(d);
+      } catch (err) {
+        if (!(err instanceof ConflictError) || i >= 3) throw err;
+      }
+    }
+  }
+
+  async saveDraft(draft, live, rev) {
+    draft.changes = diff(live, draft.payload);
+    draft.count = draft.payload.items.length;
+    if (rev === null) {
+      // Replace semantics for imports/restores: an existing draft is overwritten.
+      await this.db.prepare("DELETE FROM state WHERE key = 'draft'").run();
+    }
+    await this.put("draft", draft, describe(draft), rev);
   }
 }
 
 // ---- Pure helpers ------------------------------------------------------------
 
-function newDraft(live, payload, actor, source) {
+function describe(draft) {
+  const { payload, ...rest } = draft;
+  return rest;
+}
+
+function newDraft(live, items, actor, source) {
   const t = now();
   return {
     id: crypto.randomUUID(),
@@ -323,12 +345,7 @@ function newDraft(live, payload, actor, source) {
     updated_at: t,
     created_by: actor,
     sources: source ? [source] : [],
-    payload: {
-      generated_at: payload.generated_at || t,
-      sample: Boolean(payload.sample),
-      count: payload.items.length,
-      items: structuredClone(payload.items),
-    },
+    payload: { generated_at: t, items: structuredClone(items) },
     report: null,
   };
 }
@@ -339,16 +356,64 @@ function touch(draft, actor, source) {
   draft.updated_at = now();
   draft.updated_by = actor;
   draft.sources = [...draft.sources, source].slice(-50);
-  draft.payload.count = draft.payload.items.length;
   draft.payload.generated_at = draft.updated_at;
 }
 
+const str = (v, max) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 const nonNegInt = (v, field) => {
-  if (!Number.isInteger(v) || v < 0) throw new InputError(`${field} must be a whole number ≥ 0.`);
+  if (!Number.isInteger(v) || v < 0 || v > 1e9) throw new InputError(`${field} must be a whole number ≥ 0.`);
   return v;
 };
+const imagePath = (v) =>
+  typeof v === "string" && (/^assets\/inventory\/[A-Za-z0-9._-]+$/.test(v) || /^https:\/\/[^\s"'<>]+$/.test(v)) ? v : null;
+
+/** Validate and normalize items coming from a client-side import. */
+function validateItems(items) {
+  if (!Array.isArray(items)) throw new InputError("payload.items must be a list.");
+  if (items.length > MAX_ITEMS) throw new InputError(`Too many items (max ${MAX_ITEMS}).`);
+  const seen = new Set();
+  return items.map((raw, i) => {
+    const where = `item ${i + 1}`;
+    const id = str(raw?.id, 40);
+    if (!id) throw new InputError(`${where}: missing code.`);
+    if (seen.has(id.toUpperCase())) throw new InputError(`${where}: duplicate code ${id}.`);
+    seen.add(id.toUpperCase());
+    const name = str(raw.name_es, 300);
+    if (!name) throw new InputError(`${where} (${id}): missing name.`);
+    if (!CATEGORY_SLUGS.includes(raw.category)) throw new InputError(`${where} (${id}): unknown category.`);
+    const item = { id, name_es: name, category: raw.category, qty: nonNegInt(raw.qty, `${id} qty`) };
+    if (item.qty === 0) throw new InputError(`${where} (${id}): quantity 0 items are not published.`);
+    for (const key of ["name_en", "detail_es", "detail_en"]) {
+      const v = str(raw[key], key === "name_en" ? 300 : 600);
+      if (v) item[key] = v;
+    }
+    if (raw.condition != null) {
+      if (!CONDITION_SLUGS.includes(raw.condition)) throw new InputError(`${where} (${id}): unknown condition.`);
+      item.condition = raw.condition;
+    }
+    if (raw.price_crc != null) item.price_crc = nonNegInt(raw.price_crc, `${id} price`);
+    for (const key of IMAGE_KINDS) {
+      if (raw[key] == null) continue;
+      const v = imagePath(raw[key]);
+      if (!v) throw new InputError(`${where} (${id}): invalid ${key} path.`);
+      item[key] = v;
+    }
+    return item;
+  });
+}
+
+function sanitizeReport(report) {
+  const list = (v) => (Array.isArray(v) ? v.slice(0, 500).map((x) => String(x).slice(0, 300)) : []);
+  return {
+    sheet: str(report?.sheet, 80),
+    rows_read: Number.isInteger(report?.rows_read) ? report.rows_read : null,
+    skipped: list(report?.skipped),
+    warnings: list(report?.warnings),
+  };
+}
 
 function applyOps(payload, ops) {
+  if (ops.length > 500) throw new InputError("Too many changes in one request (max 500).");
   const byId = new Map(payload.items.map((it) => [it.id.toUpperCase(), it]));
   const find = (id) => {
     const it = byId.get(String(id || "").toUpperCase());
@@ -378,7 +443,7 @@ function applyOps(payload, ops) {
         const it = find(op.id);
         for (const key of ["name_es", "name_en", "detail_es", "detail_en"]) {
           if (op[key] === undefined) continue;
-          const v = op[key] === null ? "" : String(op[key]).trim();
+          const v = op[key] === null ? "" : str(String(op[key]), 600);
           if (key === "name_es" && !v) throw new InputError("name_es cannot be empty.");
           if (v) it[key] = v;
           else delete it[key];
@@ -396,14 +461,14 @@ function applyOps(payload, ops) {
       }
       case "add": {
         const src = op.item || {};
-        const id = String(src.id || "").trim().toUpperCase();
+        const id = str(String(src.id || ""), 20).toUpperCase();
         if (!CODE_RE.test(id)) throw new InputError("New items need a code like BO-01234.");
         if (byId.has(id)) throw new InputError(`Item ${id} already exists; use set_fields / set_price.`);
-        const name = String(src.name_es || "").trim();
+        const name = str(String(src.name_es || ""), 300);
         if (!name) throw new InputError("New items need name_es.");
         const item = { id, name_es: name, category: src.category || "otros", qty: nonNegInt(src.qty ?? 1, "qty") || 1 };
         if (!CATEGORY_SLUGS.includes(item.category)) throw new InputError(`category must be one of ${CATEGORY_SLUGS.join(", ")}.`);
-        if (src.name_en) item.name_en = String(src.name_en).trim();
+        if (src.name_en) item.name_en = str(String(src.name_en), 300);
         if (src.price_crc != null) item.price_crc = nonNegInt(src.price_crc, "price_crc");
         if (src.condition) {
           if (!CONDITION_SLUGS.includes(src.condition)) throw new InputError(`condition must be one of ${CONDITION_SLUGS.join(", ")}.`);
@@ -424,7 +489,7 @@ function summary(payload) {
   return {
     version: payload.version ?? 0,
     published_at: payload.published_at ?? null,
-    published_by: payload.published_by ?? null,
+    published_by: payload.published_by ?? "git",
     count: payload.items?.length ?? 0,
     with_images: (payload.items || []).filter((i) => i.foto || i.flyer_es || i.flyer_en).length,
   };
@@ -434,17 +499,17 @@ function summary(payload) {
 export function diff(prev, next) {
   const before = new Map((prev.items || []).map((i) => [i.id, i]));
   const after = new Map((next.items || []).map((i) => [i.id, i]));
-  const brief = (i) => ({ id: i.id, name: i.name_es.slice(0, 80), price_crc: i.price_crc ?? null, qty: i.qty });
+  const short = (i) => i.name_es.slice(0, 80);
   const added = [], removed = [], price = [], qty = [], images = [], details = [];
   for (const [id, n] of after) {
     const p = before.get(id);
-    if (!p) { added.push(brief(n)); continue; }
-    if ((p.price_crc ?? null) !== (n.price_crc ?? null)) price.push({ id, name: n.name_es.slice(0, 80), from: p.price_crc ?? null, to: n.price_crc ?? null });
-    if (p.qty !== n.qty) qty.push({ id, name: n.name_es.slice(0, 80), from: p.qty, to: n.qty });
-    if (IMAGE_KINDS.some((k) => (p[k] ?? null) !== (n[k] ?? null))) images.push({ id, name: n.name_es.slice(0, 80), ...Object.fromEntries(IMAGE_KINDS.map((k) => [k, n[k] ?? null])) });
-    if (["name_es", "name_en", "detail_es", "detail_en", "category", "condition"].some((k) => (p[k] ?? null) !== (n[k] ?? null))) details.push({ id, name: n.name_es.slice(0, 80) });
+    if (!p) { added.push({ id, name: short(n), price_crc: n.price_crc ?? null, qty: n.qty }); continue; }
+    if ((p.price_crc ?? null) !== (n.price_crc ?? null)) price.push({ id, name: short(n), from: p.price_crc ?? null, to: n.price_crc ?? null });
+    if (p.qty !== n.qty) qty.push({ id, name: short(n), from: p.qty, to: n.qty });
+    if (IMAGE_KINDS.some((k) => (p[k] ?? null) !== (n[k] ?? null))) images.push({ id, name: short(n) });
+    if (["name_es", "name_en", "detail_es", "detail_en", "category", "condition"].some((k) => (p[k] ?? null) !== (n[k] ?? null))) details.push({ id, name: short(n) });
   }
-  for (const [id, p] of before) if (!after.has(id)) removed.push(brief(p));
+  for (const [id, p] of before) if (!after.has(id)) removed.push({ id, name: short(p), price_crc: p.price_crc ?? null, qty: p.qty });
   const cap = (list) => ({ total: list.length, items: list.slice(0, LIST_LIMIT) });
   const counts = { added: added.length, removed: removed.length, price: price.length, qty: qty.length, images: images.length, details: details.length };
   return {

@@ -1,9 +1,8 @@
-// Admin API (/api/admin/*). Callers are already authenticated (see auth.js);
-// every route maps to one InventoryStore operation, which owns the invariants.
+// Admin API (/api/admin/*). Callers are already authenticated (see auth.js)
+// and same-origin checked (index.js); every route maps to one InventoryStore
+// operation, which owns the invariants.
 
-import { ConflictError, ImportError, InputError, InventoryStore } from "./store.js";
-
-const MAX_WORKBOOK_BYTES = 15 * 1024 * 1024;
+import { ConflictError, InputError, InventoryStore } from "./store.js";
 
 function reply(body, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -33,7 +32,7 @@ async function upload(request, field, maxBytes) {
 /** Admin search over the draft (if any) or the published inventory. */
 async function items(store, params) {
   const draft = await store.draft();
-  const source = draft ? draft.payload : (await store.live()).payload;
+  const source = draft ? draft.payload : await store.live();
   const q = (params.get("q") || "").trim().toLowerCase();
   const terms = q.split(/\s+/).filter(Boolean);
   const found = source.items.filter((it) => {
@@ -47,16 +46,7 @@ export async function handleAdmin(request, env, origin, admin) {
   const { pathname, searchParams } = new URL(request.url);
   const route = `${request.method} ${pathname.replace(/^\/api\/admin/, "")}`;
 
-  // Browser sessions ride on the Access cookie, so refuse cross-site writes.
-  if (request.method !== "GET") {
-    const site = request.headers.get("sec-fetch-site");
-    const from = request.headers.get("origin");
-    if ((site && !["same-origin", "none"].includes(site)) || (from && from !== origin)) {
-      return reply({ error: "cross_site_request" }, 403);
-    }
-  }
-
-  if (!env.STORE) return reply({ error: "storage_not_configured" }, 503);
+  if (!env.DB || !env.MEDIA) return reply({ error: "storage_not_configured" }, 503);
   const store = new InventoryStore(env, origin);
 
   try {
@@ -69,10 +59,12 @@ export async function handleAdmin(request, env, origin, admin) {
         return reply(await items(store, searchParams));
       case "GET /versions":
         return reply({ versions: await store.versions() });
-      case "POST /import": {
-        const { file, bytes } = await upload(request, "file", MAX_WORKBOOK_BYTES);
-        return reply({ draft: await store.importWorkbook(bytes, file.name || "inventario.xlsx", admin) });
-      }
+      case "GET /images":
+        return reply(await store.images());
+      case "POST /import":
+        // The workbook is parsed in the browser by worker/importer.js; the
+        // server validates the resulting payload (see store.importPayload).
+        return reply({ draft: await store.importPayload(await body(request), admin) });
       case "POST /edits": {
         const { ops } = await body(request);
         return reply({ draft: await store.editItems(ops, admin) });
@@ -106,7 +98,7 @@ export async function handleAdmin(request, env, origin, admin) {
     }
   } catch (err) {
     if (err instanceof ConflictError) return reply({ error: "conflict", message: err.message }, 409);
-    if (err instanceof InputError || err instanceof ImportError) return reply({ error: "invalid", message: err.message }, 400);
+    if (err instanceof InputError) return reply({ error: "invalid", message: err.message }, 400);
     console.error(err);
     return reply({ error: "internal_error" }, 500);
   }

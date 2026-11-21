@@ -6,15 +6,18 @@
     "node": ">=22"
   },
   "scripts": {
+    "build": "esbuild admin/src/importer-entry.js --bundle --format=esm --minify --target=es2020 --outfile=admin/importer.bundle.js",
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "db:migrate": "wrangler d1 migrations apply ballena-inventory --remote",
+    "admin:account": "node tools/admin-account.mjs"
   },
   "devDependencies": {
+    "esbuild": "^0.25.12",
     "wrangler": "^4.166.0"
   },
   "dependencies": {
     "fast-xml-parser": "^5.12.1",
-    "fflate": "^0.8.3",
-    "jose": "^6.2.18"
+    "fflate": "^0.8.3"
   }
 }

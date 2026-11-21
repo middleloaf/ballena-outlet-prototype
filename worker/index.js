@@ -8,7 +8,7 @@
 
 import { InventoryStore, PUBLIC_MEDIA_PREFIX } from "./store.js";
 import { handleAdmin } from "./admin.js";
-import { adminFromAccess } from "./auth.js";
+import { adminFromSession, login, logout } from "./auth.js";
 
 const CATEGORIES = {
   electrodomesticos: { es: "Electrodomésticos", en: "Appliances" },
@@ -48,8 +48,8 @@ const MAX_LIMIT = 50;
 let cached; // { key, data } — keyed by the published version / file etag.
 
 async function loadInventory(env, origin) {
-  const { payload, etag } = await new InventoryStore(env, origin).live();
-  const key = `${payload.version ?? 0}:${etag ?? payload.generated_at}`;
+  const payload = await new InventoryStore(env, origin).live();
+  const key = `${payload.version}:${payload.generated_at}`;
   if (cached && cached.key === key) return cached.data;
   const items = (payload.items || []).map((it) => ({
     ...it,
@@ -127,6 +127,13 @@ function num(v) {
   return Number.isFinite(n) ? n : null;
 }
 
+// Browser sessions ride on a cookie, so refuse cross-site writes.
+function sameOrigin(request, origin) {
+  const site = request.headers.get("sec-fetch-site");
+  const from = request.headers.get("origin");
+  return (!site || site === "same-origin" || site === "none") && (!from || from === origin);
+}
+
 function json(body, status = 200, extra = {}) {
   return new Response(JSON.stringify(body), {
     status,
@@ -194,27 +201,35 @@ export default {
     // Published inventory and uploaded images come from R2; before the first
     // publish (or for images committed to git) they fall back to the assets.
     if (pathname === "/data/inventory.json") {
-      const { payload } = await new InventoryStore(env, origin).live();
-      return json(payload, 200, { "cache-control": "public, max-age=15" });
+      const text = await new InventoryStore(env, origin).liveText();
+      return new Response(text, {
+        headers: { "content-type": "application/json; charset=utf-8", "cache-control": "public, max-age=15", "access-control-allow-origin": "*" },
+      });
     }
     if (pathname.startsWith("/" + PUBLIC_MEDIA_PREFIX)) {
       const name = pathname.slice(PUBLIC_MEDIA_PREFIX.length + 1);
-      return (await new InventoryStore(env, origin).media(name, request)) ?? env.ASSETS.fetch(request);
+      return (await new InventoryStore(env, origin).mediaResponse(name)) ?? env.ASSETS.fetch(request);
     }
 
-    if (pathname === "/admin" || pathname.startsWith("/admin/") || pathname.startsWith("/api/admin/")) {
-      const admin = await adminFromAccess(request, env);
-      if (!admin) {
-        return pathname.startsWith("/api/")
-          ? json({ error: "unauthorized" }, 401, { "cache-control": "no-store" })
-          : new Response("No autorizado / Not authorized", { status: 403, headers: { "cache-control": "no-store" } });
-      }
-      if (pathname.startsWith("/api/admin/")) return handleAdmin(request, env, origin, admin);
+    // The admin page itself is static and holds no data; it shows a login
+    // form until /api/admin/whoami succeeds. Every /api/admin route except
+    // login/logout requires a valid session.
+    if (pathname === "/admin" || pathname.startsWith("/admin/")) {
       const res = await env.ASSETS.fetch(request);
       const headers = new Headers(res.headers);
       headers.set("cache-control", "no-store");
-      headers.set("x-robots-tag", "noindex");
+      headers.set("x-robots-tag", "noindex, nofollow");
+      headers.set("x-frame-options", "DENY");
+      headers.set("referrer-policy", "same-origin");
       return new Response(res.body, { status: res.status, headers });
+    }
+    if (pathname.startsWith("/api/admin/")) {
+      if (request.method !== "GET" && !sameOrigin(request, origin)) return json({ error: "cross_site_request" }, 403, { "cache-control": "no-store" });
+      if (pathname === "/api/admin/login" && request.method === "POST") return login(request, env);
+      if (pathname === "/api/admin/logout" && request.method === "POST") return logout(request);
+      const admin = await adminFromSession(request, env);
+      if (!admin) return json({ error: "unauthorized" }, 401, { "cache-control": "no-store" });
+      return handleAdmin(request, env, origin, admin);
     }
 
     if (request.method === "OPTIONS") {

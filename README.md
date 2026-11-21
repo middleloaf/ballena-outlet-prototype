@@ -32,19 +32,46 @@ Then open `http://localhost:4173/index.html` (Spanish) or `http://localhost:4173
 
 ## Admin panel (inventory management)
 
-`/admin/` lets the store manage inventory without git:
+`/admin/` lets the store manage inventory without git. Everything runs on the Workers free plan (no payment method needed).
 
-- **Upload the workbook** (`.xlsx`/`.csv`): it becomes a **draft** with a report (added, removed, price/quantity/image changes, skipped rows, warnings). The file itself is not stored.
-- **Photos and flyers**: drag in images; the code comes from the filename (`BO-00071.jpg`), the image metadata, or a field per row. Images for codes not yet in the inventory are kept and attach on the next import.
+- **Upload the workbook** (`.xlsx`/`.csv`). It is parsed **in the browser** by the same `worker/importer.js`; only the public columns are sent. The free plan allows ~10 ms CPU per request and parsing a 1,300-row workbook takes ~150 ms, so the server validates the resulting payload instead of parsing. The upload becomes a **draft** with a report: added, removed, price/quantity/image changes, skipped rows and warnings.
+- **Photos and flyers**: drag in images. The code comes from the filename (`BO-00071.jpg`), the image metadata, or a field per row. Photos over 1.5 MB are shrunk to 1600 px in the browser. Images for codes not yet in the inventory are kept and attach on the next import.
 - **Quick edits**: price, quantity, mark sold. These go into the draft; the next workbook upload replaces the whole inventory, so the sheet must be updated too.
-- **Publish** sends the reviewed draft id; the server refuses a draft that changed after review or was built on an older version. **History** lists every published version; *Restore* makes a draft from one.
+- **Publish** sends the reviewed draft id. The server refuses a draft that changed after review or was built on an older version. **History** lists every published version; *Restore* makes a draft from one.
 - The help section is the workbook/image guide from `data/source/README.md`.
 
-Storage (`worker/store.js`, R2 bucket `ballena-inventory`): `live.json` (served as `/data/inventory.json`), `versions/NNNNNN.json`, `draft.json`, `images/index.json`, and `media/*` served at `/assets/inventory/*` (falling back to the committed images). Writes that depend on a read are conditional on the R2 etag.
+**Storage** (`worker/store.js`):
+- D1 `ballena-inventory` (`migrations/`) holds `state` rows `live` (served verbatim as `/data/inventory.json`), `draft` and `images`, plus `versions`, `admins` and `login_failures`.
+- KV `MEDIA` holds uploaded images, served at `/assets/inventory/*` and falling back to the committed images.
+- Read-modify-write uses a per-row `rev` (compare-and-swap). Publishing inserts the version row (primary key) and updates `live` in one transaction.
 
-Auth: Cloudflare Access (email one-time code) in front of `/admin*` and `/api/admin/*`; the Worker also verifies the Access JWT (`ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`) and checks `ADMIN_EMAILS`. Without those vars the admin is closed. Local dev: `DEV_ADMIN_EMAIL` in `.dev.vars` (honored on localhost only).
+**Auth** (`worker/auth.js`): email + password (PBKDF2-SHA256, 20k iterations to fit the CPU budget) and an HMAC-signed `HttpOnly; Secure; SameSite=Strict` session cookie (30 days).
+- Every request re-checks the account in D1, so deleting it revokes access.
+- Failed logins are limited to 8 per 15 minutes per email and per IP.
+- Cross-site writes are refused.
 
-Admin API (`/api/admin/*`, same auth): `GET status|items?q=|versions|whoami`, `POST import` (multipart `file`), `POST edits` (`{ops:[{op:"set_price"|"set_quantity"|"remove"|"set_fields"|"add", ...}]}`), `POST images` (multipart `file`, `code?`, `kind=foto|flyer_es|flyer_en`), `POST images/remove`, `POST publish` (`{draft_id}`), `POST draft/discard`, `POST restore` (`{version}`).
+```bash
+npm run admin:account -- person@example.com            # create / change password (prompts)
+npm run admin:account -- person@example.com --remove   # revoke
+npx wrangler secret put SESSION_SECRET                 # rotate: logs everyone out
+npm run db:migrate                                     # apply new migrations to production D1
+```
+
+**Admin API** (`/api/admin/*`, session cookie):
+
+| Route | Purpose |
+|---|---|
+| `POST login` / `POST logout`, `GET whoami` | Session |
+| `GET status`, `GET items?q=`, `GET versions` | Live summary, draft review, item search, history |
+| `GET images` | Image index used by the browser importer |
+| `POST import` | `{payload, report, filename}` from the browser importer |
+| `POST edits` | `{ops: [{op: "set_price" \| "set_quantity" \| "remove" \| "set_fields" \| "add", ...}]}` |
+| `POST images` | Multipart `file`, optional `code`, `kind=foto\|flyer_es\|flyer_en` |
+| `POST images/remove`, `POST draft/discard` | Undo an image, drop the draft |
+| `POST publish` | `{draft_id}` |
+| `POST restore` | `{version}` |
+
+Local dev: `npx wrangler d1 migrations apply ballena-inventory --local`, put `SESSION_SECRET=<64 hex>` in `.dev.vars`, then `npm run admin:account -- you@example.com --local` and `npm run dev`.
 
 ## Inventory from a spreadsheet
 

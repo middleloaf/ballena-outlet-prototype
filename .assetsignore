@@ -14,3 +14,5 @@ TRD.md
 wrangler.jsonc
 package.json
 package-lock.json
+admin/src
+migrations

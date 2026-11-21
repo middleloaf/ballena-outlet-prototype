@@ -38,6 +38,7 @@
     if (opts.form) init.body = opts.form;
     return fetch(API + path, init).then(function (res) {
       return res.json().catch(function () { return {}; }).then(function (data) {
+        if (res.status === 401 && path !== "/whoami") showLogin();
         if (!res.ok) {
           var msg = data.message || (res.status === 401 ? "Tu sesión expiró. Recargá la página." : "Error " + res.status);
           var err = new Error(msg); err.status = res.status; throw err;
@@ -83,7 +84,7 @@
       return;
     }
     var c = d.changes;
-    var r = d.import_report;
+    var r = d.report;
     var lists = [
       changeList("Nuevos", c.added, function (x) { return x.id + " · " + x.name + " · " + price(x.price_crc) + " · " + x.qty + " u."; }),
       changeList("Se quitan de la web", c.removed, function (x) { return x.id + " · " + x.name; }),
@@ -144,12 +145,21 @@
     });
     form.addEventListener("submit", function (ev) {
       ev.preventDefault();
-      if (!input.files[0]) return;
+      var file = input.files[0];
+      if (!file) return;
       var btn = form.querySelector("button");
       busy(btn, true);
-      var fd = new FormData();
-      fd.append("file", input.files[0]);
-      api("/import", { method: "POST", form: fd })
+      // The workbook is parsed here, with the same importer the server uses
+      // for validation rules; only the public columns are sent.
+      Promise.all([import("./importer.bundle.js"), file.arrayBuffer(), api("/images")])
+        .then(function (r) {
+          var mod = r[0];
+          var wb = mod.readWorkbook(new Uint8Array(r[1]), file.name);
+          return mod.buildInventory(wb, { images: r[2] }).catch(function (e) { throw e; });
+        })
+        .then(function (built) {
+          return api("/import", { method: "POST", json: { payload: built.payload, report: built.report, filename: file.name } });
+        })
         .then(function (r) {
           renderDraft(r.draft); state.draft = r.draft;
           toast("Borrador creado: " + r.draft.count + " artículos. Revisalo y publicá.");
@@ -188,10 +198,31 @@
 
   function syncImageActions() { $("#image-actions").hidden = !queue.some(function (q) { return !q.done; }); }
 
+  // Big photos straight from a phone are shrunk to 1600 px JPEG. Smaller files
+  // go as-is, which keeps any BO-xxxxx code stored in their metadata.
+  function shrink(file) {
+    if (file.size < 1.5 * 1024 * 1024 || !window.createImageBitmap) return Promise.resolve(file);
+    return createImageBitmap(file).then(function (bmp) {
+      var scale = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+      var canvas = document.createElement("canvas");
+      canvas.width = Math.round(bmp.width * scale); canvas.height = Math.round(bmp.height * scale);
+      canvas.getContext("2d").drawImage(bmp, 0, 0, canvas.width, canvas.height);
+      return new Promise(function (resolve) {
+        canvas.toBlob(function (blob) { resolve(blob ? new File([blob], file.name.replace(/\.[^.]+$/, "") + ".jpg", { type: "image/jpeg" }) : file); }, "image/jpeg", 0.85);
+      });
+    }).catch(function () { return file; });
+  }
+
   function uploadOne(entry) {
     var status = entry.row.querySelector(".qstatus");
+    status.className = "qstatus small"; status.textContent = "Preparando…";
+    return shrink(entry.file).then(function (file) { return send(entry, file); });
+  }
+
+  function send(entry, file) {
+    var status = entry.row.querySelector(".qstatus");
     var fd = new FormData();
-    fd.append("file", entry.file);
+    fd.append("file", file);
     fd.append("code", entry.row.querySelector(".qcode").value.trim());
     fd.append("kind", entry.row.querySelector(".qkind").value);
     status.className = "qstatus small"; status.textContent = "Subiendo…";
@@ -316,11 +347,35 @@
 
   // ---- Boot --------------------------------------------------------------------
 
+  function showLogin() {
+    $("#app").hidden = true; $("#tabs").hidden = true; $("#logout").hidden = true;
+    $("#who").textContent = "";
+    $("#login").hidden = false;
+  }
+
+  function showApp(email) {
+    $("#login").hidden = true;
+    $("#app").hidden = false; $("#tabs").hidden = false; $("#logout").hidden = false;
+    $("#who").textContent = email;
+    refresh().then(loadVersions);
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
-    api("/whoami").then(function (r) { $("#who").textContent = r.email; }).catch(function () {});
     setupImport();
     setupImages();
     $("#search-form").addEventListener("submit", search);
-    refresh().then(loadVersions);
+    $("#login-form").addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      var f = ev.target, btn = f.querySelector("button");
+      busy(btn, true);
+      api("/login", { method: "POST", json: { email: f.email.value, password: f.password.value } })
+        .then(function (r) { f.reset(); showApp(r.email); })
+        .catch(function (e) { toast(e.message, true); })
+        .finally(function () { busy(btn, false); });
+    });
+    $("#logout").addEventListener("click", function () {
+      api("/logout", { method: "POST", json: {} }).finally(showLogin);
+    });
+    api("/whoami").then(function (r) { showApp(r.email); }).catch(showLogin);
   });
 })();

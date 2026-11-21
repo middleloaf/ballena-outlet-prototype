@@ -16,9 +16,9 @@
   <header class="top">
     <div class="wrap top-row">
       <a class="brand" href="../index.html" target="_blank" rel="noopener">Ballena Outlet <span>Administración</span></a>
-      <p class="who" id="who"></p>
+      <p class="who"><span id="who"></span> <button class="link" id="logout" type="button" hidden>Salir</button></p>
     </div>
-    <nav class="wrap tabs" aria-label="Secciones">
+    <nav class="wrap tabs" id="tabs" aria-label="Secciones" hidden>
       <a href="#estado">Estado</a>
       <a href="#excel">Excel</a>
       <a href="#imagenes">Fotos y flyers</a>
@@ -30,6 +30,18 @@
 
   <main class="wrap">
     <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+    <section id="login" class="card login" hidden>
+      <h2>Ingresar</h2>
+      <form id="login-form">
+        <label>Correo<input type="email" name="email" autocomplete="username" required></label>
+        <label>Contraseña<input type="password" name="password" autocomplete="current-password" required minlength="12"></label>
+        <button class="btn" type="submit">Ingresar</button>
+      </form>
+      <p class="muted small">¿Necesitás una cuenta o perdiste la contraseña? Pedísela al desarrollador.</p>
+    </section>
+
+    <div id="app" hidden>
 
     <!-- Status + draft review ------------------------------------------------>
     <section id="estado" class="card">
@@ -49,7 +61,7 @@
         </label>
         <button class="btn" type="submit">Subir y revisar</button>
       </form>
-      <p class="muted small">El archivo no se guarda: solo se leen las columnas públicas. Las hojas internas (costos, descuentos) nunca se publican.</p>
+      <p class="muted small">El archivo se lee en este navegador y no se sube: solo viajan las columnas públicas. Las hojas internas (costos, descuentos) nunca salen de tu equipo.</p>
     </section>
 
     <!-- Images --------------------------------------------------------------->
@@ -112,11 +124,12 @@
         <li><strong>Foto:</strong> imagen real del artículo; es la imagen principal de la tarjeta.</li>
         <li><strong>Flyer:</strong> imagen con texto (marca, precio, especificaciones). Se usa como imagen de la tarjeta solo si no hay foto, y siempre se puede ver con “Ver flyer”. Para la página en inglés podés subir un <em>flyer EN</em>; si no hay, se usa el flyer en español.</li>
         <li><strong>Código:</strong> nombrá el archivo con el código (<code>BO-00001.jpg</code>, también <code>BO-00001-frente.jpg</code>) o escribilo al subir. Si el archivo trae el código en sus metadatos también se detecta, pero WhatsApp e Instagram borran los metadatos.</li>
-        <li><strong>Tamaño:</strong> JPEG o WebP de unos 900–1200 px del lado más largo y menos de ~300 KB cargan rápido en el celular. Máximo 8 MB.</li>
+        <li><strong>Tamaño:</strong> las imágenes grandes se achican solas a 1600 px antes de subir. Lo ideal son JPEG o WebP de unos 900–1200 px y menos de ~300 KB, que cargan rápido en el celular.</li>
         <li>Si subís una imagen de un código que todavía no está en el inventario, queda guardada y se asocia sola cuando subás un Excel con ese código.</li>
         <li>Las imágenes subidas acá tienen prioridad sobre las columnas <code>foto</code>/<code>flyer</code> del Excel.</li>
       </ul>
     </section>
+    </div>
   </main>
 
   <template id="tpl-queue-row">
