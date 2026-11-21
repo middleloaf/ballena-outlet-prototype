@@ -6,14 +6,31 @@
   "main": "worker/index.js",
   "compatibility_date": "2026-11-01",
   "observability": { "enabled": true },
+  // Inventory state (live, draft, image index), version history, login throttling.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ballena-inventory",
+      "database_id": "ef836607-d905-4b17-9b8c-b1dd42e4688b",
+      "migrations_dir": "migrations"
+    }
+  ],
+  // Uploaded product photos and flyers, served at /assets/inventory/*.
+  "kv_namespaces": [{ "binding": "MEDIA", "id": "2a3b7277366f40e4941ca9b79140dfd7" }],
+  // Admin accounts live in D1 (`npm run admin:account`); SESSION_SECRET is a
+  // Worker secret (`wrangler secret put SESSION_SECRET`).
+  // Bundles worker/importer.js for the admin page (workbooks are parsed in the
+  // browser: the free plan allows ~10 ms CPU per request).
+  "build": { "command": "npm run build", "watch_dir": ["worker", "admin/src"] },
   // The repo root is the static site. .assetsignore keeps tooling, source
   // workbooks and the Worker code itself out of the public bundle.
   "assets": {
     "directory": ".",
     "binding": "ASSETS",
     "not_found_handling": "404-page",
-    // Only API calls hit the Worker; every page/image is served straight from
-    // the asset store without invoking (or billing) the Worker.
-    "run_worker_first": ["/api/*"]
+    // The Worker runs only for the API, the admin panel (auth check), the
+    // published inventory and uploaded images (R2). Every other page and image
+    // is served straight from the asset store.
+    "run_worker_first": ["/api/*", "/admin", "/admin/*", "/data/inventory.json", "/assets/inventory/*"]
   }
 }

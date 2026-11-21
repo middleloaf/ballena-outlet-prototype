@@ -30,25 +30,68 @@ Then open `http://localhost:4173/index.html` (Spanish) or `http://localhost:4173
 - A live “Disponible hoy / Available today” section on both home pages: a four-item preview that links to the full catalog. The catalog pages (`inventario.html` / `inventory.html`) have the complete searchable, filterable, sortable list, rendered from `data/inventory.json` (built from a spreadsheet, see below).
 - A dismissible prototype popup in both languages that identifies the site as a second-version prototype, plus a detailed “About this prototype” section and `noindex` metadata so search engines do not treat the demo as final.
 
+## Admin panel (inventory management)
+
+`/admin/` lets the store manage inventory without git. Everything runs on the Workers free plan (no payment method needed).
+
+- **Upload the workbook** (`.xlsx`/`.csv`). It is parsed **in the browser** by the same `worker/importer.js`; only the public columns are sent. The free plan allows ~10 ms CPU per request and parsing a 1,300-row workbook takes ~150 ms, so the server validates the resulting payload instead of parsing. The upload becomes a **draft** with a report: added, removed, price/quantity/image changes, skipped rows and warnings.
+- **Photos and flyers**: drag in images. The code comes from the filename (`BO-00071.jpg`), the image metadata, or a field per row. Photos over 1.5 MB are shrunk to 1600 px in the browser. Images for codes not yet in the inventory are kept and attach on the next import.
+- **Quick edits**: price, quantity, mark sold. These go into the draft; the next workbook upload replaces the whole inventory, so the sheet must be updated too.
+- **Publish** sends the reviewed draft id. The server refuses a draft that changed after review or was built on an older version. **History** lists every published version; *Restore* makes a draft from one.
+- The help section is the workbook/image guide from `data/source/README.md`.
+
+**Storage** (`worker/store.js`):
+- D1 `ballena-inventory` (`migrations/`) holds `state` rows `live` (served verbatim as `/data/inventory.json`), `draft` and `images`, plus `versions`, `admins` and `login_failures`.
+- KV `MEDIA` holds uploaded images, served at `/assets/inventory/*` and falling back to the committed images.
+- Read-modify-write uses a per-row `rev` (compare-and-swap). Publishing inserts the version row (primary key) and updates `live` in one transaction.
+
+**Auth** (`worker/auth.js`): email + password (PBKDF2-SHA256, 20k iterations to fit the CPU budget) and an HMAC-signed `HttpOnly; Secure; SameSite=Strict` session cookie (30 days).
+- Every request re-checks the account in D1, so deleting it revokes access.
+- Failed logins are limited to 8 per 15 minutes per email and per IP.
+- Cross-site writes are refused.
+
+```bash
+npm run admin:account -- person@example.com            # create / change password (prompts)
+npm run admin:account -- person@example.com --remove   # revoke
+npx wrangler secret put SESSION_SECRET                 # rotate: logs everyone out
+npm run db:migrate                                     # apply new migrations to production D1
+```
+
+**Admin API** (`/api/admin/*`, session cookie):
+
+| Route | Purpose |
+|---|---|
+| `POST login` / `POST logout`, `GET whoami` | Session |
+| `GET status`, `GET items?q=`, `GET versions` | Live summary, draft review, item search, history |
+| `GET images` | Image index used by the browser importer |
+| `POST import` | `{payload, report, filename}` from the browser importer |
+| `POST edits` | `{ops: [{op: "set_price" \| "set_quantity" \| "remove" \| "set_fields" \| "add", ...}]}` |
+| `POST images` | Multipart `file`, optional `code`, `kind=foto\|flyer_es\|flyer_en` |
+| `POST images/remove`, `POST draft/discard` | Undo an image, drop the draft |
+| `POST publish` | `{draft_id}` |
+| `POST restore` | `{version}` |
+
+Local dev: `npx wrangler d1 migrations apply ballena-inventory --local`, put `SESSION_SECRET=<64 hex>` in `.dev.vars`, then `npm run admin:account -- you@example.com --local` and `npm run dev`.
+
 ## Inventory from a spreadsheet
 
-The available-items section reads `data/inventory.json`. That file is generated from an Excel/CSV sheet by `tools/import_inventory.py`; nothing is typed into the HTML.
+The available-items section reads `data/inventory.json`. In production the published inventory lives in R2 and is managed from the admin panel (below); `tools/import-inventory.mjs` builds the committed fallback file locally from an Excel/CSV sheet; nothing is typed into the HTML.
 
 ```bash
 # Try the demo data (7 sample items, marked as sample in the UI)
-python3 tools/import_inventory.py data/inventory.sample.csv --sample
+node tools/import-inventory.mjs data/inventory.sample.csv --sample
 
 # Import the store's workbook (STOCK TIENDAS sheet)
-python3 tools/import_inventory.py data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx
+node tools/import-inventory.mjs data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx
 
 # Photos go in data/source/photos/, flyers in data/source/flyers/; the importer picks them up automatically
-python3 tools/import_inventory.py data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx
+node tools/import-inventory.mjs data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx
 
 # Validate without writing anything
-python3 tools/import_inventory.py inventario.xlsx --dry-run
+node tools/import-inventory.mjs inventario.xlsx --dry-run
 ```
 
-`.xlsx` is read with the Python standard library (no `openpyxl`, no pip), so the workbook can be imported as-is. Serve the site over HTTP (`python3 -m http.server 4173`) — `fetch()` cannot read `data/inventory.json` from `file://`.
+The importer (`worker/importer.js`) is shared by the admin panel and the local CLI, so both apply identical rules. Serve the site over HTTP (`python3 -m http.server 4173`) — `fetch()` cannot read `data/inventory.json` from `file://`.
 
 ### The Ballena Outlet workbook
 
@@ -88,7 +131,7 @@ Any other column (cost, supplier, internal notes) is ignored and never reaches t
 There are two ways to attach an image to a product:
 
 1. **By product code (bulk).** Drop the files in `data/source/photos/`, named after the code: `BO-00001.jpg`, `BO-00002.jpg`, … Then run
-   `python3 tools/import_inventory.py data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx`.
+   `node tools/import-inventory.mjs data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx`.
    The importer uses `data/source/photos/` and `data/source/flyers/` automatically when those folders exist; `--photos-dir`/`--flyers-dir` point it elsewhere. Suffixes such as `BO-00001-front.jpg` are accepted too.
 2. **Per row.** Add a `foto` column to the sheet with the exact filename (`IMG_1234.jpg`) or a repo path, and put that file in `data/source/photos/` (or pass `--photos-dir`). This is the option when camera files are not renamed.
 
@@ -114,16 +157,16 @@ The Kapso WhatsApp bot reads the same data through the inventory API (see *Cloud
 
 ## Running outside T3
 
-The prototype has no T3 dependency. It needs Python 3.8+ (standard library only) and any static file server — no pip, no build step, no Node.
+The prototype has no T3 dependency. It needs Node 22+ (`npm install` once) for the importer and Wrangler; serving the static pages only needs any file server.
 
 ### Refresh stock and images
 
 ```bash
 # Validate first (no files written)
-python3 tools/import_inventory.py /path/to/workbook.xlsx --dry-run
+node tools/import-inventory.mjs /path/to/workbook.xlsx --dry-run
 
 # Rebuild the public inventory; images can live outside the repo
-python3 tools/import_inventory.py /path/to/workbook.xlsx \
+node tools/import-inventory.mjs /path/to/workbook.xlsx \
   --photos-dir /path/to/photos --flyers-dir /path/to/flyers
 ```
 
@@ -165,7 +208,7 @@ Product names are English U.S. retail listings, so the bot must search with Engl
 
 ### What travels with the repo
 
-- `data/inventory.json` and `assets/inventory/` are committed, so a fresh clone serves the current catalog without running Python.
+- `data/inventory.json` and `assets/inventory/` are committed, so a fresh clone serves a catalog without running the importer. Production inventory is whatever was last published from the admin panel (R2); the committed file is only the fallback before the first publish.
 - `data/source/photos/`, `data/source/flyers/`, and the `.xlsx` workbook are git-ignored; a clone will not contain the originals. Keep them backed up separately, or always pass external `--photos-dir`/`--flyers-dir` paths and the workbook's path. The committed `data/inventory.json` already serves the site without any of them.
 - `fetch()` needs HTTP; opening `index.html` from the filesystem shows the empty state.
 
