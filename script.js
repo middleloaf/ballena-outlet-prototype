@@ -86,7 +86,7 @@
 
   var protoPopup = doc.getElementById("prototype-popup");
   if (protoPopup) {
-    var protoKey = "ballena-proto-popup-v2";
+    var protoKey = "ballena-proto-popup-v3";
     var protoDismissed = false;
     try {
       protoDismissed = window.sessionStorage.getItem(protoKey) === "1";
