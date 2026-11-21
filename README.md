@@ -42,7 +42,7 @@ Then open `http://localhost:4173/index.html` (Spanish) or `http://localhost:4173
 
 **Storage** (`worker/store.js`):
 - D1 `ballena-inventory` (`migrations/`) holds `state` rows `live` (served verbatim as `/data/inventory.json`), `draft` and `images`, plus `versions`, `admins` and `login_failures`.
-- KV `MEDIA` holds uploaded images, served at `/assets/inventory/*` and falling back to the committed images.
+- KV `MEDIA` holds product images, served at `/assets/inventory/*` (falling back to static assets for local CLI imports).
 - Read-modify-write uses a per-row `rev` (compare-and-swap). Publishing inserts the version row (primary key) and updates `live` in one transaction.
 
 **Auth** (`worker/auth.js`): email + password (PBKDF2-SHA256, 20k iterations to fit the CPU budget) and an HMAC-signed `HttpOnly; Secure; SameSite=Strict` session cookie (30 days).
@@ -75,7 +75,7 @@ Local dev: `npx wrangler d1 migrations apply ballena-inventory --local`, put `SE
 
 ## Inventory from a spreadsheet
 
-The available-items section reads `data/inventory.json`. In production the published inventory lives in R2 and is managed from the admin panel (below); `tools/import-inventory.mjs` builds the committed fallback file locally from an Excel/CSV sheet; nothing is typed into the HTML.
+The available-items section reads `data/inventory.json`. **The repository ships a 24-item sample inventory** (`data/inventory.sample.csv` → `data/inventory.json`, flagged `sample: true`, shown with an “Inventario de muestra” badge). The store's real inventory and product images live only in production (D1 + KV) and are managed from the admin panel (below); `tools/import-inventory.mjs` builds the committed fallback file locally from an Excel/CSV sheet; nothing is typed into the HTML.
 
 ```bash
 # Try the demo data (7 sample items, marked as sample in the UI)
@@ -141,7 +141,7 @@ Flyers work the same way: either `flyer_es` / `flyer_en` columns with filenames,
 - If a file's name is not usable, the importer also looks for a `BO-xxxxx` code inside the image metadata (EXIF ImageDescription/UserComment/XMP, or PNG Description/Comment) and attaches it on a match. This lets a flyer generator stamp the code into the file without renaming it. Codes printed *in the pixels* are not read — that needs OCR; write the code into the metadata (or the filename) instead.
 - **Embedded Excel images cannot be mapped to rows.** If the workbook has pictures floating over cells, export them (or screenshot the flyer) and name them by code, or list the filenames in the `foto` column.
 - Use `--dry-run` to see which rows are missing an image before writing.
-- Optimize before importing: WebP or JPEG around 900–1200px on the long side, under ~200 KB. Images are committed to the repo, so keep originals out of `data/`.
+- Optimize before importing: WebP or JPEG around 900–1200px on the long side, under ~200 KB. Product images are not committed; in production they are uploaded through the admin panel.
 - Flyers with Spanish text on the EN page are flagged by the importer; add `flyer_en` if the English page should show English artwork.
 - Cards without any image show a neutral placeholder with the product group; the list stays usable while photos are being added.
 
@@ -149,7 +149,7 @@ Flyers work the same way: either `flyer_es` / `flyer_en` columns with filenames,
 
 1. Update the sheet, drop new photos/flyers in `data/source/photos/` or `data/source/flyers/`.
 2. Run the importer (it prints skipped rows and warnings).
-3. Review `data/inventory.json`, then run `make optimize-images` (optional; needs ImageMagick) and commit `data/inventory.json` and `assets/inventory/`.
+3. Review `data/inventory.json` locally. Do not commit real inventory or product images: production is updated from `/admin/`.
 4. Reload the home page for the four-item preview, or the catalog page for the full list. Sold items disappear because only `disponible` rows are exported.
 5. The catalog page paginates in the browser (24 cards, “Ver más / Load more”) and has free-text search, category filters, a price range, and sorting by featured items (image-first), inventory order, price, name, quantity, or newest; 1,320 items load from one JSON file. The home preview also prioritizes items that have a photo or flyer.
 
@@ -193,7 +193,7 @@ Production is one Cloudflare Worker (`ballena-outlet`) with static assets: https
 
 ### Inventory API (for the Kapso bot)
 
-Read-only, no auth (it exposes only what the public catalog already shows), CORS open, 60 s cache. Built from `data/inventory.json` at request time, so a re-import + push updates the bot too.
+Read-only, no auth (it exposes only what the public catalog already shows), CORS open, 60 s cache. Built from the published inventory at request time, so a publish from `/admin/` updates the bot within a minute.
 
 | Endpoint | Purpose |
 |---|---|
@@ -208,7 +208,7 @@ Product names are English U.S. retail listings, so the bot must search with Engl
 
 ### What travels with the repo
 
-- `data/inventory.json` and `assets/inventory/` are committed, so a fresh clone serves a catalog without running the importer. Production inventory is whatever was last published from the admin panel (R2); the committed file is only the fallback before the first publish.
+- `data/inventory.json` is the **sample** inventory, so a fresh clone (or a static host such as GitHub Pages) shows a working demo catalog. Production serves the last version published from `/admin/` (D1); the committed file is never used there once a version exists. Regenerate it with `node tools/import-inventory.mjs data/inventory.sample.csv --sample`.
 - `data/source/photos/`, `data/source/flyers/`, and the `.xlsx` workbook are git-ignored; a clone will not contain the originals. Keep them backed up separately, or always pass external `--photos-dir`/`--flyers-dir` paths and the workbook's path. The committed `data/inventory.json` already serves the site without any of them.
 - `fetch()` needs HTTP; opening `index.html` from the filesystem shows the empty state.
 
