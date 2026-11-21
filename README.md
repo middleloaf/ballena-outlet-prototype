@@ -30,25 +30,41 @@ Then open `http://localhost:4173/index.html` (Spanish) or `http://localhost:4173
 - A live “Disponible hoy / Available today” section on both home pages: a four-item preview that links to the full catalog. The catalog pages (`inventario.html` / `inventory.html`) have the complete searchable, filterable, sortable list, rendered from `data/inventory.json` (built from a spreadsheet, see below).
 - A dismissible prototype popup in both languages that identifies the site as a second-version prototype, plus a detailed “About this prototype” section and `noindex` metadata so search engines do not treat the demo as final.
 
+## Admin panel (inventory management)
+
+`/admin/` lets the store manage inventory without git:
+
+- **Upload the workbook** (`.xlsx`/`.csv`): it becomes a **draft** with a report (added, removed, price/quantity/image changes, skipped rows, warnings). The file itself is not stored.
+- **Photos and flyers**: drag in images; the code comes from the filename (`BO-00071.jpg`), the image metadata, or a field per row. Images for codes not yet in the inventory are kept and attach on the next import.
+- **Quick edits**: price, quantity, mark sold. These go into the draft; the next workbook upload replaces the whole inventory, so the sheet must be updated too.
+- **Publish** sends the reviewed draft id; the server refuses a draft that changed after review or was built on an older version. **History** lists every published version; *Restore* makes a draft from one.
+- The help section is the workbook/image guide from `data/source/README.md`.
+
+Storage (`worker/store.js`, R2 bucket `ballena-inventory`): `live.json` (served as `/data/inventory.json`), `versions/NNNNNN.json`, `draft.json`, `images/index.json`, and `media/*` served at `/assets/inventory/*` (falling back to the committed images). Writes that depend on a read are conditional on the R2 etag.
+
+Auth: Cloudflare Access (email one-time code) in front of `/admin*` and `/api/admin/*`; the Worker also verifies the Access JWT (`ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`) and checks `ADMIN_EMAILS`. Without those vars the admin is closed. Local dev: `DEV_ADMIN_EMAIL` in `.dev.vars` (honored on localhost only).
+
+Admin API (`/api/admin/*`, same auth): `GET status|items?q=|versions|whoami`, `POST import` (multipart `file`), `POST edits` (`{ops:[{op:"set_price"|"set_quantity"|"remove"|"set_fields"|"add", ...}]}`), `POST images` (multipart `file`, `code?`, `kind=foto|flyer_es|flyer_en`), `POST images/remove`, `POST publish` (`{draft_id}`), `POST draft/discard`, `POST restore` (`{version}`).
+
 ## Inventory from a spreadsheet
 
-The available-items section reads `data/inventory.json`. That file is generated from an Excel/CSV sheet by `tools/import_inventory.py`; nothing is typed into the HTML.
+The available-items section reads `data/inventory.json`. In production the published inventory lives in R2 and is managed from the admin panel (below); `tools/import-inventory.mjs` builds the committed fallback file locally from an Excel/CSV sheet; nothing is typed into the HTML.
 
 ```bash
 # Try the demo data (7 sample items, marked as sample in the UI)
-python3 tools/import_inventory.py data/inventory.sample.csv --sample
+node tools/import-inventory.mjs data/inventory.sample.csv --sample
 
 # Import the store's workbook (STOCK TIENDAS sheet)
-python3 tools/import_inventory.py data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx
+node tools/import-inventory.mjs data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx
 
 # Photos go in data/source/photos/, flyers in data/source/flyers/; the importer picks them up automatically
-python3 tools/import_inventory.py data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx
+node tools/import-inventory.mjs data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx
 
 # Validate without writing anything
-python3 tools/import_inventory.py inventario.xlsx --dry-run
+node tools/import-inventory.mjs inventario.xlsx --dry-run
 ```
 
-`.xlsx` is read with the Python standard library (no `openpyxl`, no pip), so the workbook can be imported as-is. Serve the site over HTTP (`python3 -m http.server 4173`) — `fetch()` cannot read `data/inventory.json` from `file://`.
+The importer (`worker/importer.js`) is shared by the admin panel and the local CLI, so both apply identical rules. Serve the site over HTTP (`python3 -m http.server 4173`) — `fetch()` cannot read `data/inventory.json` from `file://`.
 
 ### The Ballena Outlet workbook
 
@@ -88,7 +104,7 @@ Any other column (cost, supplier, internal notes) is ignored and never reaches t
 There are two ways to attach an image to a product:
 
 1. **By product code (bulk).** Drop the files in `data/source/photos/`, named after the code: `BO-00001.jpg`, `BO-00002.jpg`, … Then run
-   `python3 tools/import_inventory.py data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx`.
+   `node tools/import-inventory.mjs data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx`.
    The importer uses `data/source/photos/` and `data/source/flyers/` automatically when those folders exist; `--photos-dir`/`--flyers-dir` point it elsewhere. Suffixes such as `BO-00001-front.jpg` are accepted too.
 2. **Per row.** Add a `foto` column to the sheet with the exact filename (`IMG_1234.jpg`) or a repo path, and put that file in `data/source/photos/` (or pass `--photos-dir`). This is the option when camera files are not renamed.
 
@@ -114,16 +130,16 @@ The Kapso WhatsApp bot reads the same data through the inventory API (see *Cloud
 
 ## Running outside T3
 
-The prototype has no T3 dependency. It needs Python 3.8+ (standard library only) and any static file server — no pip, no build step, no Node.
+The prototype has no T3 dependency. It needs Node 22+ (`npm install` once) for the importer and Wrangler; serving the static pages only needs any file server.
 
 ### Refresh stock and images
 
 ```bash
 # Validate first (no files written)
-python3 tools/import_inventory.py /path/to/workbook.xlsx --dry-run
+node tools/import-inventory.mjs /path/to/workbook.xlsx --dry-run
 
 # Rebuild the public inventory; images can live outside the repo
-python3 tools/import_inventory.py /path/to/workbook.xlsx \
+node tools/import-inventory.mjs /path/to/workbook.xlsx \
   --photos-dir /path/to/photos --flyers-dir /path/to/flyers
 ```
 
@@ -165,7 +181,7 @@ Product names are English U.S. retail listings, so the bot must search with Engl
 
 ### What travels with the repo
 
-- `data/inventory.json` and `assets/inventory/` are committed, so a fresh clone serves the current catalog without running Python.
+- `data/inventory.json` and `assets/inventory/` are committed, so a fresh clone serves a catalog without running the importer. Production inventory is whatever was last published from the admin panel (R2); the committed file is only the fallback before the first publish.
 - `data/source/photos/`, `data/source/flyers/`, and the `.xlsx` workbook are git-ignored; a clone will not contain the originals. Keep them backed up separately, or always pass external `--photos-dir`/`--flyers-dir` paths and the workbook's path. The committed `data/inventory.json` already serves the site without any of them.
 - `fetch()` needs HTTP; opening `index.html` from the filesystem shows the empty state.
 

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Ballena Outlet · Administración</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Inter:wght@400..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+  <script src="admin.js" defer></script>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top-row">
+      <a class="brand" href="../index.html" target="_blank" rel="noopener">Ballena Outlet <span>Administración</span></a>
+      <p class="who" id="who"></p>
+    </div>
+    <nav class="wrap tabs" aria-label="Secciones">
+      <a href="#estado">Estado</a>
+      <a href="#excel">Excel</a>
+      <a href="#imagenes">Fotos y flyers</a>
+      <a href="#articulos">Artículos</a>
+      <a href="#historial">Historial</a>
+      <a href="#ayuda">Ayuda</a>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+    <!-- Status + draft review ------------------------------------------------>
+    <section id="estado" class="card">
+      <h2>Estado</h2>
+      <div id="live" class="stats"><p class="muted">Cargando…</p></div>
+      <div id="draft"></div>
+    </section>
+
+    <!-- Workbook ------------------------------------------------------------->
+    <section id="excel" class="card">
+      <h2>Subir el Excel de inventario</h2>
+      <p>Subí la hoja de control (<code>.xlsx</code> o <code>.csv</code>). Se crea un <strong>borrador</strong> con el reporte de cambios; nada se publica hasta que lo revisés y toqués <em>Publicar</em>.</p>
+      <form id="import-form" class="row">
+        <label class="file">
+          <input type="file" name="file" accept=".xlsx,.xlsm,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" required>
+          <span>Elegir archivo</span>
+        </label>
+        <button class="btn" type="submit">Subir y revisar</button>
+      </form>
+      <p class="muted small">El archivo no se guarda: solo se leen las columnas públicas. Las hojas internas (costos, descuentos) nunca se publican.</p>
+    </section>
+
+    <!-- Images --------------------------------------------------------------->
+    <section id="imagenes" class="card">
+      <h2>Fotos y flyers</h2>
+      <p>Arrastrá o elegí imágenes. Si el nombre del archivo es el código (<code>BO-00071.jpg</code>) se asocia solo; si no, escribí el código en cada fila.</p>
+      <label class="drop" id="drop">
+        <input type="file" id="image-input" accept="image/jpeg,image/png,image/webp,image/avif,image/gif" multiple>
+        <span>Soltá las imágenes acá o tocá para elegir</span>
+      </label>
+      <div id="image-queue" class="queue"></div>
+      <div class="row" id="image-actions" hidden>
+        <button class="btn" id="upload-images" type="button">Subir imágenes</button>
+        <button class="btn ghost" id="clear-images" type="button">Limpiar lista</button>
+      </div>
+    </section>
+
+    <!-- Items ---------------------------------------------------------------->
+    <section id="articulos" class="card">
+      <h2>Artículos</h2>
+      <p>Para cambios puntuales (precio, cantidad, vendido). Los cambios van al borrador. <strong>Ojo:</strong> el próximo Excel que subás reemplaza el inventario completo, así que anotá también el cambio en la hoja.</p>
+      <form id="search-form" class="row">
+        <input type="search" name="q" placeholder="Código o nombre (ej. BO-00071, ninja, lego)" autocomplete="off">
+        <button class="btn ghost" type="submit">Buscar</button>
+      </form>
+      <div id="results"></div>
+    </section>
+
+    <!-- History -------------------------------------------------------------->
+    <section id="historial" class="card">
+      <h2>Historial de publicaciones</h2>
+      <p class="muted">Cada publicación queda guardada. <em>Restaurar</em> crea un borrador con esa versión; se aplica al publicarlo.</p>
+      <div id="versions"><p class="muted">Cargando…</p></div>
+    </section>
+
+    <!-- Help (from data/source/README.md, adapted to the panel) -------------->
+    <section id="ayuda" class="card help">
+      <h2>Ayuda</h2>
+
+      <h3>Cómo funciona</h3>
+      <ol>
+        <li><strong>Borrador.</strong> Subir el Excel, cambiar un artículo o subir una imagen crea o actualiza un borrador. La web no cambia todavía.</li>
+        <li><strong>Revisar.</strong> En <em>Estado</em> ves qué cambia: artículos nuevos, quitados, precios, cantidades, imágenes y avisos del Excel.</li>
+        <li><strong>Publicar.</strong> La web, el catálogo y el inventario público se actualizan en segundos. Si alguien publicó otra cosa mientras tanto, el borrador queda viejo y hay que rehacerlo.</li>
+        <li><strong>Deshacer.</strong> En <em>Historial</em>, restaurá la versión anterior y publicala.</li>
+      </ol>
+
+      <h3>Qué columnas se leen del Excel</h3>
+      <p>De la hoja <code>STOCK TIENDAS</code> (o la primera hoja si no hay una con “stock” en el nombre): <code>Código</code>, <code>Producto</code>, <code>Cantidad manifiesto</code>, <code>Precio etiqueta ₡</code>, <code>Conteo Tienda 1</code>, <code>Conteo Tienda 2</code>, <code>Conteo bodega</code>, <code>Total actual</code> y <code>Estado</code>. También se aceptan <code>nombre_en</code>, <code>detalle_es</code>, <code>detalle_en</code>, <code>categoria</code>, <code>condicion</code>, <code>foto</code>, <code>flyer_es</code> y <code>flyer_en</code>.</p>
+      <ul>
+        <li><strong>Cantidad:</strong> se suman los conteos físicos (tiendas y bodega). Mientras estén vacíos se usa <code>Total actual</code> y, como último recurso, <code>Cantidad manifiesto</code>. Los artículos en 0 no se publican.</li>
+        <li><strong>Estado:</strong> solo se publica <code>disponible</code>. <code>vendido</code>, <code>reservado</code> u <code>oculto</code> se omiten y aparecen en el reporte.</li>
+        <li><strong>Precio:</strong> es el de etiqueta. El descuento de caja se aplica en la tienda, no en la web. Sin precio, la tarjeta dice “Consultar precio”.</li>
+        <li><strong>Categoría:</strong> si la hoja no la trae, se deduce del nombre del producto. Lo que no se reconoce queda en “otros” y sale en los avisos.</li>
+        <li>Cualquier otra columna (costo, proveedor, notas) se ignora y nunca llega a la web.</li>
+      </ul>
+
+      <h3>Fotos y flyers</h3>
+      <ul>
+        <li><strong>Foto:</strong> imagen real del artículo; es la imagen principal de la tarjeta.</li>
+        <li><strong>Flyer:</strong> imagen con texto (marca, precio, especificaciones). Se usa como imagen de la tarjeta solo si no hay foto, y siempre se puede ver con “Ver flyer”. Para la página en inglés podés subir un <em>flyer EN</em>; si no hay, se usa el flyer en español.</li>
+        <li><strong>Código:</strong> nombrá el archivo con el código (<code>BO-00001.jpg</code>, también <code>BO-00001-frente.jpg</code>) o escribilo al subir. Si el archivo trae el código en sus metadatos también se detecta, pero WhatsApp e Instagram borran los metadatos.</li>
+        <li><strong>Tamaño:</strong> JPEG o WebP de unos 900–1200 px del lado más largo y menos de ~300 KB cargan rápido en el celular. Máximo 8 MB.</li>
+        <li>Si subís una imagen de un código que todavía no está en el inventario, queda guardada y se asocia sola cuando subás un Excel con ese código.</li>
+        <li>Las imágenes subidas acá tienen prioridad sobre las columnas <code>foto</code>/<code>flyer</code> del Excel.</li>
+      </ul>
+    </section>
+  </main>
+
+  <template id="tpl-queue-row">
+    <div class="qrow">
+      <img alt="">
+      <div class="qmeta">
+        <p class="qname"></p>
+        <div class="row tight">
+          <input class="qcode" placeholder="BO-00000" maxlength="16" aria-label="Código">
+          <select class="qkind" aria-label="Tipo">
+            <option value="foto">Foto</option>
+            <option value="flyer_es">Flyer ES</option>
+            <option value="flyer_en">Flyer EN</option>
+          </select>
+        </div>
+        <p class="qstatus small"></p>
+      </div>
+      <button class="x" type="button" aria-label="Quitar">×</button>
+    </div>
+  </template>
+</body>
+</html>

@@ -62,8 +62,8 @@ para que sea fácil corregirlos.
 3. Corré, desde la raíz del proyecto:
 
 ```bash
-python3 tools/import_inventory.py data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx --dry-run
-python3 tools/import_inventory.py data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx
+node tools/import-inventory.mjs data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx --dry-run
+node tools/import-inventory.mjs data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx
 ```
 
 4. Revisá el reporte: artículos publicados, omitidos, avisos y archivos sin

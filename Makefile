@@ -7,11 +7,11 @@ ARGS ?=
 
 # Rebuild data/inventory.json from the workbook (add ARGS="--photos-dir ..." if needed).
 inventory:
-	$(PY) tools/import_inventory.py $(WORKBOOK) $(ARGS)
+	node tools/import-inventory.mjs $(WORKBOOK) $(ARGS)
 
 # Same, but report only.
 preview:
-	$(PY) tools/import_inventory.py $(WORKBOOK) $(ARGS) --dry-run
+	node tools/import-inventory.mjs $(WORKBOOK) $(ARGS) --dry-run
 
 # Serve the static site locally.
 serve:

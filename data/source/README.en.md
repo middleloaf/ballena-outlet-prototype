@@ -52,8 +52,8 @@ Unmatched files are listed with their exact names on every import.
 ## Workflow
 
 ```bash
-python3 tools/import_inventory.py data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx --dry-run
-python3 tools/import_inventory.py data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx
+node tools/import-inventory.mjs data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx --dry-run
+node tools/import-inventory.mjs data/source/Control_Inventario_Outlet_Ballena_Dos_Tiendas.xlsx
 ```
 
 Save the workbook before importing — the importer reads the last saved file,

@@ -1,9 +1,14 @@
 // Ballena Outlet Worker.
 //
-// Static pages and images are served by the asset store (see wrangler.jsonc);
-// this script only runs for /api/*. The API is read-only and built on the same
-// data/inventory.json the site renders, so the WhatsApp bot (Kapso) and the
-// website can never disagree about stock or prices.
+// Static pages are served by the asset store (see wrangler.jsonc). This script
+// runs for /api/*, /admin*, the published inventory (/data/inventory.json) and
+// uploaded images (/assets/inventory/*), which live in R2 once the admin panel
+// has published. The public API reads the same inventory the site renders, so
+// the site, the catalog and any bot can never disagree about stock or prices.
+
+import { InventoryStore, PUBLIC_MEDIA_PREFIX } from "./store.js";
+import { handleAdmin } from "./admin.js";
+import { adminFromAccess } from "./auth.js";
 
 const CATEGORIES = {
   electrodomesticos: { es: "Electrodomésticos", en: "Appliances" },
@@ -40,20 +45,18 @@ const STORE = {
 
 const MAX_LIMIT = 50;
 
-let cached; // { key, data } — an isolate never outlives a deploy, so this is safe.
+let cached; // { key, data } — keyed by the published version / file etag.
 
 async function loadInventory(env, origin) {
-  const res = await env.ASSETS.fetch(new URL("/data/inventory.json", origin));
-  if (!res.ok) throw new Error(`inventory.json: HTTP ${res.status}`);
-  const etag = res.headers.get("etag") || "";
-  if (cached && etag && cached.key === etag) return cached.data;
-  const raw = await res.json();
-  const items = raw.items.map((it) => ({
+  const { payload, etag } = await new InventoryStore(env, origin).live();
+  const key = `${payload.version ?? 0}:${etag ?? payload.generated_at}`;
+  if (cached && cached.key === key) return cached.data;
+  const items = (payload.items || []).map((it) => ({
     ...it,
-    _words: tokens([it.id, it.name_es, it.name_en, it.detalle_es, it.detalle_en].filter(Boolean).join(" ")),
+    _words: tokens([it.id, it.name_es, it.name_en, it.detail_es, it.detail_en].filter(Boolean).join(" ")),
   }));
-  const data = { generated_at: raw.generated_at, sample: raw.sample, items };
-  cached = { key: etag, data };
+  const data = { generated_at: payload.generated_at, version: payload.version ?? 0, sample: payload.sample, items };
+  cached = { key, data };
   return data;
 }
 
@@ -71,14 +74,14 @@ function tokens(q) {
 }
 
 function publicItem(it, origin, lang) {
-  const image = it.photo || (lang === "en" ? it.flyer_en || it.flyer_es : it.flyer_es || it.flyer_en);
+  const image = it.foto || (lang === "en" ? it.flyer_en || it.flyer_es : it.flyer_es || it.flyer_en);
   const cat = CATEGORIES[it.category] || CATEGORIES.otros;
   return {
     id: it.id,
     name: (lang === "en" ? it.name_en || it.name_es : it.name_es) ?? null,
     name_es: it.name_es ?? null,
     name_en: it.name_en ?? null,
-    detail: (lang === "en" ? it.detalle_en || it.detalle_es : it.detalle_es) ?? null,
+    detail: (lang === "en" ? it.detail_en || it.detail_es : it.detail_es) ?? null,
     category: it.category,
     category_label: cat[lang] || cat.es,
     condition: it.condition ?? null,
@@ -188,6 +191,32 @@ export default {
     const url = new URL(request.url);
     const { pathname, searchParams, origin } = url;
 
+    // Published inventory and uploaded images come from R2; before the first
+    // publish (or for images committed to git) they fall back to the assets.
+    if (pathname === "/data/inventory.json") {
+      const { payload } = await new InventoryStore(env, origin).live();
+      return json(payload, 200, { "cache-control": "public, max-age=15" });
+    }
+    if (pathname.startsWith("/" + PUBLIC_MEDIA_PREFIX)) {
+      const name = pathname.slice(PUBLIC_MEDIA_PREFIX.length + 1);
+      return (await new InventoryStore(env, origin).media(name, request)) ?? env.ASSETS.fetch(request);
+    }
+
+    if (pathname === "/admin" || pathname.startsWith("/admin/") || pathname.startsWith("/api/admin/")) {
+      const admin = await adminFromAccess(request, env);
+      if (!admin) {
+        return pathname.startsWith("/api/")
+          ? json({ error: "unauthorized" }, 401, { "cache-control": "no-store" })
+          : new Response("No autorizado / Not authorized", { status: 403, headers: { "cache-control": "no-store" } });
+      }
+      if (pathname.startsWith("/api/admin/")) return handleAdmin(request, env, origin, admin);
+      const res = await env.ASSETS.fetch(request);
+      const headers = new Headers(res.headers);
+      headers.set("cache-control", "no-store");
+      headers.set("x-robots-tag", "noindex");
+      return new Response(res.body, { status: res.status, headers });
+    }
+
     if (request.method === "OPTIONS") {
       return new Response(null, {
         headers: { "access-control-allow-origin": "*", "access-control-allow-methods": "GET, OPTIONS", "access-control-allow-headers": "*" },
@@ -200,7 +229,7 @@ export default {
     try {
       if (pathname === "/api/health") {
         const inv = await loadInventory(env, origin);
-        return json({ ok: true, items: inv.items.length, generated_at: inv.generated_at }, 200, { "cache-control": "no-store" });
+        return json({ ok: true, items: inv.items.length, version: inv.version, generated_at: inv.generated_at }, 200, { "cache-control": "no-store" });
       }
       if (pathname === "/api/openapi.json") return json(openapi(origin));
       if (pathname === "/api/store") return json(STORE);

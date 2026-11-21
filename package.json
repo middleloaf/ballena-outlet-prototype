@@ -11,5 +11,10 @@
   },
   "devDependencies": {
     "wrangler": "^4.166.0"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^5.12.1",
+    "fflate": "^0.8.3",
+    "jose": "^6.2.18"
   }
 }
