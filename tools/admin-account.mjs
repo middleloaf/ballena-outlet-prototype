@@ -24,14 +24,18 @@ if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
   process.exit(1);
 }
 
-function ask(question) {
-  // Read a line without echoing it (works when stdin is a TTY or a pipe).
+async function ask(question) {
+  if (!process.stdin.isTTY) {
+    // Piped input (e.g. from a password manager): first line, newline optional.
+    let data = "";
+    for await (const chunk of process.stdin) data += chunk;
+    return data.split(/\r?\n/)[0];
+  }
+  // Interactive: read a line without echoing it.
   return new Promise((resolve) => {
-    const rl = createInterface({ input: process.stdin, output: process.stdout, terminal: process.stdin.isTTY });
-    if (process.stdin.isTTY) {
-      rl._writeToOutput = (s) => { if (s.includes(question)) rl.output.write(s); };
-    }
-    rl.question(question, (answer) => { rl.close(); if (process.stdin.isTTY) process.stdout.write("\n"); resolve(answer); });
+    const rl = createInterface({ input: process.stdin, output: process.stdout, terminal: true });
+    rl._writeToOutput = (s) => { if (s.includes(question)) rl.output.write(s); };
+    rl.question(question, (answer) => { rl.close(); process.stdout.write("\n"); resolve(answer); });
   });
 }
 
