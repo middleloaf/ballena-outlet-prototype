@@ -1,6 +1,8 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "ballena-outlet",
+  // Elliott's Cloudflare account (production owner).
+  "account_id": "7c8db1ed574fe9e54ca06cf9c86ead63",
   "main": "worker/index.js",
   "compatibility_date": "2026-11-01",
   "observability": { "enabled": true },

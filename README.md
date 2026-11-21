@@ -141,7 +141,7 @@ The static files also work on any plain host (nginx, GitHub Pages); only the `/a
 
 ## Cloudflare deployment
 
-Production is one Cloudflare Worker (`ballena-outlet`) with static assets: https://ballena-outlet.leesalminen.workers.dev
+Production is one Cloudflare Worker (`ballena-outlet`) with static assets: https://ballena-outlet.elliottvarnold.workers.dev (Elliott's Cloudflare account, pinned via `account_id` in `wrangler.jsonc`)
 
 - `wrangler.jsonc`: the repo root is the asset directory; `.assetsignore` keeps `tools/`, `data/source/`, `worker/`, docs and config out of the public bundle.
 - `worker/index.js` runs only for `/api/*` (`run_worker_first`); pages and images are served from the asset store without invoking the Worker.
