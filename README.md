@@ -161,6 +161,10 @@ Read-only, no auth (it exposes only what the public catalog already shows), CORS
 | `GET /api/openapi.json` | OpenAPI 3.1 spec — import into Kapso as the bot's tools. |
 | `GET /api/health` | Item count and import timestamp. |
 
+### MCP server (what the Kapso workflow uses)
+
+`POST /mcp` is a stateless MCP server (streamable HTTP, JSON responses, no session, `GET` → 405) exposing the same operations as typed tools: `search_inventory`, `get_item`, `list_categories`, `get_store_info`. The Kapso workflow's Agent node lists it under MCP servers with URL `https://ballena-outlet.elliottvarnold.workers.dev/mcp`; the agent's model picks the tool and arguments from the conversation. Check it with any MCP client, e.g. `npx @modelcontextprotocol/inspector`.
+
 Product names are English U.S. retail listings, so the bot must search with English keywords even when the customer writes Spanish. That is stated in the OpenAPI descriptions the bot's model reads; there is deliberately no synonym table in the Worker.
 
 ### What travels with the repo

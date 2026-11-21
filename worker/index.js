@@ -177,6 +177,179 @@ function openapi(origin) {
   };
 }
 
+// ---- Operations shared by the REST API and the MCP server -----------------
+
+function categoriesOp(inv, lang) {
+  const counts = {};
+  for (const it of inv.items) counts[it.category] = (counts[it.category] || 0) + 1;
+  return {
+    generated_at: inv.generated_at,
+    categories: Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([id, count]) => ({ id, label: (CATEGORIES[id] || CATEGORIES.otros)[lang], count })),
+  };
+}
+
+function searchOp(inv, params, origin, lang) {
+  const limit = Math.min(Math.max(num(params.get("limit")) ?? 10, 1), MAX_LIMIT);
+  const { matched, results } = search(inv.items, params);
+  return {
+    generated_at: inv.generated_at,
+    sample: inv.sample,
+    total: results.length,
+    matched,
+    items: results.slice(0, limit).map((it) => publicItem(it, origin, lang)),
+    catalog_url: new URL(lang === "en" ? "/inventory.html" : "/inventario.html", origin).href,
+  };
+}
+
+function itemOp(inv, rawId, origin, lang) {
+  const id = String(rawId || "").trim().toUpperCase();
+  const it = inv.items.find((x) => x.id.toUpperCase() === id);
+  return it ? { generated_at: inv.generated_at, item: publicItem(it, origin, lang) } : null;
+}
+
+// ---- MCP (streamable HTTP, stateless, JSON responses) ----------------------
+//
+// Kapso agent nodes accept remote MCP servers over streamable HTTP. Exposing
+// typed tools lets the agent's model choose arguments from the conversation
+// instead of us templating URLs. Every request is independent, so there is no
+// session state and no SSE stream (GET returns 405, which the spec allows).
+
+const MCP_PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
+
+const LANG_PROP = {
+  type: "string",
+  enum: ["es", "en"],
+  description: "Language for names/labels in the result. Use the customer's language.",
+};
+
+const MCP_TOOLS = [
+  {
+    name: "search_inventory",
+    title: "Search Ballena Outlet inventory",
+    description:
+      "Search items currently in stock at Ballena Outlet (Uvita, Costa Rica). Product names are English U.S. retail listings, so translate the customer's request into short English product keywords (e.g. 'licuadora' -> 'blender', 'freidora de aire' -> 'air fryer', 'juguetes de LEGO' -> 'lego'). Every keyword must start a word in the name; items matching all keywords rank first. Prices are tag prices in Costa Rican colones (CRC). Returns up to `limit` items plus `total` matches and a link to the full catalog. If nothing matches, retry with fewer or more general keywords, or browse by category.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        query: { type: "string", description: "English product keywords. Omit to browse by category/price only." },
+        category: { type: "string", enum: Object.keys(CATEGORIES), description: "Optional product group." },
+        min_price_crc: { type: "integer", minimum: 0, description: "Optional minimum price in CRC." },
+        max_price_crc: { type: "integer", minimum: 0, description: "Optional maximum price in CRC (the customer's budget)." },
+        limit: { type: "integer", minimum: 1, maximum: MAX_LIMIT, default: 8 },
+        lang: LANG_PROP,
+      },
+      additionalProperties: false,
+    },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  {
+    name: "get_item",
+    title: "Get one item by code",
+    description:
+      "Look up one product by its code (e.g. BO-00071), for example when a customer sends a code from a flyer or the website. Returns found=false when the item is sold out or does not exist.",
+    inputSchema: {
+      type: "object",
+      properties: { id: { type: "string", description: "Product code, e.g. BO-00071." }, lang: LANG_PROP },
+      required: ["id"],
+      additionalProperties: false,
+    },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  {
+    name: "list_categories",
+    title: "List product categories",
+    description: "Product groups currently in stock with item counts. Use when the customer asks what the store sells.",
+    inputSchema: { type: "object", properties: { lang: LANG_PROP }, additionalProperties: false },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  {
+    name: "get_store_info",
+    title: "Store info",
+    description:
+      "Address, WhatsApp, email, how buying works (in-store pickup, shipping from the store, no online checkout) and the pricing note. Hours are not published; ask the customer to confirm by WhatsApp.",
+    inputSchema: { type: "object", properties: {}, additionalProperties: false },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+];
+
+async function callTool(name, args, env, origin) {
+  const lang = args?.lang === "en" ? "en" : "es";
+  if (name === "get_store_info") return STORE;
+  const inv = await loadInventory(env, origin);
+  if (name === "list_categories") return categoriesOp(inv, lang);
+  if (name === "get_item") return itemOp(inv, args?.id, origin, lang) ?? { found: false, id: args?.id ?? null };
+  if (name === "search_inventory") {
+    const p = new URLSearchParams();
+    if (args?.query) p.set("q", String(args.query));
+    if (args?.category) p.set("category", String(args.category));
+    if (args?.min_price_crc != null) p.set("min_price", String(args.min_price_crc));
+    if (args?.max_price_crc != null) p.set("max_price", String(args.max_price_crc));
+    p.set("limit", String(args?.limit ?? 8));
+    return searchOp(inv, p, origin, lang);
+  }
+  return undefined;
+}
+
+async function handleRpc(msg, env, origin) {
+  const isNotification = msg == null || msg.id === undefined || msg.id === null;
+  const reply = (result) => ({ jsonrpc: "2.0", id: msg.id, result });
+  const fail = (code, message) => ({ jsonrpc: "2.0", id: msg?.id ?? null, error: { code, message } });
+
+  if (!msg || msg.jsonrpc !== "2.0" || typeof msg.method !== "string") return fail(-32600, "Invalid Request");
+  if (isNotification) return null; // notifications/initialized, cancelled, etc.
+
+  switch (msg.method) {
+    case "initialize": {
+      const requested = msg.params?.protocolVersion;
+      return reply({
+        protocolVersion: MCP_PROTOCOL_VERSIONS.includes(requested) ? requested : MCP_PROTOCOL_VERSIONS[0],
+        capabilities: { tools: { listChanged: false } },
+        serverInfo: { name: "ballena-outlet-inventory", title: "Ballena Outlet inventory", version: "1.0.0" },
+        instructions:
+          "Read-only live inventory for Ballena Outlet. Search with English product keywords; reply to customers in their language. Availability is confirmed in store or by WhatsApp; there is no online checkout.",
+      });
+    }
+    case "ping":
+      return reply({});
+    case "tools/list":
+      return reply({ tools: MCP_TOOLS });
+    case "tools/call": {
+      const { name, arguments: args } = msg.params || {};
+      if (!MCP_TOOLS.some((t) => t.name === name)) return fail(-32602, `Unknown tool: ${name}`);
+      try {
+        const data = await callTool(name, args || {}, env, origin);
+        return reply({ content: [{ type: "text", text: JSON.stringify(data) }], structuredContent: data, isError: false });
+      } catch (err) {
+        console.error(err);
+        return reply({ content: [{ type: "text", text: "Inventory is temporarily unavailable." }], isError: true });
+      }
+    }
+    default:
+      return fail(-32601, `Method not found: ${msg.method}`);
+  }
+}
+
+async function handleMcp(request, env, origin) {
+  const cors = { "access-control-allow-origin": "*", "access-control-expose-headers": "mcp-session-id" };
+  if (request.method !== "POST") {
+    return new Response(null, { status: 405, headers: { allow: "POST, OPTIONS", ...cors } });
+  }
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ jsonrpc: "2.0", id: null, error: { code: -32700, message: "Parse error" } }, 400, { "cache-control": "no-store" });
+  }
+  const batch = Array.isArray(body);
+  const replies = (await Promise.all((batch ? body : [body]).map((m) => handleRpc(m, env, origin)))).filter(Boolean);
+  if (!replies.length) return new Response(null, { status: 202, headers: cors });
+  return json(batch ? replies : replies[0], 200, { "cache-control": "no-store" });
+}
+
+// ---- Router ----------------------------------------------------------------
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -184,9 +357,17 @@ export default {
 
     if (request.method === "OPTIONS") {
       return new Response(null, {
-        headers: { "access-control-allow-origin": "*", "access-control-allow-methods": "GET, OPTIONS", "access-control-allow-headers": "*" },
+        headers: {
+          "access-control-allow-origin": "*",
+          "access-control-allow-methods": "GET, POST, OPTIONS",
+          "access-control-allow-headers": "*",
+          "access-control-max-age": "86400",
+        },
       });
     }
+
+    if (pathname === "/mcp") return handleMcp(request, env, origin);
+
     if (request.method !== "GET" && request.method !== "HEAD") return json({ error: "method_not_allowed" }, 405);
 
     const lang = searchParams.get("lang") === "en" ? "en" : "es";
@@ -200,36 +381,16 @@ export default {
       if (pathname === "/api/store") return json(STORE);
 
       const inv = await loadInventory(env, origin);
-      const meta = { generated_at: inv.generated_at, sample: inv.sample };
 
-      if (pathname === "/api/categories") {
-        const counts = {};
-        for (const it of inv.items) counts[it.category] = (counts[it.category] || 0) + 1;
-        return json({
-          ...meta,
-          categories: Object.entries(counts)
-            .sort((a, b) => b[1] - a[1])
-            .map(([id, count]) => ({ id, label: (CATEGORIES[id] || CATEGORIES.otros)[lang], count })),
-        });
-      }
-
+      if (pathname === "/api/categories") return json(categoriesOp(inv, lang));
       if (pathname === "/api/inventory/search" || pathname === "/api/inventory") {
-        const limit = Math.min(Math.max(num(searchParams.get("limit")) ?? 10, 1), MAX_LIMIT);
-        const { matched, results } = search(inv.items, searchParams);
-        return json({
-          ...meta,
-          total: results.length,
-          matched,
-          items: results.slice(0, limit).map((it) => publicItem(it, origin, lang)),
-          catalog_url: new URL(lang === "en" ? "/inventory.html" : "/inventario.html", origin).href,
-        });
+        return json(searchOp(inv, searchParams, origin, lang));
       }
 
       const m = pathname.match(/^\/api\/inventory\/([A-Za-z0-9_-]+)$/);
       if (m) {
-        const id = m[1].toUpperCase();
-        const it = inv.items.find((x) => x.id.toUpperCase() === id);
-        return it ? json({ ...meta, item: publicItem(it, origin, lang) }) : json({ error: "not_found", id }, 404);
+        const found = itemOp(inv, m[1], origin, lang);
+        return found ? json(found) : json({ error: "not_found", id: m[1].toUpperCase() }, 404);
       }
 
       return json({ error: "not_found" }, 404);

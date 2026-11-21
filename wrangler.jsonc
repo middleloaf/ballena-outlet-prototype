@@ -14,6 +14,6 @@
     "not_found_handling": "404-page",
     // Only API calls hit the Worker; every page/image is served straight from
     // the asset store without invoking (or billing) the Worker.
-    "run_worker_first": ["/api/*"]
+    "run_worker_first": ["/api/*", "/mcp"]
   }
 }
