@@ -1,9 +1,27 @@
 id,nombre_es,nombre_en,detalle_es,detalle_en,categoria,condicion,precio_crc,cantidad,foto,flyer_es,flyer_en,estado
-BO-0001,Freidora de aire 5.5L,5.5L air fryer,"Canasta antiadherente, capacidad familiar.","Non-stick basket, family size.",electrodomesticos,como_nuevo,28000,2,assets/tienda-1.webp,,,disponible
-BO-0002,Juego de sartenes antiadherentes,Non-stick pan set,"Tres piezas con mangos de baquelita.","Three pieces with bakelite handles.",hogar,nuevo,19500,1,assets/tienda-2.webp,,,disponible
-BO-0003,Alfombra de sala 1.6 x 2.3 m,Living room rug 1.6 x 2.3 m,"Tejido de bajo pile, color arena.","Low-pile weave, sand color.",textiles,usado,12000,1,,assets/tienda-1.webp,,disponible
-BO-0004,Set de bloques de construcción 240 piezas,240-piece building block set,"Incluye figuras y caja original.","Includes figures and original box.",juguetes,nuevo,9500,3,assets/tienda-1.webp,,,disponible
-BO-0005,Audífonos inalámbricos con estuche,Wireless earbuds with charging case,"Bluetooth 5.3, batería de 6 horas.","Bluetooth 5.3, 6-hour battery.",electronica,como_nuevo,16000,2,,assets/tienda-2.webp,,disponible
-BO-0006,Set de brochas de maquillaje 12 piezas,12-piece makeup brush set,"Fibra sintética, incluye estuche.","Synthetic fiber, case included.",belleza,nuevo,6500,4,assets/tienda-2.webp,,,disponible
-BO-0007,Taladro inalámbrico 20V,Cordless drill 20V,"Dos baterías y maletín.","Two batteries and hard case.",herramientas,usado,24000,1,assets/tienda-1.webp,,,vendido
-BO-0008,Chaqueta impermeable talla M,Waterproof jacket size M,"Capucha ajustable, costuras selladas.","Adjustable hood, sealed seams.",ropa,como_nuevo,14000,2,assets/tienda-2.webp,,,disponible
+BO-90001,Freidora de aire 5.5 L,5.5 L air fryer,"Canasta antiadherente, capacidad familiar.","Non-stick basket, family size.",electrodomesticos,como_nuevo,28000,2,,,,disponible
+BO-90002,Licuadora de alta potencia 1200 W,1200 W high-power blender,"Vaso de 2 L libre de BPA.","2 L BPA-free jar.",electrodomesticos,nuevo,32000,1,,,,disponible
+BO-90003,Cafetera de goteo 12 tazas,12-cup drip coffee maker,"Programable, con jarra de vidrio.","Programmable, glass carafe.",electrodomesticos,como_nuevo,18500,3,,,,disponible
+BO-90004,Máquina de hielo de mostrador,Countertop ice maker,"Hasta 12 kg de hielo al día.","Up to 12 kg of ice per day.",electrodomesticos,usado,45000,1,,,,disponible
+BO-90005,Juego de sartenes antiadherentes,Non-stick pan set,"Tres piezas con mangos de baquelita.","Three pieces with bakelite handles.",hogar,nuevo,19500,1,,,,disponible
+BO-90006,Vajilla de cerámica 16 piezas,16-piece ceramic dinnerware set,"Apta para microondas y lavaplatos.","Microwave and dishwasher safe.",hogar,nuevo,22000,2,,,,disponible
+BO-90007,Organizador de cocina de 3 niveles,3-tier kitchen organizer,"Metal con acabado negro mate.","Matte black metal.",hogar,como_nuevo,8500,5,,,,disponible
+BO-90008,Lámpara de mesa con puerto USB,Table lamp with USB port,"Pantalla de lino, luz cálida.","Linen shade, warm light.",mejoras_hogar,nuevo,11000,2,,,,disponible
+BO-90009,Barra de cortina extensible,Extendable curtain rod,"De 90 a 200 cm, incluye soportes.","90 to 200 cm, brackets included.",mejoras_hogar,nuevo,7000,4,,,,disponible
+BO-90010,Alfombra de sala 1.6 x 2.3 m,Living room rug 1.6 x 2.3 m,"Tejido de bajo pile, color arena.","Low-pile weave, sand color.",textiles,usado,12000,1,,,,disponible
+BO-90011,Juego de toallas de baño 6 piezas,6-piece bath towel set,"Algodón 100 %, color gris.","100% cotton, gray.",textiles,nuevo,15000,3,,,,disponible
+BO-90012,Edredón tamaño queen,Queen comforter,"Reversible, relleno hipoalergénico.","Reversible, hypoallergenic fill.",textiles,como_nuevo,26000,1,,,,disponible
+BO-90013,Set de bloques de construcción 240 piezas,240-piece building block set,"Incluye figuras y caja original.","Includes figures and original box.",juguetes,nuevo,9500,3,,,,disponible
+BO-90014,Juego de mesa familiar,Family board game,"De 2 a 6 jugadores, desde 8 años.","2 to 6 players, ages 8+.",juguetes,nuevo,12500,2,,,,disponible
+BO-90015,Carro a control remoto todo terreno,All-terrain remote control car,"Batería recargable, 25 km/h.","Rechargeable battery, 25 km/h.",juguetes,como_nuevo,17000,1,,,,disponible
+BO-90016,Peluche gigante 90 cm,Giant 90 cm plush,"Lavable a máquina.","Machine washable.",juguetes,nuevo,14000,2,,,,disponible
+BO-90017,Audífonos inalámbricos con estuche,Wireless earbuds with charging case,"Bluetooth 5.3, batería de 6 horas.","Bluetooth 5.3, 6-hour battery.",electronica,como_nuevo,16000,2,,,,disponible
+BO-90018,Parlante Bluetooth resistente al agua,Waterproof Bluetooth speaker,"IPX7, 12 horas de batería.","IPX7, 12-hour battery.",electronica,nuevo,21000,1,,,,disponible
+BO-90019,Set de brochas de maquillaje 12 piezas,12-piece makeup brush set,"Fibra sintética, incluye estuche.","Synthetic fiber, case included.",belleza,nuevo,6500,4,,,,disponible
+BO-90020,Secadora de pelo iónica,Ionic hair dryer,"Tres temperaturas, difusor incluido.","Three heat settings, diffuser included.",belleza,como_nuevo,13500,1,,,,disponible
+BO-90021,Taladro inalámbrico 20 V,20 V cordless drill,"Dos baterías y maletín.","Two batteries and hard case.",herramientas,usado,24000,1,,,,disponible
+BO-90022,Juego de herramientas 108 piezas,108-piece tool set,"Llaves, dados y destornilladores.","Wrenches, sockets and screwdrivers.",herramientas,nuevo,29000,1,,,,disponible
+BO-90023,Chaqueta impermeable talla M,Waterproof jacket size M,"Capucha ajustable, costuras selladas.","Adjustable hood, sealed seams.",ropa,como_nuevo,14000,2,,,,disponible
+BO-90024,Mochila escolar con puerto USB,School backpack with USB port,"Compartimento para laptop de 15 pulgadas.","Fits a 15-inch laptop.",ropa,nuevo,11500,3,,,,disponible
+BO-90025,Silla de oficina ergonómica,Ergonomic office chair,"Respaldo de malla, altura ajustable.","Mesh back, adjustable height.",hogar,usado,38000,1,,,,vendido
+BO-90026,Ventilador de pedestal 16 pulgadas,16-inch pedestal fan,"Tres velocidades, oscilante.","Three speeds, oscillating.",electrodomesticos,como_nuevo,15000,0,,,,disponible

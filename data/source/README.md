@@ -16,10 +16,11 @@ data/source/
 └── README.en.md                                         Nota temporal en inglés (se puede borrar)
 ```
 
-Las fotos, los flyers y la hoja de cálculo **no se commitean**: solo se
-commitean las copias que el importador deja en `assets/inventory/` y el
-`data/inventory.json` generado. La hoja se mantiene local (o respaldada aparte)
-y se copia a `data/source/` en cada equipo antes de reimportar.
+Las fotos, los flyers y la hoja de cálculo **no se commitean**, y el
+inventario real tampoco: el repositorio solo trae un inventario de muestra.
+El inventario real se publica desde el panel `/admin/` de la web (Excel,
+fotos y flyers se suben ahí). Esta carpeta sirve para pruebas locales con
+`node tools/import-inventory.mjs`.
 
 ## Cómo se asocian las imágenes
 

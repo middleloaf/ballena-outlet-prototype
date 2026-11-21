@@ -19,10 +19,10 @@ data/source/
 └── README.en.md                                         This note (delete later)
 ```
 
-Photos, flyers, and the workbook are git-ignored. Only the copies the importer
-writes to `assets/inventory/` and the generated `data/inventory.json` are
-committed. Keep the workbook backed up separately and copy it into
-`data/source/` on a new machine (or pass its path) to rebuild the catalog.
+Photos, flyers, and the workbook are git-ignored, and so is the real
+inventory: the repository only ships a sample. The real inventory is published
+from the site's `/admin/` panel (workbook, photos and flyers are uploaded
+there). This folder is for local tests with `node tools/import-inventory.mjs`.
 
 ## How images attach
 
