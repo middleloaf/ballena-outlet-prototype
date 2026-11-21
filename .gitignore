@@ -13,3 +13,7 @@ data/source/*.xlsx
 data/source/*.xls
 data/source/*.xlsm
 data/source/.~lock*
+
+node_modules/
+.wrangler/
+.dev.vars*

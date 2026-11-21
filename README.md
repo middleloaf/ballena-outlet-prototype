@@ -110,7 +110,7 @@ Flyers work the same way: either `flyer_es` / `flyer_en` columns with filenames,
 4. Reload the home page for the four-item preview, or the catalog page for the full list. Sold items disappear because only `disponible` rows are exported.
 5. The catalog page paginates in the browser (24 cards, “Ver más / Load more”) and has free-text search, category filters, a price range, and sorting by featured items (image-first), inventory order, price, name, quantity, or newest; 1,320 items load from one JSON file. The home preview also prioritizes items that have a photo or flyer.
 
-When Kapso is wired up later, it can read this same `data/inventory.json` (or the database behind it) instead of the site being the source of truth.
+The Kapso WhatsApp bot reads the same data through the inventory API (see *Cloudflare deployment* below), so the bot and the site always agree on stock and prices.
 
 ## Running outside T3
 
@@ -137,7 +137,31 @@ python3 -m http.server 4173
 # http://localhost:4173/inventario.html
 ```
 
-Deploy by uploading the static files to any host (Netlify, Cloudflare Pages, GitHub Pages, nginx/Apache): `index.html`, `en.html`, `inventario.html`, `inventory.html`, `styles.css`, `script.js`, `inventory.js`, `data/inventory.json`, and `assets/`. There is no server-side code, and the site works under a subpath because all references are relative.
+The static files also work on any plain host (nginx, GitHub Pages); only the `/api/*` inventory API needs the Cloudflare Worker.
+
+## Cloudflare deployment
+
+Production is one Cloudflare Worker (`ballena-outlet`) with static assets: https://ballena-outlet.leesalminen.workers.dev
+
+- `wrangler.jsonc`: the repo root is the asset directory; `.assetsignore` keeps `tools/`, `data/source/`, `worker/`, docs and config out of the public bundle.
+- `worker/index.js` runs only for `/api/*` (`run_worker_first`); pages and images are served from the asset store without invoking the Worker.
+- Requires Node 22+ (`.node-version` pins 24). `npm install`, then `npm run dev` (http://localhost:8787) or `npm run deploy`.
+- Auto-deploy: Workers Builds (Cloudflare dashboard → Workers & Pages → ballena-outlet → Settings → Build → Connect to Git). Pushes to `main` run `npx wrangler deploy`; other branches get preview URLs.
+
+### Inventory API (for the Kapso bot)
+
+Read-only, no auth (it exposes only what the public catalog already shows), CORS open, 60 s cache. Built from `data/inventory.json` at request time, so a re-import + push updates the bot too.
+
+| Endpoint | Purpose |
+|---|---|
+| `GET /api/inventory/search?q=&category=&min_price=&max_price=&limit=&lang=` | In-stock items. `q` is word-prefix matched, accent-insensitive; items matching every word come first, otherwise partial matches. `limit` ≤ 50. |
+| `GET /api/inventory/{id}` | One item by code (`BO-00071`). 404 = not in stock. |
+| `GET /api/categories` | Categories with counts. |
+| `GET /api/store` | Address, WhatsApp, email, purchase/pricing policy. |
+| `GET /api/openapi.json` | OpenAPI 3.1 spec — import into Kapso as the bot's tools. |
+| `GET /api/health` | Item count and import timestamp. |
+
+Product names are English U.S. retail listings, so the bot must search with English keywords even when the customer writes Spanish. That is stated in the OpenAPI descriptions the bot's model reads; there is deliberately no synonym table in the Worker.
 
 ### What travels with the repo
 
