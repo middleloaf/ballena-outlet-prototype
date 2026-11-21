@@ -18,6 +18,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
@@ -38,6 +39,8 @@ code { font-size: 0.9em; background: rgba(7, 33, 53, 0.07); padding: 0.1em 0.35e
 .top-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-top: 14px; padding-bottom: 8px; flex-wrap: wrap; }
 .brand { color: var(--white); text-decoration: none; font: 700 1.2rem var(--font-display); }
 .brand span { font-weight: 500; opacity: 0.75; margin-left: 6px; }
+.brand .proto-badge { opacity: 1; font: 600 0.72rem var(--font-body); letter-spacing: 0.02em; text-transform: uppercase; background: var(--gold); color: var(--ink); padding: 3px 8px; border-radius: 99px; vertical-align: middle; white-space: nowrap; }
+.foot { text-align: center; margin-top: 8px; }
 .who { margin: 0; font-size: 0.85rem; opacity: 0.85; }
 .link { background: none; border: 0; color: inherit; text-decoration: underline; cursor: pointer; font: inherit; padding: 0 0 0 8px; }
 .login { max-width: 420px; margin: 40px auto; }

@@ -63,7 +63,7 @@
     live.replaceChildren(
       stat(s.live.count, "artículos publicados"),
       stat(s.live.with_images, "con foto o flyer"),
-      stat("v" + s.live.version, s.live.published_at ? "publicada " + when(s.live.published_at) : "versión inicial (git)")
+      stat("#" + s.live.version, s.live.published_at ? "publicación · " + when(s.live.published_at) : "inventario inicial (git)")
     );
     renderDraft(s.draft);
   }
@@ -103,7 +103,7 @@
     box.replaceChildren(el("div", { class: "draft" + (d.stale ? " stale" : "") }, [
       el("h3", { text: "Borrador sin publicar · " + d.count + " artículos" }),
       el("p", { class: "small muted", text: "Último cambio " + when(d.updated_at) + (r ? " · Excel: hoja " + r.sheet + ", " + r.rows_read + " filas leídas" : "") }),
-      d.stale ? el("p", { text: "Este borrador se armó sobre una versión anterior y alguien publicó después. Descartalo y volvé a hacer el cambio." }) : null,
+      d.stale ? el("p", { text: "Este borrador se armó sobre una publicación anterior y alguien publicó después. Descartalo y volvé a hacer el cambio." }) : null,
       el("div", { class: "changes" }, any ? lists.filter(Boolean) : [el("p", { text: "El borrador es igual a lo publicado." })]),
       el("div", { class: "row" }, [
         publishBtn,
@@ -121,7 +121,7 @@
     if (!confirm("¿Publicar el borrador? La web se actualiza en segundos.")) return;
     busy(ev.target, true);
     api("/publish", { method: "POST", json: { draft_id: state.draft.id } })
-      .then(function (r) { toast("Publicado: versión " + r.version + " · " + r.count + " artículos."); return Promise.all([refresh(), loadVersions()]); })
+      .then(function (r) { toast("Publicado: publicación #" + r.version + " · " + r.count + " artículos."); return Promise.all([refresh(), loadVersions()]); })
       .catch(function (e) { toast(e.message, true); refresh(); })
       .finally(function () { busy(ev.target, false); });
   }
@@ -319,11 +319,11 @@
       var box = $("#versions");
       if (!r.versions.length) return box.replaceChildren(el("p", { class: "muted", text: "Todavía no hay publicaciones desde el panel." }));
       box.replaceChildren(el("div", { class: "table-wrap" }, [el("table", {}, [
-        el("thead", {}, [el("tr", {}, ["Versión", "Fecha", "Quién", "Artículos", "Cambios", ""].map(function (h) { return el("th", { text: h }); }))]),
+        el("thead", {}, [el("tr", {}, ["Publicación", "Fecha", "Quién", "Artículos", "Cambios", ""].map(function (h) { return el("th", { text: h }); }))]),
         el("tbody", {}, r.versions.map(function (v) {
           var current = state.live && v.version === state.live.version;
           return el("tr", {}, [
-            el("td", { text: "v" + v.version + (current ? " (actual)" : "") }),
+            el("td", { text: "#" + v.version + (current ? " (actual)" : "") }),
             el("td", { text: when(v.published_at) }),
             el("td", { text: v.published_by || "" }),
             el("td", { text: v.count || "" }),
@@ -331,10 +331,10 @@
             el("td", {}, [current ? null : el("button", {
               class: "btn small ghost", type: "button", text: "Restaurar",
               onclick: function (ev) {
-                if (!confirm("¿Crear un borrador con la versión " + v.version + "? Reemplaza el borrador actual.")) return;
+                if (!confirm("¿Crear un borrador con la publicación #" + v.version + "? Reemplaza el borrador actual.")) return;
                 busy(ev.target, true);
                 api("/restore", { method: "POST", json: { version: v.version } })
-                  .then(function (res) { state.draft = res.draft; renderDraft(res.draft); location.hash = "#estado"; toast("Borrador con la versión " + v.version + ". Revisalo y publicá."); })
+                  .then(function (res) { state.draft = res.draft; renderDraft(res.draft); location.hash = "#estado"; toast("Borrador con la publicación #" + v.version + ". Revisalo y publicá."); })
                   .catch(function (e) { toast(e.message, true); })
                   .finally(function () { busy(ev.target, false); });
               },

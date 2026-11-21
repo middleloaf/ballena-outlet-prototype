@@ -1,6 +1,6 @@
 # Ballena Outlet — bilingual storefront prototype
 
-A Spanish/English website for **Ballena Outlet**, a liquidation store in Uvita, Costa Rica that buys pallets of customer returns, overstock, and unclaimed packages from major U.S. retailers and sells the items by the piece. This is the **second-version prototype**.
+A Spanish/English website for **Ballena Outlet**, a liquidation store in Uvita, Costa Rica that buys pallets of customer returns, overstock, and unclaimed packages from major U.S. retailers and sells the items by the piece. This is the **v3 prototype**.
 
 - **Spanish site:** `index.html` (Costa Rica flag / ES)
 - **English site:** `en.html` (U.S. flag / EN)
@@ -28,7 +28,7 @@ Then open `http://localhost:4173/index.html` (Spanish) or `http://localhost:4173
 - Store pickup and in-store shipping messaging throughout; no online checkout.
 - Product groups with clearer examples, how-it-works steps, value props, FAQ, and a mobile quick-action bar.
 - A live “Disponible hoy / Available today” section on both home pages: a four-item preview that links to the full catalog. The catalog pages (`inventario.html` / `inventory.html`) have the complete searchable, filterable, sortable list, rendered from `data/inventory.json` (built from a spreadsheet, see below).
-- A dismissible prototype popup in both languages that identifies the site as a second-version prototype, plus a detailed “About this prototype” section and `noindex` metadata so search engines do not treat the demo as final.
+- A dismissible prototype popup in both languages that identifies the site as the v3 prototype, plus a detailed “About this prototype” section and `noindex` metadata so search engines do not treat the demo as final.
 
 ## Admin panel (inventory management)
 
