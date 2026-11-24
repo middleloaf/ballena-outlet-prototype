@@ -82,7 +82,7 @@
     <!-- Items ---------------------------------------------------------------->
     <section id="articulos" class="card">
       <h2>Artículos</h2>
-      <p>Para cambios puntuales (precio, cantidad, vendido). Los cambios van al borrador. <strong>Ojo:</strong> el próximo Excel que subás reemplaza el inventario completo, así que anotá también el cambio en la hoja.</p>
+      <p>Para cambios puntuales (precio, cantidad, vendido). Los cambios van al borrador. Si marcás uno como vendido por error, usá <strong>Deshacer</strong> en el aviso o en <em>Estado</em>. <strong>Ojo:</strong> el próximo Excel que subás reemplaza el inventario completo, así que anotá también el cambio en la hoja.</p>
       <form id="search-form" class="row">
         <input type="search" name="q" placeholder="Código o nombre (ej. BO-00071, ninja, lego)" autocomplete="off">
         <button class="btn ghost" type="submit">Buscar</button>
@@ -106,16 +106,17 @@
         <li><strong>Borrador.</strong> Subir el Excel, cambiar un artículo o subir una imagen crea o actualiza un borrador. La web no cambia todavía.</li>
         <li><strong>Revisar.</strong> En <em>Estado</em> ves qué cambia: artículos nuevos, quitados, precios, cantidades, imágenes y avisos del Excel.</li>
         <li><strong>Publicar.</strong> La web, el catálogo y el inventario público se actualizan en segundos. Si alguien publicó otra cosa mientras tanto, el borrador queda viejo y hay que rehacerlo.</li>
-        <li><strong>Deshacer.</strong> En <em>Historial</em>, restaurá la publicación anterior y publicala.</li>
+        <li><strong>Deshacer.</strong> Si marcás un artículo como vendido por error, tocá <em>Deshacer</em> en el aviso o en <em>Estado → Se quitan de la web</em>; el artículo vuelve al borrador. Para revertir una publicación completa, en <em>Historial</em> restaurá la publicación anterior y publicala.</li>
       </ol>
 
       <h3>Qué columnas se leen del Excel</h3>
-      <p>De la hoja <code>STOCK TIENDAS</code> (o la primera hoja si no hay una con “stock” en el nombre): <code>Código</code>, <code>Producto</code>, <code>Cantidad manifiesto</code>, <code>Precio etiqueta ₡</code>, <code>Conteo Tienda 1</code>, <code>Conteo Tienda 2</code>, <code>Conteo bodega</code>, <code>Total actual</code> y <code>Estado</code>. También se aceptan <code>nombre_en</code>, <code>detalle_es</code>, <code>detalle_en</code>, <code>categoria</code>, <code>condicion</code>, <code>foto</code>, <code>flyer_es</code> y <code>flyer_en</code>.</p>
+      <p>De la hoja <code>STOCK TIENDAS</code> (o la primera hoja si no hay una con “stock” en el nombre): <code>Código</code>, <code>Producto</code>, <code>Cantidad manifiesto</code>, <code>Precio etiqueta ₡</code>, <code>Conteo Tienda 1</code>, <code>Conteo Tienda 2</code>, <code>Conteo bodega</code>, <code>Total actual</code> y <code>Estado</code>. También se aceptan <code>nombre_en</code>, <code>detalle_es</code>, <code>detalle_en</code>, <code>buscar_es</code>, <code>categoria</code>, <code>condicion</code>, <code>foto</code>, <code>flyer_es</code> y <code>flyer_en</code>.</p>
       <ul>
         <li><strong>Cantidad:</strong> se suman los conteos físicos (tiendas y bodega). Mientras estén vacíos se usa <code>Total actual</code> y, como último recurso, <code>Cantidad manifiesto</code>. Los artículos en 0 no se publican.</li>
         <li><strong>Estado:</strong> solo se publica <code>disponible</code>. <code>vendido</code>, <code>reservado</code> u <code>oculto</code> se omiten y aparecen en el reporte.</li>
         <li><strong>Precio:</strong> es el de etiqueta. El descuento de caja se aplica en la tienda, no en la web. Sin precio, la tarjeta dice “Consultar precio”.</li>
         <li><strong>Categoría:</strong> si la hoja no la trae, se deduce del nombre del producto. Lo que no se reconoce queda en “otros” y sale en los avisos.</li>
+        <li><strong>Búsqueda en español:</strong> se genera sola desde el nombre y la categoría. Si un producto necesita alias propios (por ejemplo <code>refri, nevera, refrigeradora</code>), agregá la columna <code>buscar_es</code>; no se muestra en la web.</li>
         <li>Cualquier otra columna (costo, proveedor, notas) se ignora y nunca llega a la web.</li>
       </ul>
 

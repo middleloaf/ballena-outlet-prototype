@@ -7,6 +7,7 @@
 
 import { unzipSync, strFromU8 } from "fflate";
 import { XMLParser } from "fast-xml-parser";
+import { spanishSearchTerms } from "./search-es.js";
 
 // Categories must match the product groups used by the site.
 const CATEGORIES = {
@@ -38,6 +39,7 @@ const COLUMNS = {
   id: ["id", "sku", "codigo", "codigo_item", "item_id"],
   nombre_es: ["nombre_es", "nombre", "producto", "articulo", "nombre_producto", "item"],
   nombre_en: ["nombre_en", "name_en", "english_name", "nombre_ingles"],
+  buscar_es: ["buscar_es", "buscar", "palabras_es", "keywords_es", "search_es"],
   detalle_es: ["detalle_es", "detalle", "descripcion_es", "descripcion", "description_es"],
   detalle_en: ["detalle_en", "descripcion_en", "description_en", "description"],
   categoria: ["categoria", "categoria_es", "category", "grupo", "tipo", "rubro"],
@@ -152,7 +154,8 @@ const CATEGORY_OVERRIDES = [
   ["hogar", ["hammered", "diapers", "diaper", "caddy", "shelf", "shelves", "dish brush", "hand shower",
     "dutch oven", "towel rack", "ninjamas", "towel holder", "towel bar", "towel ring", "paper towel",
     "fridge drawer", "lunch tote", "lunch box"]],
-  ["textiles", ["bath robe", "bath sheet", "bath towel", "hand towel", "washcloth"]],
+  ["textiles", ["bath robe", "bath sheet", "bath towel", "hand towel", "washcloth",
+    "bath rug", "bath mat", "kitchen mat", "comfort mat", "floor mat", "doormat"]],
 ];
 
 // "Microwave & dishwasher safe" describes care, not the product.
@@ -181,7 +184,13 @@ export function fold(value) {
 function keywordMatch(text, key) {
   if (SHORT_KEY.test(key)) {
     let re = KEY_CACHE.get(key);
-    if (!re) KEY_CACHE.set(key, (re = new RegExp(`(?<![a-z])${escapeRe(key)}(?:s|es)?(?![a-z])`)));
+    if (!re) {
+      // Only add the Spanish-style "es" plural for words that take it in
+      // English (box -> boxes, dish -> dishes). Otherwise "mat" would match
+      // "mates" and misclassify toys as textiles.
+      const plural = /(?:s|x|z|ch|sh)$/.test(key) ? "(?:es|s)?" : "s?";
+      KEY_CACHE.set(key, (re = new RegExp(`(?<![a-z])${escapeRe(key)}${plural}(?![a-z])`)));
+    }
     return re.test(text);
   }
   return text.includes(key);
@@ -457,6 +466,12 @@ export async function buildInventory({ rows, sheet }, { images = {}, sample = fa
       const v = String(raw[field] ?? "").trim();
       if (v) item[key] = v;
     }
+    const searchEs = spanishSearchTerms({
+      names: [nameEs, nameEn],
+      category,
+      manual: raw.buscar_es,
+    });
+    if (searchEs) item.search_es = searchEs;
     if (condition) item.condition = condition;
     if (price != null) item.price_crc = price;
 

@@ -153,8 +153,8 @@ export class InventoryStore {
   /** Apply typed edits to the draft (creating it from live if needed). All or nothing. */
   async editItems(ops, actor) {
     if (!Array.isArray(ops) || !ops.length) throw new InputError("No changes given.");
-    return this.mutateDraft(actor, (d) => {
-      applyOps(d.payload, ops);
+    return this.mutateDraft(actor, (d, live) => {
+      applyOps(d.payload, ops, live);
       return { kind: "edit", count: ops.length };
     });
   }
@@ -307,7 +307,7 @@ export class InventoryStore {
     for (let i = 0; ; i++) {
       const row = await this.row("draft");
       const d = row ? JSON.parse(row.value) : newDraft(live, live.items, actor, null);
-      const source = fn(d);
+      const source = fn(d, live);
       touch(d, actor, source);
       try {
         await this.saveDraft(d, live, row ? row.rev : null);
@@ -383,8 +383,8 @@ function validateItems(items) {
     if (!CATEGORY_SLUGS.includes(raw.category)) throw new InputError(`${where} (${id}): unknown category.`);
     const item = { id, name_es: name, category: raw.category, qty: nonNegInt(raw.qty, `${id} qty`) };
     if (item.qty === 0) throw new InputError(`${where} (${id}): quantity 0 items are not published.`);
-    for (const key of ["name_en", "detail_es", "detail_en"]) {
-      const v = str(raw[key], key === "name_en" ? 300 : 600);
+    for (const key of ["name_en", "detail_es", "detail_en", "search_es"]) {
+      const v = str(raw[key], key === "name_en" ? 300 : key === "search_es" ? 1200 : 600);
       if (v) item[key] = v;
     }
     if (raw.condition != null) {
@@ -412,7 +412,7 @@ function sanitizeReport(report) {
   };
 }
 
-function applyOps(payload, ops) {
+function applyOps(payload, ops, live) {
   if (ops.length > 500) throw new InputError("Too many changes in one request (max 500).");
   const byId = new Map(payload.items.map((it) => [it.id.toUpperCase(), it]));
   const find = (id) => {
@@ -432,18 +432,46 @@ function applyOps(payload, ops) {
       case "set_quantity": {
         const it = find(op.id);
         const qty = nonNegInt(op.qty, "qty");
-        if (qty === 0) removed.add(it.id);
+        if (qty === 0) removed.add(it.id.toUpperCase());
         else it.qty = qty;
         break;
       }
       case "remove":
-        removed.add(find(op.id).id);
+        removed.add(find(op.id).id.toUpperCase());
         break;
+      case "restore": {
+        // Undo a sold/removed item. The full item comes from the caller when
+        // possible; otherwise it is copied from the published inventory, so
+        // images and details are not lost.
+        const id = str(String(op.id || op.item?.id || ""), 40).toUpperCase();
+        if (!id) throw new InputError("restore needs an item id.");
+        const existing = byId.get(id);
+        if (existing && !removed.has(id)) throw new InputError(`Item ${id} is already in the inventory.`);
+        if (existing) {
+          // It is still in the payload but marked removed (e.g. quantity 0 in
+          // the same request); just clear the removal.
+          removed.delete(id);
+          break;
+        }
+        const source = op.item || (live?.items || []).find((it) => String(it.id).toUpperCase() === id);
+        if (!source) throw new InputError(`No published item with code '${id}' to restore.`);
+        const raw = { ...source };
+        if (!CATEGORY_SLUGS.includes(raw.category)) raw.category = "otros";
+        if (typeof raw.qty === "string" && raw.qty.trim() !== "" && isFinite(Number(raw.qty))) raw.qty = Number(raw.qty);
+        if (!Number.isInteger(raw.qty) || raw.qty < 1) raw.qty = 1;
+        if (typeof raw.price_crc === "string" && raw.price_crc.trim() !== "" && isFinite(Number(raw.price_crc))) raw.price_crc = Number(raw.price_crc);
+        if (raw.condition != null && !CONDITION_SLUGS.includes(raw.condition)) delete raw.condition;
+        const item = validateItems([raw])[0];
+        payload.items.push(item);
+        byId.set(id, item);
+        removed.delete(id);
+        break;
+      }
       case "set_fields": {
         const it = find(op.id);
-        for (const key of ["name_es", "name_en", "detail_es", "detail_en"]) {
+        for (const key of ["name_es", "name_en", "detail_es", "detail_en", "search_es"]) {
           if (op[key] === undefined) continue;
-          const v = op[key] === null ? "" : str(String(op[key]), 600);
+          const v = op[key] === null ? "" : str(String(op[key]), key === "search_es" ? 1200 : 600);
           if (key === "name_es" && !v) throw new InputError("name_es cannot be empty.");
           if (v) it[key] = v;
           else delete it[key];
@@ -469,6 +497,7 @@ function applyOps(payload, ops) {
         const item = { id, name_es: name, category: src.category || "otros", qty: nonNegInt(src.qty ?? 1, "qty") || 1 };
         if (!CATEGORY_SLUGS.includes(item.category)) throw new InputError(`category must be one of ${CATEGORY_SLUGS.join(", ")}.`);
         if (src.name_en) item.name_en = str(String(src.name_en), 300);
+        if (src.search_es) item.search_es = str(String(src.search_es), 1200);
         if (src.price_crc != null) item.price_crc = nonNegInt(src.price_crc, "price_crc");
         if (src.condition) {
           if (!CONDITION_SLUGS.includes(src.condition)) throw new InputError(`condition must be one of ${CONDITION_SLUGS.join(", ")}.`);
@@ -479,10 +508,10 @@ function applyOps(payload, ops) {
         break;
       }
       default:
-        throw new InputError(`Unknown operation '${op?.op}'. Use set_price, set_quantity, remove, set_fields or add.`);
+        throw new InputError(`Unknown operation '${op?.op}'. Use set_price, set_quantity, remove, restore, set_fields or add.`);
     }
   }
-  if (removed.size) payload.items = payload.items.filter((it) => !removed.has(it.id));
+  if (removed.size) payload.items = payload.items.filter((it) => !removed.has(it.id.toUpperCase()));
 }
 
 function summary(payload) {

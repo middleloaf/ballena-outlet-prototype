@@ -172,7 +172,16 @@
 
   function matchesQuery(item, query) {
     if (!query) return true;
-    var haystack = normalize([item.name_es, item.name_en, item.id, item.detail_es, item.detail_en].join(" "));
+    var haystack = normalize([
+      item.name_es,
+      item.name_en,
+      item.id,
+      item.detail_es,
+      item.detail_en,
+      item.search_es,
+      item.search_en,
+      item.category
+    ].join(" "));
     return haystack.indexOf(query) !== -1;
   }
 

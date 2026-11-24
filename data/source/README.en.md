@@ -72,7 +72,7 @@ exported; cost, supplier and notes never reach the public JSON.
 Quantity prefers the physical counts, then `Total actual`, then the manifest
 as a provisional fallback. Internal sheets such as `INVENTARIO ORIGINAL`
 (cost, base amount, discount) are ignored. Category is inferred from the
-product name when the sheet has none.
+product name when the sheet has none. Hidden Spanish search aliases are generated from the name and category (glossary in `worker/search-es.js`); an optional `buscar_es` column adds per-item aliases such as `refri, nevera, refrigeradora`.
 
 ## Image handling notes
 

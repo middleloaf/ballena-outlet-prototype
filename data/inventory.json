@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T18:20:37+00:00",
+  "generated_at": "2026-11-24T22:56:46+00:00",
   "sample": true,
   "count": 24,
   "items": [
@@ -11,6 +11,7 @@
       "name_en": "5.5 L air fryer",
       "detail_es": "Canasta antiadherente, capacidad familiar.",
       "detail_en": "Non-stick basket, family size.",
+      "search_es": "electrodoméstico, electrodomésticos, aparato, aparato eléctrico, freidora de aire, air fryer, aire",
       "condition": "como_nuevo",
       "price_crc": 28000
     },
@@ -22,6 +23,7 @@
       "name_en": "1200 W high-power blender",
       "detail_es": "Vaso de 2 L libre de BPA.",
       "detail_en": "2 L BPA-free jar.",
+      "search_es": "electrodoméstico, electrodomésticos, aparato, aparato eléctrico, licuadora, batidora, energía, potencia",
       "condition": "nuevo",
       "price_crc": 32000
     },
@@ -33,6 +35,7 @@
       "name_en": "12-cup drip coffee maker",
       "detail_es": "Programable, con jarra de vidrio.",
       "detail_en": "Programmable, glass carafe.",
+      "search_es": "electrodoméstico, electrodomésticos, aparato, aparato eléctrico, cafetera, café, máquina, fabricador, taza, vaso",
       "condition": "como_nuevo",
       "price_crc": 18500
     },
@@ -44,6 +47,7 @@
       "name_en": "Countertop ice maker",
       "detail_es": "Hasta 12 kg de hielo al día.",
       "detail_en": "Up to 12 kg of ice per day.",
+      "search_es": "electrodoméstico, electrodomésticos, aparato, aparato eléctrico, de mostrador, para mostrador, máquina de hielo, fabricador de hielo, hielera, máquina, fabricador, hielo",
       "condition": "usado",
       "price_crc": 45000
     },
@@ -55,6 +59,7 @@
       "name_en": "Non-stick pan set",
       "detail_es": "Tres piezas con mangos de baquelita.",
       "detail_en": "Three pieces with bakelite handles.",
+      "search_es": "hogar, casa, artículo para el hogar, artículos para el hogar, antiadherente, sartén, paila, juego, set",
       "condition": "nuevo",
       "price_crc": 19500
     },
@@ -66,6 +71,7 @@
       "name_en": "16-piece ceramic dinnerware set",
       "detail_es": "Apta para microondas y lavaplatos.",
       "detail_en": "Microwave and dishwasher safe.",
+      "search_es": "hogar, casa, artículo para el hogar, artículos para el hogar, vajilla, juego de platos, cerámica, juego, set",
       "condition": "nuevo",
       "price_crc": 22000
     },
@@ -77,6 +83,7 @@
       "name_en": "3-tier kitchen organizer",
       "detail_es": "Metal con acabado negro mate.",
       "detail_en": "Matte black metal.",
+      "search_es": "hogar, casa, artículo para el hogar, artículos para el hogar, organizador, cocina",
       "condition": "como_nuevo",
       "price_crc": 8500
     },
@@ -88,6 +95,7 @@
       "name_en": "Table lamp with USB port",
       "detail_es": "Pantalla de lino, luz cálida.",
       "detail_en": "Linen shade, warm light.",
+      "search_es": "mejora para el hogar, mejoras para el hogar, mejoras del hogar, lámpara de mesa, mesa, lámpara, USB",
       "condition": "nuevo",
       "price_crc": 11000
     },
@@ -99,6 +107,7 @@
       "name_en": "Extendable curtain rod",
       "detail_es": "De 90 a 200 cm, incluye soportes.",
       "detail_en": "90 to 200 cm, brackets included.",
+      "search_es": "mejora para el hogar, mejoras para el hogar, mejoras del hogar, barra de cortina, tubo de cortina, cortina",
       "condition": "nuevo",
       "price_crc": 7000
     },
@@ -110,6 +119,7 @@
       "name_en": "Living room rug 1.6 x 2.3 m",
       "detail_es": "Tejido de bajo pile, color arena.",
       "detail_en": "Low-pile weave, sand color.",
+      "search_es": "textil, textiles, tela, telas, sala, sala de estar, habitación, cuarto, alfombra, tapete",
       "condition": "usado",
       "price_crc": 12000
     },
@@ -121,6 +131,7 @@
       "name_en": "6-piece bath towel set",
       "detail_es": "Algodón 100 %, color gris.",
       "detail_en": "100% cotton, gray.",
+      "search_es": "textil, textiles, tela, telas, toalla de baño, toalla, baño, juego, set",
       "condition": "nuevo",
       "price_crc": 15000
     },
@@ -132,6 +143,7 @@
       "name_en": "Queen comforter",
       "detail_es": "Reversible, relleno hipoalergénico.",
       "detail_en": "Reversible, hypoallergenic fill.",
+      "search_es": "textil, textiles, tela, telas, edredón, cubrecama, colcha, ropa de cama, queen, matrimonial, tamaño queen",
       "condition": "como_nuevo",
       "price_crc": 26000
     },
@@ -143,6 +155,7 @@
       "name_en": "240-piece building block set",
       "detail_es": "Incluye figuras y caja original.",
       "detail_en": "Includes figures and original box.",
+      "search_es": "juguete, juguetes, niño, niña, niños, infantil, juego, set",
       "condition": "nuevo",
       "price_crc": 9500
     },
@@ -154,6 +167,7 @@
       "name_en": "Family board game",
       "detail_es": "De 2 a 6 jugadores, desde 8 años.",
       "detail_en": "2 to 6 players, ages 8+.",
+      "search_es": "juguete, juguetes, niño, niña, niños, infantil, juego, juego de mesa, familia, juegos",
       "condition": "nuevo",
       "price_crc": 12500
     },
@@ -165,6 +179,7 @@
       "name_en": "All-terrain remote control car",
       "detail_es": "Batería recargable, 25 km/h.",
       "detail_en": "Rechargeable battery, 25 km/h.",
+      "search_es": "juguete, juguetes, niño, niña, niños, infantil, juego, control remoto, a control remoto, control, mando, remoto, carro, auto, carrito",
       "condition": "como_nuevo",
       "price_crc": 17000
     },
@@ -176,6 +191,7 @@
       "name_en": "Giant 90 cm plush",
       "detail_es": "Lavable a máquina.",
       "detail_en": "Machine washable.",
+      "search_es": "juguete, juguetes, niño, niña, niños, infantil, juego, peluche, peluche de felpa, afelpado",
       "condition": "nuevo",
       "price_crc": 14000
     },
@@ -187,6 +203,7 @@
       "name_en": "Wireless earbuds with charging case",
       "detail_es": "Bluetooth 5.3, batería de 6 horas.",
       "detail_en": "Bluetooth 5.3, 6-hour battery.",
+      "search_es": "electrónica, electrónico, tecnología, aparato electrónico, inalámbrico, carga, cargador, audífonos, auriculares, estuche, funda",
       "condition": "como_nuevo",
       "price_crc": 16000
     },
@@ -198,6 +215,7 @@
       "name_en": "Waterproof Bluetooth speaker",
       "detail_es": "IPX7, 12 horas de batería.",
       "detail_en": "IPX7, 12-hour battery.",
+      "search_es": "electrónica, electrónico, tecnología, aparato electrónico, impermeable, resistente al agua, Bluetooth, parlante, altavoz",
       "condition": "nuevo",
       "price_crc": 21000
     },
@@ -209,6 +227,7 @@
       "name_en": "12-piece makeup brush set",
       "detail_es": "Fibra sintética, incluye estuche.",
       "detail_en": "Synthetic fiber, case included.",
+      "search_es": "belleza, cuidado personal, cosmético, cosméticos, set de brochas, maquillaje, brocha, pincel, juego, set",
       "condition": "nuevo",
       "price_crc": 6500
     },
@@ -220,6 +239,7 @@
       "name_en": "Ionic hair dryer",
       "detail_es": "Tres temperaturas, difusor incluido.",
       "detail_en": "Three heat settings, diffuser included.",
+      "search_es": "belleza, cuidado personal, cosmético, cosméticos, secadora de pelo, secadora",
       "condition": "como_nuevo",
       "price_crc": 13500
     },
@@ -231,6 +251,7 @@
       "name_en": "20 V cordless drill",
       "detail_es": "Dos baterías y maletín.",
       "detail_en": "Two batteries and hard case.",
+      "search_es": "herramienta, herramientas, jardín, ferretería, inalámbrico, sin cable, taladro",
       "condition": "usado",
       "price_crc": 24000
     },
@@ -242,6 +263,7 @@
       "name_en": "108-piece tool set",
       "detail_es": "Llaves, dados y destornilladores.",
       "detail_en": "Wrenches, sockets and screwdrivers.",
+      "search_es": "herramienta, herramientas, jardín, ferretería, set de herramientas, juego de herramientas, juego, set",
       "condition": "nuevo",
       "price_crc": 29000
     },
@@ -253,6 +275,7 @@
       "name_en": "Waterproof jacket size M",
       "detail_es": "Capucha ajustable, costuras selladas.",
       "detail_en": "Adjustable hood, sealed seams.",
+      "search_es": "ropa, vestimenta, calzado, moda, impermeable, resistente al agua, chaqueta, tamaño",
       "condition": "como_nuevo",
       "price_crc": 14000
     },
@@ -264,6 +287,7 @@
       "name_en": "School backpack with USB port",
       "detail_es": "Compartimento para laptop de 15 pulgadas.",
       "detail_en": "Fits a 15-inch laptop.",
+      "search_es": "ropa, vestimenta, calzado, moda, mochila, escuela, escolar, USB",
       "condition": "nuevo",
       "price_crc": 11500
     }

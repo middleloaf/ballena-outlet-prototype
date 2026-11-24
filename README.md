@@ -36,7 +36,7 @@ Then open `http://localhost:4173/index.html` (Spanish) or `http://localhost:4173
 
 - **Upload the workbook** (`.xlsx`/`.csv`). It is parsed **in the browser** by the same `worker/importer.js`; only the public columns are sent. The free plan allows ~10 ms CPU per request and parsing a 1,300-row workbook takes ~150 ms, so the server validates the resulting payload instead of parsing. The upload becomes a **draft** with a report: added, removed, price/quantity/image changes, skipped rows and warnings.
 - **Photos and flyers**: drag in images. The code comes from the filename (`BO-00071.jpg`), the image metadata, or a field per row. Photos over 1.5 MB are shrunk to 1600 px in the browser. Images for codes not yet in the inventory are kept and attach on the next import.
-- **Quick edits**: price, quantity, mark sold. These go into the draft; the next workbook upload replaces the whole inventory, so the sheet must be updated too.
+- **Quick edits**: price, quantity, mark sold. These go into the draft; the next workbook upload replaces the whole inventory, so the sheet must be updated too. Marking an item as sold shows an **Undo** action in the notice, and the draft review (*Estado → Se quitan de la web*) keeps an Undo button for every removed item; undo restores the item, with its photos and details, to the draft.
 - **Publish** sends the reviewed draft id. The server refuses a draft that changed after review or was built on an older version. **History** lists every published version; *Restore* makes a draft from one.
 - The help section is the workbook/image guide from `data/source/README.md`.
 
@@ -65,7 +65,7 @@ npm run db:migrate                                     # apply new migrations to
 | `GET status`, `GET items?q=`, `GET versions` | Live summary, draft review, item search, history |
 | `GET images` | Image index used by the browser importer |
 | `POST import` | `{payload, report, filename}` from the browser importer |
-| `POST edits` | `{ops: [{op: "set_price" \| "set_quantity" \| "remove" \| "set_fields" \| "add", ...}]}` |
+| `POST edits` | `{ops: [{op: "set_price" \| "set_quantity" \| "remove" \| "restore" \| "set_fields" \| "add", ...}]}`. `restore` undoes a removal: `{op: "restore", id}` copies the published item back into the draft (or pass the full `item` for an item that only existed in the draft). |
 | `POST images` | Multipart `file`, optional `code`, `kind=foto\|flyer_es\|flyer_en` |
 | `POST images/remove`, `POST draft/discard` | Undo an image, drop the draft |
 | `POST publish` | `{draft_id}` |
@@ -78,7 +78,7 @@ Local dev: `npx wrangler d1 migrations apply ballena-inventory --local`, put `SE
 The available-items section reads `data/inventory.json`. **The repository ships a 24-item sample inventory** (`data/inventory.sample.csv` → `data/inventory.json`, flagged `sample: true`, shown with an “Inventario de muestra” badge). The store's real inventory and product images live only in production (D1 + KV) and are managed from the admin panel (below); `tools/import-inventory.mjs` builds the committed fallback file locally from an Excel/CSV sheet; nothing is typed into the HTML.
 
 ```bash
-# Try the demo data (7 sample items, marked as sample in the UI)
+# Try the demo data (24 sample items, marked as sample in the UI)
 node tools/import-inventory.mjs data/inventory.sample.csv --sample
 
 # Import the store's workbook (STOCK TIENDAS sheet)
@@ -115,6 +115,7 @@ One row per item. Header names are matched accent- and case-insensitively; these
 | ID | `id`, `sku`, `codigo` | Generated from the name if empty. Duplicates are dropped. |
 | Spanish name | `nombre_es`, `nombre`, `producto`, `articulo` | Required. |
 | English name | `nombre_en`, `name_en` | Optional; the EN page falls back to Spanish and the import warns. |
+| Spanish search words | `buscar_es`, `buscar`, `palabras_es`, `keywords_es` | Optional, comma/semicolon-separated hidden aliases (for example `refri, nevera, refrigeradora`). They are never displayed; the importer also generates aliases from the product name, category, and the curated glossary in `worker/search-es.js`. |
 | Details | `detalle_es`, `detalle_en` | Optional, clamped to two lines. |
 | Category | `categoria`, `category`, `grupo` | Must map to the site's groups: `electrodomesticos`, `hogar`, `mejoras_hogar`, `textiles`, `juguetes`, `electronica`, `belleza`, `herramientas`, `ropa`. Unknown values fall back to name-based inference with a warning. |
 | Condition | `condicion`, `estado_fisico`, `condition` | `nuevo`, `como_nuevo`, `usado`, `para_partes` (English synonyms accepted). |
@@ -197,14 +198,14 @@ Read-only, no auth (it exposes only what the public catalog already shows), CORS
 
 | Endpoint | Purpose |
 |---|---|
-| `GET /api/inventory/search?q=&category=&min_price=&max_price=&limit=&lang=` | In-stock items. `q` is word-prefix matched, accent-insensitive; items matching every word come first, otherwise partial matches. `limit` ≤ 50. |
+| `GET /api/inventory/search?q=&category=&min_price=&max_price=&limit=&lang=` | In-stock items. `q` is word-prefix matched, accent-insensitive, and also searches the hidden Spanish aliases; items matching every word come first, otherwise partial matches. `limit` ≤ 50. |
 | `GET /api/inventory/{id}` | One item by code (`BO-00071`). 404 = not in stock. |
 | `GET /api/categories` | Categories with counts. |
 | `GET /api/store` | Address, WhatsApp, email, purchase/pricing policy. |
 | `GET /api/openapi.json` | OpenAPI 3.1 spec — import into Kapso as the bot's tools. |
 | `GET /api/health` | Item count and import timestamp. |
 
-Product names are English U.S. retail listings, so the bot must search with English keywords even when the customer writes Spanish. That is stated in the OpenAPI descriptions the bot's model reads; there is deliberately no synonym table in the Worker.
+Product names are English U.S. retail listings, but every item also carries hidden Spanish search aliases generated at import time (`search_es`). The bot and the site can search with Spanish keywords such as `refrigeradora`, `nevera`, or `freidora de aire`; the aliases are not shown on cards. The glossary lives in `worker/search-es.js`, and a sheet can add per-item aliases with the `buscar_es` column.
 
 ### What travels with the repo
 

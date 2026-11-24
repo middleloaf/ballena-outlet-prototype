@@ -22,13 +22,25 @@
     return node;
   }
 
-  function toast(msg, isError) {
+  function toast(msg, isError, action) {
     var t = $("#toast");
-    t.textContent = msg;
+    t.replaceChildren(document.createTextNode(msg));
+    if (action) {
+      t.appendChild(el("button", {
+        class: "btn small toast-action",
+        type: "button",
+        text: action.label,
+        onclick: function (ev) {
+          t.hidden = true;
+          clearTimeout(toast.timer);
+          action.onClick(ev);
+        },
+      }));
+    }
     t.className = "toast" + (isError ? " err" : "");
     t.hidden = false;
     clearTimeout(toast.timer);
-    toast.timer = setTimeout(function () { t.hidden = true; }, isError ? 9000 : 4000);
+    toast.timer = setTimeout(function () { t.hidden = true; }, action ? 10000 : isError ? 9000 : 4000);
   }
 
   function api(path, opts) {
@@ -68,12 +80,23 @@
     renderDraft(s.draft);
   }
 
-  function changeList(title, block, fmt) {
+  function changeList(title, block, fmt, action) {
     if (!block || !block.total) return null;
     var more = block.total > block.items.length ? el("li", { class: "muted", text: "… y " + (block.total - block.items.length) + " más" }) : null;
     return el("details", {}, [
       el("summary", { text: title + " (" + block.total + ")" }),
-      el("ul", {}, block.items.map(function (x) { return el("li", { text: fmt(x) }); }).concat(more ? [more] : [])),
+      el("ul", {}, block.items.map(function (x) {
+        var row = el("li", {}, [el("span", { text: fmt(x) })]);
+        if (action) {
+          row.appendChild(el("button", {
+            class: "btn small ghost change-undo",
+            type: "button",
+            text: "Deshacer",
+            onclick: function (ev) { action(x, ev); },
+          }));
+        }
+        return row;
+      }).concat(more ? [more] : [])),
     ]);
   }
 
@@ -87,7 +110,7 @@
     var r = d.report;
     var lists = [
       changeList("Nuevos", c.added, function (x) { return x.id + " · " + x.name + " · " + price(x.price_crc) + " · " + x.qty + " u."; }),
-      changeList("Se quitan de la web", c.removed, function (x) { return x.id + " · " + x.name; }),
+      changeList("Se quitan de la web", c.removed, function (x) { return x.id + " · " + x.name; }, restoreRemoved),
       changeList("Cambios de precio", c.price_changed, function (x) { return x.id + " · " + x.name + ": " + price(x.from) + " → " + price(x.to); }),
       changeList("Cambios de cantidad", c.qty_changed, function (x) { return x.id + " · " + x.name + ": " + x.from + " → " + x.to; }),
       changeList("Imágenes", c.images_changed, function (x) { return x.id + " · " + x.name; }),
@@ -273,7 +296,9 @@
     }
     function sold(ev) {
       if (!confirm("¿Quitar " + it.id + " de la web (vendido)?")) return;
-      edit([{ op: "remove", id: it.id }], ev.target, it.id + " se quita al publicar.");
+      edit([{ op: "remove", id: it.id }], ev.target, it.id + " se quita al publicar.", function () {
+        edit([{ op: "restore", id: it.id, item: it }], null, it.id + " vuelve al borrador.");
+      });
     }
     return el("div", { class: "item" }, [
       img ? el("img", { src: "/" + img.replace(/^\//, ""), alt: "", loading: "lazy" }) : el("div", { class: "ph" }),
@@ -290,12 +315,22 @@
     ]);
   }
 
-  function edit(ops, btn, ok) {
+  function edit(ops, btn, ok, undo) {
     busy(btn, true);
     api("/edits", { method: "POST", json: { ops: ops } })
-      .then(function (r) { state.draft = r.draft; renderDraft(r.draft); toast(ok); search(); })
+      .then(function (r) {
+        state.draft = r.draft;
+        renderDraft(r.draft);
+        if (undo) toast(ok, false, { label: "Deshacer", onClick: undo });
+        else toast(ok);
+        search();
+      })
       .catch(function (e) { toast(e.message, true); })
       .finally(function () { busy(btn, false); });
+  }
+
+  function restoreRemoved(x, ev) {
+    edit([{ op: "restore", id: x.id }], ev && ev.target, x.id + " vuelve al borrador.");
   }
 
   function search(ev) {

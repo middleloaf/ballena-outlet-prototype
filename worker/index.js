@@ -53,7 +53,7 @@ async function loadInventory(env, origin) {
   if (cached && cached.key === key) return cached.data;
   const items = (payload.items || []).map((it) => ({
     ...it,
-    _words: tokens([it.id, it.name_es, it.name_en, it.detail_es, it.detail_en].filter(Boolean).join(" ")),
+    _words: tokens([it.id, it.name_es, it.name_en, it.detail_es, it.detail_en, it.search_es].filter(Boolean).join(" ")),
   }));
   const data = { generated_at: payload.generated_at, version: payload.version ?? 0, sample: payload.sample, items };
   cached = { key, data };

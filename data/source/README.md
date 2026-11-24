@@ -84,6 +84,11 @@ De la hoja `STOCK TIENDAS`: `Código`, `Producto`, `Cantidad manifiesto`,
 - El precio es el de etiqueta. Las hojas internas (`INVENTARIO ORIGINAL` con
   costo y descuento) no se leen.
 - La categoría se deduce del nombre del producto cuando la hoja no la trae.
+- Las palabras de búsqueda en español se generan solas a partir del nombre y la
+  categoría (glosario en `worker/search-es.js`). Si un producto necesita alias
+  propios, agregá una columna `buscar_es` con palabras separadas por comas
+  (por ejemplo `refri, nevera, refrigeradora`). Esa columna no se muestra en la
+  web: solo alimenta el buscador.
 
 ## Antes de importar imágenes
 
