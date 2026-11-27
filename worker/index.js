@@ -32,7 +32,7 @@ const STORE = {
   email: "ballena.outletafacturacion@hotmail.com",
   coordinates: { lat: 9.1732362, lon: -83.7431295 },
   waze_link: "https://www.waze.com/ul?ll=9.1732362%2C-83.7431295&navigate=yes",
-  waze_embed: "https://embed.waze.com/iframe?zoom=16&lat=9.1732362&lon=-83.7431295&ct=livemap",
+  waze_embed: "https://embed.waze.com/iframe?zoom=16&lat=9.1732362&lon=-83.7431295&ct=livemap&pin=1",
   hours: {
     es: "Lunes, martes y jueves: 9:00 a. m. – 6:00 p. m. Miércoles, viernes y sábado: 10:00 a. m. – 7:00 p. m. Cerrado de 12:00 a 1:00 p. m. (almuerzo). Domingo cerrado.",
     en: "Monday, Tuesday and Thursday: 9:00 a.m. – 6:00 p.m. Wednesday, Friday and Saturday: 10:00 a.m. – 7:00 p.m. Closed 12:00–1:00 p.m. for lunch. Closed Sunday.",
