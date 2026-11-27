@@ -196,4 +196,66 @@
     });
   }
 
+  // Store photo lightbox
+  var lightbox = doc.getElementById("photo-lightbox");
+  if (lightbox) {
+    var lightboxImg = lightbox.querySelector(".photo-lightbox-img");
+    var lightboxClose = lightbox.querySelector(".photo-lightbox-close");
+    var zoomTriggers = doc.querySelectorAll(".photo-zoom");
+    var lastPhotoTrigger = null;
+
+    function handleLightboxKeydown(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closePhotoLightbox();
+      }
+    }
+
+    function closePhotoLightbox() {
+      if (!lightbox.open) return;
+      lightbox.close();
+      doc.removeEventListener("keydown", handleLightboxKeydown);
+      doc.body.style.overflow = "";
+      if (lastPhotoTrigger) lastPhotoTrigger.focus({ preventScroll: true });
+    }
+
+    function openPhotoLightbox(trigger) {
+      var figure = trigger.closest(".visit-photo");
+      var source = figure ? figure.querySelector("img") : null;
+      if (!source || !lightboxImg) return;
+      lastPhotoTrigger = trigger;
+      lightboxImg.src = source.currentSrc || source.src;
+      lightboxImg.alt = source.alt || "";
+      lightbox.showModal();
+      doc.addEventListener("keydown", handleLightboxKeydown);
+      doc.body.style.overflow = "hidden";
+      if (lightboxClose) lightboxClose.focus({ preventScroll: true });
+    }
+
+    zoomTriggers.forEach(function (trigger) {
+      trigger.addEventListener("click", function () {
+        openPhotoLightbox(trigger);
+      });
+    });
+
+    if (lightboxClose) {
+      lightboxClose.addEventListener("click", closePhotoLightbox);
+    }
+
+    lightbox.addEventListener("cancel", function (event) {
+      event.preventDefault();
+      closePhotoLightbox();
+    });
+
+    lightbox.addEventListener("close", function () {
+      doc.body.style.overflow = "";
+      if (lastPhotoTrigger) lastPhotoTrigger.focus({ preventScroll: true });
+    });
+
+    lightbox.addEventListener("click", function (event) {
+      if (event.target === lightbox) closePhotoLightbox();
+    });
+  }
+
+
 })();

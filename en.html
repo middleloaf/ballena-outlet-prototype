@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Instrument+Serif:ital@0;1&family=Inter:wght@400..700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20261148">
+  <link rel="stylesheet" href="styles.css?v=20261150">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -406,6 +406,7 @@
               <img src="assets/tienda-1.jpg?v=20261143" alt="Entrance to Ballena Outlet at Plaza La Perla del Pacífico, Uvita, Costa Rica." width="675" height="1200" loading="lazy">
             </picture>
             <figcaption class="photo-caption">This is what the store looks like.<span>Entrance at Plaza La Perla del Pacífico, Uvita.</span></figcaption>
+            <button class="photo-zoom" type="button" aria-label="Enlarge storefront photo"></button>
           </figure>
           <div class="visit-panel">
             <div class="visit-body">
@@ -453,6 +454,7 @@
               <img src="assets/tienda-2.jpg?v=20261143" alt="Products on display inside Ballena Outlet, Uvita." width="900" height="1200" loading="lazy">
             </picture>
             <figcaption class="photo-caption">Real product, ready to inspect.<span>No filters: what you see is what's in the shop.</span></figcaption>
+            <button class="photo-zoom" type="button" aria-label="Enlarge store interior photo"></button>
           </figure>
         </div>
       </div>
@@ -571,7 +573,14 @@
     </div>
   </dialog>
 
+  <dialog class="photo-lightbox" id="photo-lightbox" aria-label="Enlarged photo view">
+    <div class="photo-lightbox-inner">
+      <button class="photo-lightbox-close" type="button" aria-label="Close enlarged photo">×</button>
+      <img class="photo-lightbox-img" alt="">
+    </div>
+  </dialog>
+
   <script src="inventory.js?v=20261132"></script>
-  <script src="script.js?v=20261130"></script>
+  <script src="script.js?v=20261133"></script>
 </body>
 </html>
