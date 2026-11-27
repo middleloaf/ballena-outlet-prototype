@@ -1696,25 +1696,9 @@ ol {
 
 /* ---------- visit panel ---------- */
 
-.visit-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(240px, 0.32fr);
-  gap: clamp(18px, 2.4vw, 28px);
-  align-items: stretch;
-}
-
-.visit-panel {
-  max-width: none;
-  margin: 0;
-  padding: clamp(20px, 2.6vw, 28px);
-  background: var(--green-deep);
-  color: var(--cream);
-  border-radius: var(--r-lg);
-  overflow: hidden;
-}
-
 .visit-head {
-  margin-bottom: clamp(16px, 2.4vw, 24px);
+  max-width: 60ch;
+  margin-bottom: clamp(16px, 2vw, 22px);
 }
 
 .visit-head h2 {
@@ -1725,13 +1709,14 @@ ol {
   font-weight: 800;
   line-height: 0.98;
   letter-spacing: -0.04em;
+  color: var(--ink);
 }
 
 .visit-head h2 em {
   font-family: var(--font-serif);
   font-style: italic;
   font-weight: 400;
-  color: var(--gold);
+  color: var(--coral-deep);
 }
 
 .visit-lede {
@@ -1739,14 +1724,41 @@ ol {
   margin-top: 10px;
   font-size: 13px;
   line-height: 1.7;
-  color: rgba(246, 239, 226, 0.72);
+  color: var(--muted);
+}
+
+.visit-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 2fr) minmax(0, 0.8fr);
+  grid-template-areas: "outside panel inside";
+  gap: clamp(14px, 1.8vw, 22px);
+  align-items: stretch;
+}
+
+.visit-photo--outside {
+  grid-area: outside;
+}
+
+.visit-photo--inside {
+  grid-area: inside;
+}
+
+.visit-panel {
+  grid-area: panel;
+  max-width: none;
+  margin: 0;
+  padding: clamp(14px, 1.8vw, 20px);
+  background: var(--green-deep);
+  color: var(--cream);
+  border-radius: var(--r-lg);
+  overflow: hidden;
 }
 
 .visit-body {
   display: grid;
   grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
-  grid-template-areas: "map details";
-  gap: 14px clamp(18px, 2.4vw, 26px);
+  grid-template-areas: "details map";
+  gap: 12px clamp(14px, 1.8vw, 20px);
   align-items: stretch;
 }
 
@@ -1757,16 +1769,10 @@ ol {
   gap: 0;
 }
 
-.visit-photos {
-  display: grid;
-  grid-template-rows: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  min-height: 0;
-  height: 100%;
-}
-
 .visit-photo {
   min-height: 0;
+  height: 100%;
+  align-self: stretch;
 }
 
 .visit-photo picture {
@@ -1786,7 +1792,7 @@ ol {
 }
 
 .visit-group {
-  padding: 11px 0;
+  padding: 8px 0;
   border-top: 1px solid rgba(246, 239, 226, 0.16);
 }
 
@@ -1806,7 +1812,7 @@ ol {
 .visit-list {
   display: grid;
   gap: 0;
-  margin-top: 10px;
+  margin-top: 8px;
   padding: 0;
   list-style: none;
 }
@@ -1817,9 +1823,9 @@ ol {
   align-items: baseline;
   justify-content: space-between;
   gap: 6px 18px;
-  padding: 7px 0;
+  padding: 6px 0;
   border-bottom: 1px solid rgba(246, 239, 226, 0.12);
-  font-size: 12.5px;
+  font-size: 12px;
 }
 
 .visit-list li:last-child {
@@ -1850,17 +1856,17 @@ ol {
 }
 
 .visit-text {
-  margin-top: 9px;
+  margin-top: 7px;
   max-width: 42ch;
-  font-size: 12.5px;
-  line-height: 1.65;
+  font-size: 11.5px;
+  line-height: 1.55;
   color: rgba(246, 239, 226, 0.78);
 }
 
 .visit-hint {
-  margin-top: 9px;
-  font-size: 11px;
-  line-height: 1.55;
+  margin-top: 7px;
+  font-size: 10.5px;
+  line-height: 1.5;
   color: rgba(246, 239, 226, 0.58);
 }
 
@@ -1868,7 +1874,7 @@ ol {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 12px;
+  margin-top: 10px;
 }
 
 .visit-map {
@@ -2238,8 +2244,11 @@ ol {
 
 @media (max-width: 900px) {
   .visit-layout {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 18px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "panel panel"
+      "outside inside";
+    gap: 14px;
   }
 
   .visit-body {
@@ -2248,12 +2257,6 @@ ol {
       "details"
       "map";
     gap: 14px;
-  }
-
-  .visit-photos {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-rows: auto;
-    height: auto;
   }
 
   .visit-photo img {

@@ -32,7 +32,7 @@ const STORE = {
   email: "ballena.outletafacturacion@hotmail.com",
   coordinates: { lat: 9.1732362, lon: -83.7431295 },
   waze_link: "https://www.waze.com/ul?ll=9.1732362%2C-83.7431295&navigate=yes",
-  google_maps_embed: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3934.8!2d-83.7430262!3d9.1733417!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8fa157be944596c5%3A0x834f281ff0f271bd!2sOUTLET%20BALLENA%20Uvita%20%E2%80%93%20Electrodom%C3%A9sticos%20y%20Ofertas!5e0!3m2!1sen!2scr!4v1795800000000",
+  google_maps_embed: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4500!2d-83.7430262!3d9.1733417!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8fa157be944596c5%3A0x834f281ff0f271bd!2sOUTLET%20BALLENA%20Uvita%20%E2%80%93%20Electrodom%C3%A9sticos%20y%20Ofertas!5e0!3m2!1sen!2scr!4v1795800000000",
   google_maps_link: "https://www.google.com/maps/search/?api=1&query=OUTLET%20BALLENA%20Uvita&query_place_id=ChIJxZZFlL5XoY8RvXHy8B8oT4M",
   hours: {
     es: "Lunes, martes y jueves: 9:00 a. m. – 6:00 p. m. Miércoles, viernes y sábado: 10:00 a. m. – 7:00 p. m. Cerrado de 12:00 a 1:00 p. m. (almuerzo). Domingo cerrado.",
