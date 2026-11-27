@@ -1718,6 +1718,12 @@ ol {
   color: var(--ink);
 }
 
+.store-contact {
+  margin-top: clamp(32px, 5vw, 56px);
+  padding: clamp(22px, 4vw, 40px);
+  border-radius: var(--r-lg);
+}
+
 /* ---------- social feeds ---------- */
 
 .feeds-head {
@@ -2079,23 +2085,6 @@ ol {
 
 .contact-row-value a:hover {
   color: var(--coral-deep);
-}
-
-.contact-actions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 20px;
-}
-
-.contact-actions .btn {
-  min-height: 44px;
-  padding: 11px 14px;
-  font-size: 12px;
-}
-
-.contact-actions .btn-wa {
-  grid-column: 1 / -1;
 }
 
 .map-card {
@@ -2647,14 +2636,6 @@ ol {
 
   .social-btn {
     min-height: 96px;
-  }
-
-  .contact-actions {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .contact-actions .btn-primary {
-    grid-column: auto;
   }
 
   .map-card,
