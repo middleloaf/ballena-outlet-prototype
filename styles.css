@@ -1879,26 +1879,31 @@ ol {
   color: rgba(246, 239, 226, 0.72);
 }
 
-.visit-side {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-width: 0;
-}
-
 .visit-photos {
+  grid-area: photos;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
+  min-height: 0;
+  height: 100%;
+}
+
+.visit-photos picture {
+  display: block;
+  height: 100%;
 }
 
 .visit-photos .photo-card {
+  height: 100%;
+  min-height: 0;
   border-color: rgba(246, 239, 226, 0.24);
   box-shadow: none;
 }
 
 .visit-photos .photo-card img {
-  aspect-ratio: 2 / 3;
+  height: 100%;
+  min-height: 0;
+  aspect-ratio: auto;
 }
 
 .visit-photos .photo-card:first-child img {
@@ -1908,11 +1913,15 @@ ol {
 .visit-body {
   display: grid;
   grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-  gap: clamp(22px, 3vw, 32px);
+  grid-template-areas:
+    "details photos"
+    "map map";
+  gap: 14px clamp(22px, 3vw, 32px);
   align-items: stretch;
 }
 
 .visit-details {
+  grid-area: details;
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -2005,6 +2014,7 @@ ol {
 }
 
 .visit-map {
+  grid-area: map;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -2386,9 +2396,31 @@ ol {
     padding-left: 22px;
   }
 
-  .visit-head,
+  .visit-head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .visit-body {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "details"
+      "photos"
+      "map";
+    gap: 18px;
+  }
+
+  .visit-photos {
+    height: auto;
+  }
+
+  .visit-photos picture,
+  .visit-photos .photo-card {
+    height: auto;
+  }
+
+  .visit-photos .photo-card img {
+    height: auto;
+    aspect-ratio: 2 / 3;
   }
 
   .feed-grid {
