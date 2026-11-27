@@ -32,7 +32,7 @@ const STORE = {
   email: "ballena.outletafacturacion@hotmail.com",
   coordinates: { lat: 9.1732362, lon: -83.7431295 },
   waze_link: "https://www.waze.com/ul?ll=9.1732362%2C-83.7431295&navigate=yes",
-  google_maps_embed: "https://maps.google.com/maps?q=9.1732362,-83.7431295&z=16&output=embed",
+  google_maps_embed: "https://maps.google.com/maps?q=Ballena%20Outlet%2C%20Uvita%2C%20Costa%20Rica&z=17&output=embed",
   google_maps_link: "https://www.google.com/maps/search/?api=1&query=Ballena%20Outlet%2C%20Uvita%2C%20Costa%20Rica",
   hours: {
     es: "Lunes, martes y jueves: 9:00 a. m. – 6:00 p. m. Miércoles, viernes y sábado: 10:00 a. m. – 7:00 p. m. Cerrado de 12:00 a 1:00 p. m. (almuerzo). Domingo cerrado.",
