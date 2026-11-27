@@ -1521,41 +1521,6 @@ ol {
 
 /* ---------- store ---------- */
 
-.store-copy h2 {
-  max-width: 15ch;
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 4.2vw, 3.65rem);
-  font-weight: 800;
-  line-height: 0.98;
-  letter-spacing: -0.04em;
-}
-
-.store-copy h2 em {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-weight: 400;
-  color: var(--coral-deep);
-}
-
-.store-copy .lede {
-  margin-top: 16px;
-  max-width: 56ch;
-  font-size: 14px;
-  line-height: 1.7;
-  color: var(--muted);
-}
-
-.store-copy .store-note {
-  max-width: 820px;
-}
-
-.store-photos {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-  margin-top: clamp(28px, 4vw, 44px);
-}
-
 .photo-card {
   position: relative;
   overflow: hidden;
@@ -1613,35 +1578,6 @@ ol {
   font-weight: 500;
   color: rgba(246, 239, 226, 0.7);
   letter-spacing: 0.03em;
-}
-
-.photo-disclaimer,
-.store-note {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin-top: 18px;
-  padding: 14px 16px;
-  border: 1px dashed var(--line-strong);
-  border-radius: var(--r-sm);
-  background: rgba(230, 176, 90, 0.12);
-  color: var(--ink-2);
-  font-size: 12px;
-  line-height: 1.55;
-}
-
-.photo-disclaimer svg,
-.store-note svg {
-  flex: 0 0 auto;
-  width: 18px;
-  height: 18px;
-  margin-top: 2px;
-  color: var(--coral-deep);
-}
-
-.photo-disclaimer strong,
-.store-note strong {
-  color: var(--ink);
 }
 
 /* ---------- social feeds ---------- */
@@ -1916,7 +1852,7 @@ ol {
 /* ---------- visit panel ---------- */
 
 .visit-panel {
-  margin-top: clamp(32px, 5vw, 56px);
+  margin-top: 0;
   padding: clamp(24px, 4vw, 40px);
   background: var(--green-deep);
   color: var(--cream);
@@ -1954,6 +1890,32 @@ ol {
   font-size: 13.5px;
   line-height: 1.7;
   color: rgba(246, 239, 226, 0.72);
+}
+
+.visit-side {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.visit-photos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.visit-photos .photo-card {
+  border-color: rgba(246, 239, 226, 0.24);
+  box-shadow: none;
+}
+
+.visit-photos .photo-card img {
+  aspect-ratio: 2 / 3;
+}
+
+.visit-photos .photo-card:first-child img {
+  object-position: center 20%;
 }
 
 .visit-body {
@@ -2586,14 +2548,6 @@ ol {
     border-bottom: 0;
   }
 
-  .store-photos {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .photo-card img {
-    aspect-ratio: 1.75 / 1;
-  }
-
   .social-buttons {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2666,7 +2620,6 @@ ol {
 
   .section-head h1,
   .section-head h2,
-  .store-copy h2,
   .feeds-head h2 {
     font-size: clamp(1.8rem, 8.6vw, 2.7rem);
   }
@@ -2695,6 +2648,19 @@ ol {
 
   .visit-panel {
     padding: 18px;
+  }
+
+  .visit-photos {
+    gap: 8px;
+  }
+
+  .visit-photos .photo-caption {
+    padding: 20px 10px 9px;
+    font-size: 10px;
+  }
+
+  .visit-photos .photo-caption span {
+    font-size: 8px;
   }
 
   .visit-actions {
