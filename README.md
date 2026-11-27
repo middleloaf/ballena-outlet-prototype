@@ -28,7 +28,7 @@ Then open `http://localhost:4173/index.html` (Spanish) or `http://localhost:4173
 - Store pickup, layaway (30% down payment, up to 1 month to pay the balance), and shipping messaging throughout; no online checkout.
 - Product groups with clearer examples, a three-step how-it-works section, store details including a “Good to know” note, and a mobile quick-action bar.
 - A live “Disponible hoy / Available today” section on both home pages: a four-item preview that links to the full catalog. The catalog pages (`inventario.html` / `inventory.html`) have the complete searchable, filterable, sortable list, rendered from `data/inventory.json` (built from a spreadsheet, see below).
-- A dismissible prototype popup in both languages that identifies the site as the v3 prototype, plus a fixed “Prototipo / Prototype” badge in the bottom-right corner, a detailed “About this prototype” section, and `noindex` metadata so search engines do not treat the demo as final.
+- A dismissible prototype popup in both languages that identifies the site as the v3 prototype, plus a distinct “Prototipo / Prototype” navigation button at the far right of the header, a detailed “About this prototype” section, and `noindex` metadata so search engines do not treat the demo as final.
 
 ## Admin panel (inventory management)
 
