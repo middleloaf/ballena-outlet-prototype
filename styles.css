@@ -494,6 +494,7 @@ ol {
   min-height: 78px;
   width: min(100% - 40px, 1320px);
   margin-inline: auto;
+  padding-right: 70px;
 }
 
 .brand {
@@ -572,12 +573,17 @@ ol {
 }
 
 .header-prototype {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   min-height: 38px;
   padding: 7px 10px;
   border: 2px dotted var(--coral-deep);
-  border-radius: 8px;
+  border-right: 0;
+  border-radius: 8px 0 0 8px;
   background: var(--cream);
   color: var(--ink);
   font-family: var(--font-mono);
@@ -585,7 +591,9 @@ ol {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  transform: rotate(-1.5deg);
+  box-shadow: 0 6px 18px -10px rgba(7, 33, 53, 0.4);
+  transform: translateY(-50%) rotate(-1.5deg);
+  transform-origin: right center;
   transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
 }
 
@@ -2247,6 +2255,7 @@ ol {
 
   .header-inner {
     gap: 12px;
+    padding-right: 70px;
   }
 
   .header-actions .btn-wa span {
