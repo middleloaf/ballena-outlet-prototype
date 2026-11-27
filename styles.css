@@ -744,8 +744,10 @@ ol {
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(60% 45% at 88% 12%, rgba(63, 122, 92, 0.2), transparent 70%),
-    radial-gradient(45% 40% at 6% 30%, rgba(230, 176, 90, 0.22), transparent 72%);
+    radial-gradient(60% 45% at 88% 12%, rgba(63, 122, 92, 0.18), transparent 70%),
+    radial-gradient(45% 40% at 6% 30%, rgba(230, 176, 90, 0.18), transparent 72%),
+    linear-gradient(90deg, rgba(253, 248, 238, 0.94) 0%, rgba(253, 248, 238, 0.86) 34%, rgba(253, 248, 238, 0.48) 68%, rgba(253, 248, 238, 0.22) 100%),
+    url("assets/hero-storefront-blur.webp?v=20261152") center top / cover no-repeat;
 }
 
 .hero-gridlines {
@@ -2172,6 +2174,12 @@ ol {
 }
 
 @media (max-width: 900px) {
+  .hero-bg {
+    background:
+      linear-gradient(180deg, rgba(253, 248, 238, 0.95) 0%, rgba(253, 248, 238, 0.9) 58%, rgba(253, 248, 238, 0.84) 100%),
+      url("assets/hero-storefront-blur.webp?v=20261152") center top / cover no-repeat;
+  }
+
   .visit-layout {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     grid-template-areas:
