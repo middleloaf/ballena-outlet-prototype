@@ -31,14 +31,14 @@ const STORE = {
   whatsapp_link: "https://wa.me/50663132925",
   email: "ballena.outletafacturacion@hotmail.com",
   hours: {
-    es: "Lunes, martes y jueves: 9:00 a. m. – 6:00 p. m. Miércoles, viernes y sábado: 10:00 a. m. – 7:00 p. m. Cerrado de 12:00 m. d. a 1:00 p. m. (almuerzo). Domingo cerrado.",
+    es: "Lunes, martes y jueves: 9:00 a. m. – 6:00 p. m. Miércoles, viernes y sábado: 10:00 a. m. – 7:00 p. m. Cerrado de 12:00 a 1:00 p. m. (almuerzo). Domingo cerrado.",
     en: "Monday, Tuesday and Thursday: 9:00 a.m. – 6:00 p.m. Wednesday, Friday and Saturday: 10:00 a.m. – 7:00 p.m. Closed 12:00–1:00 p.m. for lunch. Closed Sunday.",
   },
   sinpe_movil: "+50661556974",
   payment:
     "In store, or by SINPE Móvil to 6155-6974. Customers must confirm the purchase on WhatsApp before making any deposit.",
   purchase:
-    "No online checkout. Items are sold in store (pickup) and the store offers shipping. Layaway is 30% down payment, with up to 1 month to pay the balance. Published availability is confirmed by WhatsApp or in store.",
+    "No online checkout. Items are sold in store (pickup) and the store offers shipping. Layaway is 30% down payment, with up to 1 month to pay the balance. The published availability should be confirmed by WhatsApp or in store.",
   pricing_note:
     "price_crc is the tag price in Costa Rican colones. Register discounts are applied in store and are not reflected here.",
 };
