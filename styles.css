@@ -2090,6 +2090,13 @@ ol {
   border-bottom: 1px solid currentColor;
 }
 
+.visit-map-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+
 
 /* ---------- footer ---------- */
 
