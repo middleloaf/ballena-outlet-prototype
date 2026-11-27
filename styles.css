@@ -1696,9 +1696,16 @@ ol {
 
 /* ---------- visit panel ---------- */
 
+.visit-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 0.32fr);
+  gap: clamp(18px, 2.4vw, 28px);
+  align-items: stretch;
+}
+
 .visit-panel {
-  max-width: 1080px;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
   padding: clamp(20px, 2.6vw, 28px);
   background: var(--green-deep);
   color: var(--cream);
@@ -1737,11 +1744,9 @@ ol {
 
 .visit-body {
   display: grid;
-  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.15fr) minmax(0, 0.95fr);
-  grid-template-areas:
-    "inside details outside"
-    "map details outside";
-  gap: 12px clamp(14px, 2vw, 22px);
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  grid-template-areas: "map details";
+  gap: 14px clamp(18px, 2.4vw, 26px);
   align-items: stretch;
 }
 
@@ -1752,26 +1757,20 @@ ol {
   gap: 0;
 }
 
+.visit-photos {
+  display: grid;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  min-height: 0;
+  height: 100%;
+}
+
 .visit-photo {
   min-height: 0;
-  border-color: rgba(246, 239, 226, 0.24);
-  box-shadow: none;
-}
-
-.visit-photo--inside {
-  grid-area: inside;
-}
-
-.visit-photo--outside {
-  grid-area: outside;
-  align-self: stretch;
 }
 
 .visit-photo picture {
   display: block;
-}
-
-.visit-photo--outside picture {
   height: 100%;
 }
 
@@ -1782,13 +1781,8 @@ ol {
   aspect-ratio: auto;
 }
 
-.visit-photo--inside img {
-  height: auto;
-  aspect-ratio: 1 / 1;
-}
-
 .visit-photo--outside img {
-  height: 100%;
+  object-position: center 30%;
 }
 
 .visit-group {
@@ -2243,27 +2237,27 @@ ol {
 }
 
 @media (max-width: 900px) {
-  .visit-head {
+  .visit-layout {
     grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
   }
 
   .visit-body {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
-      "details details"
-      "inside outside"
-      "map map";
+      "details"
+      "map";
     gap: 14px;
   }
 
-  .visit-photo--outside picture {
+  .visit-photos {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto;
     height: auto;
   }
 
-  .visit-photo--inside img,
-  .visit-photo--outside img {
+  .visit-photo img {
     height: 420px;
-    aspect-ratio: auto;
   }
 
   .visit-map {
@@ -2473,8 +2467,7 @@ ol {
     min-width: 20px;
   }
 
-  .visit-photo--inside img,
-  .visit-photo--outside img {
+  .visit-photo img {
     height: auto;
     aspect-ratio: 2 / 3;
   }
