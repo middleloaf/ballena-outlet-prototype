@@ -494,7 +494,7 @@ ol {
   min-height: 78px;
   width: min(100% - 40px, 1320px);
   margin-inline: auto;
-  padding-right: 70px;
+  padding-right: 90px;
 }
 
 .brand {
@@ -575,15 +575,14 @@ ol {
 .header-prototype {
   position: absolute;
   top: 50%;
-  right: 0;
+  right: 10px;
   z-index: 1;
   display: inline-flex;
   align-items: center;
   min-height: 38px;
   padding: 7px 10px;
   border: 2px dotted var(--coral-deep);
-  border-right: 0;
-  border-radius: 8px 0 0 8px;
+  border-radius: 8px;
   background: var(--cream);
   color: var(--ink);
   font-family: var(--font-mono);
@@ -2255,7 +2254,7 @@ ol {
 
   .header-inner {
     gap: 12px;
-    padding-right: 70px;
+    padding-right: 80px;
   }
 
   .header-actions .btn-wa span {
