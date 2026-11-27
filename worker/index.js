@@ -38,7 +38,7 @@ const STORE = {
   payment:
     "In store, or by SINPE Móvil to 6155-6974. Customers must confirm the purchase on WhatsApp before making any deposit.",
   purchase:
-    "No online checkout. Items are sold in store (pickup) and the store offers shipping. Layaway is 30% down payment, with up to 1 month to pay the balance. Availability is confirmed by WhatsApp or in store.",
+    "No online checkout. Items are sold in store (pickup) and the store offers shipping. Layaway is 30% down payment, with up to 1 month to pay the balance. Published availability is confirmed by WhatsApp or in store.",
   pricing_note:
     "price_crc is the tag price in Costa Rican colones. Register discounts are applied in store and are not reflected here.",
 };

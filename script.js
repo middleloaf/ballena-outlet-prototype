@@ -196,14 +196,4 @@
     });
   }
 
-  // Keep only one FAQ item open at a time.
-  var faqItems = Array.prototype.slice.call(doc.querySelectorAll(".faq-item"));
-  faqItems.forEach(function (item) {
-    item.addEventListener("toggle", function () {
-      if (!item.open) return;
-      faqItems.forEach(function (other) {
-        if (other !== item) other.open = false;
-      });
-    });
-  });
 })();
