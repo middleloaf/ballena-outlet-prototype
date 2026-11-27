@@ -468,57 +468,6 @@ ol {
   text-decoration: underline;
 }
 
-/* ---------- announcement ---------- */
-
-.announce {
-  background: var(--ink);
-  color: var(--cream);
-  font-family: var(--font-body);
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  overflow: hidden;
-  border-bottom: 1px solid rgba(246, 239, 226, 0.14);
-}
-
-.announce-track {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  width: max-content;
-  padding: 9px 0;
-  animation: marquee 44s linear infinite;
-}
-
-.announce:hover .announce-track {
-  animation-play-state: paused;
-}
-
-.announce-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
-  padding-right: 34px;
-  white-space: nowrap;
-}
-
-.announce-item::after {
-  content: "◆";
-  color: var(--gold);
-  font-size: 7px;
-  transform: translateY(-1px);
-}
-
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
 /* ---------- header ---------- */
 
 .site-header {
@@ -1195,100 +1144,6 @@ ol {
   color: var(--cream);
 }
 
-/* ---------- origin strip ---------- */
-
-.origin-strip {
-  margin-top: clamp(34px, 4.5vw, 58px);
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  background: rgba(253, 248, 238, 0.62);
-}
-
-.origin-inner {
-  display: grid;
-  grid-template-columns: 190px minmax(0, 1fr) 210px;
-  gap: 28px;
-  align-items: center;
-  padding: 20px 0;
-}
-
-.origin-label {
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-.origin-label strong {
-  display: block;
-  color: var(--ink);
-  font-size: 10.5px;
-}
-
-.retailers {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 10px 28px;
-}
-
-.retailer {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  color: var(--ink);
-  opacity: 0.72;
-  font-family: var(--font-display);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  white-space: nowrap;
-  transition: opacity 0.18s ease, color 0.18s ease;
-}
-
-.retailer:hover {
-  opacity: 1;
-  color: var(--coral-deep);
-}
-
-.retailer svg {
-  flex: 0 0 auto;
-}
-
-.retailer-amazon {
-  font-size: 21px;
-  letter-spacing: -0.06em;
-  text-transform: lowercase;
-}
-
-.retailer-target {
-  font-size: 13px;
-  letter-spacing: 0.08em;
-}
-
-.retailer-costco {
-  font-size: 18px;
-  letter-spacing: 0.02em;
-}
-
-.retailer-walmart {
-  font-size: 18px;
-}
-
-.origin-note {
-  font-size: 9.5px;
-  line-height: 1.6;
-  color: var(--muted);
-  text-align: right;
-  letter-spacing: 0.02em;
-}
-
-.origin-note strong {
-  color: var(--ink);
-}
-
 /* ---------- generic sections ---------- */
 
 .section {
@@ -1464,7 +1319,7 @@ ol {
 
 .steps {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0;
   border-top: 1px solid rgba(246, 239, 226, 0.22);
 }
@@ -1842,8 +1697,9 @@ ol {
 /* ---------- visit panel ---------- */
 
 .visit-panel {
-  margin-top: 0;
-  padding: clamp(22px, 3.2vw, 34px);
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: clamp(20px, 2.6vw, 28px);
   background: var(--green-deep);
   color: var(--cream);
   border-radius: var(--r-lg);
@@ -1851,14 +1707,14 @@ ol {
 }
 
 .visit-head {
-  margin-bottom: clamp(20px, 3vw, 30px);
+  margin-bottom: clamp(16px, 2.4vw, 24px);
 }
 
 .visit-head h2 {
-  max-width: 20ch;
-  margin-top: 10px;
+  max-width: 22ch;
+  margin-top: 8px;
   font-family: var(--font-display);
-  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-size: clamp(1.8rem, 3.4vw, 2.8rem);
   font-weight: 800;
   line-height: 0.98;
   letter-spacing: -0.04em;
@@ -1873,50 +1729,19 @@ ol {
 
 .visit-lede {
   max-width: 60ch;
-  margin-top: 12px;
-  font-size: 13.5px;
+  margin-top: 10px;
+  font-size: 13px;
   line-height: 1.7;
   color: rgba(246, 239, 226, 0.72);
 }
 
-.visit-photos {
-  grid-area: photos;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  min-height: 0;
-  height: 100%;
-}
-
-.visit-photos picture {
-  display: block;
-  height: 100%;
-}
-
-.visit-photos .photo-card {
-  height: 100%;
-  min-height: 0;
-  border-color: rgba(246, 239, 226, 0.24);
-  box-shadow: none;
-}
-
-.visit-photos .photo-card img {
-  height: 100%;
-  min-height: 0;
-  aspect-ratio: auto;
-}
-
-.visit-photos .photo-card:first-child img {
-  object-position: center 20%;
-}
-
 .visit-body {
   display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.15fr) minmax(0, 0.95fr);
   grid-template-areas:
-    "details photos"
-    "map map";
-  gap: 14px clamp(22px, 3vw, 32px);
+    "inside details outside"
+    "map details outside";
+  gap: 12px clamp(14px, 2vw, 22px);
   align-items: stretch;
 }
 
@@ -1927,8 +1752,47 @@ ol {
   gap: 0;
 }
 
+.visit-photo {
+  min-height: 0;
+  border-color: rgba(246, 239, 226, 0.24);
+  box-shadow: none;
+}
+
+.visit-photo--inside {
+  grid-area: inside;
+}
+
+.visit-photo--outside {
+  grid-area: outside;
+  align-self: stretch;
+}
+
+.visit-photo picture {
+  display: block;
+}
+
+.visit-photo--outside picture {
+  height: 100%;
+}
+
+.visit-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  aspect-ratio: auto;
+}
+
+.visit-photo--inside img {
+  height: auto;
+  aspect-ratio: 1 / 1;
+}
+
+.visit-photo--outside img {
+  height: 100%;
+}
+
 .visit-group {
-  padding: 13px 0;
+  padding: 11px 0;
   border-top: 1px solid rgba(246, 239, 226, 0.16);
 }
 
@@ -2010,7 +1874,7 @@ ol {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 14px;
+  margin-top: 12px;
 }
 
 .visit-map {
@@ -2019,7 +1883,7 @@ ol {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  min-height: 440px;
+  min-height: 260px;
   border-radius: var(--r);
   border: 1px solid rgba(246, 239, 226, 0.24);
   background: rgba(7, 33, 53, 0.35);
@@ -2029,7 +1893,7 @@ ol {
   display: block;
   width: 100%;
   flex: 1;
-  min-height: 380px;
+  min-height: 220px;
   border: 0;
   filter: saturate(0.9) contrast(1.02);
 }
@@ -2047,10 +1911,13 @@ ol {
 }
 
 .visit-map-bar span {
+  min-width: 0;
   font-size: 9px;
   font-weight: 800;
   letter-spacing: 0.14em;
+  line-height: 1.5;
   text-transform: uppercase;
+  overflow-wrap: anywhere;
   color: rgba(246, 239, 226, 0.78);
 }
 
@@ -2282,13 +2149,6 @@ ol {
     opacity: 1;
     transform: none;
   }
-
-  .announce-track {
-    animation: none;
-    flex-wrap: wrap;
-    width: 100%;
-    justify-content: center;
-  }
 }
 
 /* ---------- responsive ---------- */
@@ -2350,77 +2210,12 @@ ol {
     aspect-ratio: 1.85 / 1;
   }
 
-  .origin-inner {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  .origin-note {
-    text-align: left;
-  }
-
-  .retailers {
-    justify-content: flex-start;
-  }
-
   .section-head {
     grid-template-columns: minmax(0, 1fr);
   }
 
   .section-head .lede {
     max-width: 60ch;
-  }
-
-  .steps {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .step {
-    border-right: 0;
-    border-bottom: 1px solid rgba(246, 239, 226, 0.14);
-  }
-
-  .step:nth-child(odd) {
-    border-right: 1px solid rgba(246, 239, 226, 0.14);
-  }
-
-  .step:nth-last-child(-n + 2) {
-    border-bottom: 0;
-  }
-
-  .step:not(:first-child) {
-    padding-left: 0;
-  }
-
-  .step:nth-child(even) {
-    padding-left: 22px;
-  }
-
-  .visit-head {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .visit-body {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      "details"
-      "photos"
-      "map";
-    gap: 18px;
-  }
-
-  .visit-photos {
-    height: auto;
-  }
-
-  .visit-photos picture,
-  .visit-photos .photo-card {
-    height: auto;
-  }
-
-  .visit-photos .photo-card img {
-    height: auto;
-    aspect-ratio: 2 / 3;
   }
 
   .feed-grid {
@@ -2434,10 +2229,6 @@ ol {
     height: 600px !important;
   }
 
-  .visit-map {
-    min-height: 380px;
-  }
-
   .footer-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2448,6 +2239,35 @@ ol {
 
   body {
     padding-bottom: calc(68px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 900px) {
+  .visit-head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .visit-body {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "details details"
+      "inside outside"
+      "map map";
+    gap: 14px;
+  }
+
+  .visit-photo--outside picture {
+    height: auto;
+  }
+
+  .visit-photo--inside img,
+  .visit-photo--outside img {
+    height: 420px;
+    aspect-ratio: auto;
+  }
+
+  .visit-map {
+    min-height: 380px;
   }
 }
 
@@ -2530,27 +2350,6 @@ ol {
     padding: 6px 8px;
   }
 
-  .origin-inner {
-    padding: 16px 0;
-  }
-
-  .retailers {
-    gap: 10px 20px;
-  }
-
-  .retailer-amazon {
-    font-size: 18px;
-  }
-
-  .retailer-costco,
-  .retailer-walmart {
-    font-size: 15px;
-  }
-
-  .retailer-target {
-    font-size: 11px;
-  }
-
   .steps {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -2598,11 +2397,6 @@ ol {
 }
 
 @media (max-width: 560px) {
-  .announce {
-    font-size: 8.5px;
-    letter-spacing: 0.12em;
-  }
-
   .prototype-tag {
     font-size: 8px;
     padding: 3px 7px;
@@ -2679,16 +2473,18 @@ ol {
     min-width: 20px;
   }
 
-  .visit-photos {
-    gap: 8px;
+  .visit-photo--inside img,
+  .visit-photo--outside img {
+    height: auto;
+    aspect-ratio: 2 / 3;
   }
 
-  .visit-photos .photo-caption {
+  .visit-photo .photo-caption {
     padding: 20px 10px 9px;
     font-size: 10px;
   }
 
-  .visit-photos .photo-caption span {
+  .visit-photo .photo-caption span {
     font-size: 8px;
   }
 

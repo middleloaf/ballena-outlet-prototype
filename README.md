@@ -24,9 +24,9 @@ Then open `http://localhost:4173/index.html` (Spanish) or `http://localhost:4173
 - Store details: Plaza La Perla del Pacífico, next to Servicentro Ballena, upstairs from Farmacia Ballena, Uvita, Costa Rica.
 - WhatsApp `6313 2925` shown on the main WhatsApp buttons, email `ballena.outletafacturacion@hotmail.com`, Facebook, Instagram, and TikTok links as buttons.
 - Social feeds and buttons placed near the top. The feed order is Facebook, Instagram, TikTok. Facebook and Instagram show the latest reel because their page/profile plugins do not render reels reliably; TikTok uses the standalone embed iframe (avoids TikTok `embed.js` overload protection). Direct-profile fallbacks remain for all three.
-- Real store photos inside the visit panel in the merged “Tienda y contacto / Store & contact” section, plus address, hours, contact channels, a Google Maps embed for the actual “OUTLET BALLENA Uvita” listing, and Waze directions.
+- Real store photos inside the visit panel in the merged “Tienda y contacto / Store & contact” section, with the inside photo on the left and the storefront on the right, plus address, hours, contact channels, a Google Maps embed for the actual “OUTLET BALLENA Uvita” listing, and Waze directions.
 - Store pickup, layaway (30% down payment, up to 1 month to pay the balance), and shipping messaging throughout; no online checkout.
-- Product groups with clearer examples, how-it-works steps, store details including a “Good to know” note, and a mobile quick-action bar.
+- Product groups with clearer examples, a three-step how-it-works section, store details including a “Good to know” note, and a mobile quick-action bar.
 - A live “Disponible hoy / Available today” section on both home pages: a four-item preview that links to the full catalog. The catalog pages (`inventario.html` / `inventory.html`) have the complete searchable, filterable, sortable list, rendered from `data/inventory.json` (built from a spreadsheet, see below).
 - A dismissible prototype popup in both languages that identifies the site as the v3 prototype, plus a detailed “About this prototype” section and `noindex` metadata so search engines do not treat the demo as final.
 
