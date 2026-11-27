@@ -191,6 +191,18 @@ ol {
   background: #145f39;
 }
 
+.btn-waze {
+  background: #33ccff;
+  border-color: #16a6d4;
+  color: var(--ink);
+  box-shadow: 0 12px 26px -14px rgba(0, 168, 232, 0.85);
+}
+
+.btn-waze:hover {
+  background: #22b8e6;
+  color: var(--ink);
+}
+
 .btn-dark {
   background: var(--ink);
   color: var(--cream);
@@ -2088,13 +2100,6 @@ ol {
   font-weight: 800;
   color: var(--gold);
   border-bottom: 1px solid currentColor;
-}
-
-.visit-map-links {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 12px;
 }
 
 
