@@ -593,6 +593,20 @@ ol {
   background: rgba(7, 33, 53, 0.07);
 }
 
+.nav a.nav-inventory {
+  margin-left: 6px;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--cream);
+  border-radius: 8px;
+  font-weight: 750;
+}
+
+.nav a.nav-inventory:hover {
+  background: var(--ink-2);
+  color: var(--cream);
+}
+
 .header-actions {
   display: flex;
   align-items: center;
@@ -733,6 +747,19 @@ ol {
   font-family: var(--font-body);
   font-size: 16px;
   color: var(--coral-deep);
+}
+
+.mobile-nav a.nav-inventory {
+  margin: 6px 0;
+  padding-inline: 12px;
+  background: var(--ink);
+  color: var(--cream);
+  border-bottom: 0;
+  border-radius: 10px;
+}
+
+.mobile-nav a.nav-inventory::after {
+  color: var(--cream);
 }
 
 .mobile-panel-foot {
